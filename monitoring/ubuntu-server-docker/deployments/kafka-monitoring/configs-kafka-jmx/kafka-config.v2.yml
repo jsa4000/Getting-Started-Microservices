@@ -1,0 +1,87 @@
+---
+lowercaseOutputName: true
+whitelistObjectNames: [
+   "kafka.controller:type=KafkaController,name=ActiveControllerCount,*",
+
+   "kafka.server:type=BrokerTopicMetrics,name=MessagesInPerSec,*",
+   "kafka.server:type=BrokerTopicMetrics,name=BytesInPerSec,*",
+   "kafka.server:type=BrokerTopicMetrics,name=BytesOutPerSec,*",
+
+   "kafka.server:type=ReplicaManager,name=IsrExpandsPerSec,*",
+   "kafka.server:type=ReplicaManager,name=IsrShrinksPerSec,*",
+   "kafka.server:type=ReplicaManager,name=LeaderCount,*",
+   "kafka.server:type=ReplicaManager,name=PartitionCount,*",
+   "kafka.server:type=ReplicaManager,name=UnderReplicatedPartitions,*",
+
+   "kafka.server:type=ReplicaFetcherManager,name=MaxLag,*",
+
+   "kafka.server:type=DelayedOperationPurgatory,name=PurgatorySize,delayedOperation=Fetch,*",
+   "kafka.server:type=DelayedOperationPurgatory,name=PurgatorySize,delayedOperation=Produce,*",
+
+   "kafka.network:type=RequestMetrics,name=RequestsPerSec,request=Produce,*",
+   "kafka.network:type=RequestMetrics,name=RequestsPerSec,request=FetchConsumer,*",
+   "kafka.network:type=RequestMetrics,name=RequestsPerSec,request=FetchFollower,*",
+
+   "kafka.network:type=RequestMetrics,name=TotalTimeMs,request=Produce,*",
+   "kafka.network:type=RequestMetrics,name=TotalTimeMs,request=FetchConsumer,*",
+   "kafka.network:type=RequestMetrics,name=TotalTimeMs,request=FetchFollower,*",
+
+   "kafka.network:type=RequestMetrics,name=RequestQueueTimeMs,request=Produce,*",
+   "kafka.network:type=RequestMetrics,name=RequestQueueTimeMs,request=FetchConsumer,*",
+   "kafka.network:type=RequestMetrics,name=RequestQueueTimeMs,request=FetchFollower,*",
+
+   "kafka.network:type=RequestMetrics,name=LocalTimeMs,request=Produce,*",
+   "kafka.network:type=RequestMetrics,name=LocalTimeMs,request=FetchConsumer,*",
+   "kafka.network:type=RequestMetrics,name=LocalTimeMs,request=FetchFollower,*",
+
+   "kafka.network:type=RequestMetrics,name=RemoteTimeMs,request=Produce,*",
+   "kafka.network:type=RequestMetrics,name=RemoteTimeMs,request=FetchConsumer,*",
+   "kafka.network:type=RequestMetrics,name=RemoteTimeMs,request=FetchFollower,*",
+
+   "kafka.network:type=RequestMetrics,name=ResponseQueueTimeMs,request=Produce,*",
+   "kafka.network:type=RequestMetrics,name=ResponseQueueTimeMs,request=FetchConsumer,*",
+   "kafka.network:type=RequestMetrics,name=ResponseQueueTimeMs,request=FetchFollower,*",
+
+   "kafka.network:type=RequestMetrics,name=ResponseSendTimeMs,request=Produce,*",
+   "kafka.network:type=RequestMetrics,name=ResponseSendTimeMs,request=FetchConsumer,*",
+   "kafka.network:type=RequestMetrics,name=ResponseSendTimeMs,request=FetchFollower,*",
+
+   "kafka.network:type=SocketServer,name=NetworkProcessorAvgIdlePercent,*",
+]
+
+rules:
+#kafka.controller rules
+  - pattern: kafka.controller<type=(KafkaController*), name=(ActiveControllerCount.*)><>(Value)
+    name: kafka_controller_$1_$2_$3
+    type: GAUGE
+
+#kafka.server rules
+  - pattern: kafka.server<type=(.+), name=(.+)><>(Count)
+    name: kafka_server_$1_$2_$3
+    type: COUNTER
+  - pattern: kafka.server<type=(.+), name=(.+)><>(FiveMinuteRate)
+    name: kafka_server_$1_$2_$3
+    type: GAUGE
+  - pattern: kafka.server<type=(ReplicaManager.*), name=((Leader|Partition)Count.*|UnderReplicatedPartitions.*)><>(Value)
+    name: kafka_server_$1_$2_$3
+    type: GAUGE
+  - pattern: kafka.server<type=(ReplicaFetcherManager.*), name=(MaxLag.*)><>(Value)
+    name: kafka_server_$1_$2_$3
+    type: GAUGE
+  - pattern: kafka.server<type=(DelayedOperationPurgatory.*), name=(PurgatorySize.*)><>(Value)
+    name: kafka_server_$1_$2_$3
+    type: GAUGE
+
+
+
+#kafka.network rules
+ # name=TotalTimeMs -- ??Not sure why (TotalTimeMs) does not work??#
+  - pattern: kafka.network<type=(.+), name=(TotalTimeMs.*|RequestQueueTimeMs.*|LocalTimeMs.*|RemoteTimeMs.*|ResponseQueueTimeMs.*|ResponseSendTimeMs.*)><>(Count)
+    name: kafka_network_$1_$2_$3
+    type: COUNTER
+  - pattern: kafka.network<type=(.+), name=(TotalTimeMs.*|RequestQueueTimeMs.*|LocalTimeMs.*|RemoteTimeMs.*|ResponseQueueTimeMs.*|RepsonseSendTimeMs.*)><>(Min|Max|Mean|50th*|99th*)
+    name: kafka_network_$1_$2_$3
+    type: GAUGE
+  - pattern: kafka.network<type=(.+), name=(NetworkProcessorAvgIdlePercent.*)><>(Value)
+    name: kafka_network_$1_$2_$3
+    type: GAUGE

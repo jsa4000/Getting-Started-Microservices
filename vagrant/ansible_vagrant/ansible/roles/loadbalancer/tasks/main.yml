@@ -1,0 +1,11 @@
+---
+- name: Install nginx
+  apt: name=nginx state=latest update_cache=true
+  notify:
+  - start nginx
+
+- name: Deactivate the default nginx site
+  file: path=/etc/nginx/sites-enabled/default state=absent
+
+- name: Copy the nginx configuration file
+  copy: src=/ansible/nginx/default dest=/etc/nginx/sites-enabled/default

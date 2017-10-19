@@ -1,0 +1,43 @@
+# Defines our Vagrant environment
+#
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+Vagrant.configure("2") do |config|
+ 
+	# Create Ansible Control Management Node
+	config.vm.define :ansible do |aconfig|
+		aconfig.vm.box = "ubuntu/trusty64"
+		aconfig.vm.hostname = "ansiblectl"
+		aconfig.vm.network :private_network, ip: "10.0.0.10"
+		aconfig.vm.synced_folder "ansible", "/ansible", type: "nfs"
+		aconfig.vm.provider "virtualbox" do |vb|
+			vb.memory = 256
+		end
+		aconfig.vm.provision :shell, path: "provision/ansible_install.sh"
+	end
+ 
+	# Create Load Balancer
+	config.vm.define :loadbalancer do |lbconfig|
+		lbconfig.vm.box = "ubuntu/trusty64"
+		lbconfig.vm.hostname = "loadbalancer"
+		lbconfig.vm.network :private_network, ip: "10.0.0.11"
+		lbconfig.vm.network "forwarded_port", guest: 80, host: 8080
+		lbconfig.vm.provider "virtualbox" do |vb|
+			vb.memory = 256
+		end
+	end
+ 
+ 	# Create Web Servers Nodes
+	(1..2).each do |i|
+		config.vm.define "node#{i}" do |nconfig|
+			nconfig.vm.box = "ubuntu/trusty64"
+			nconfig.vm.hostname = "node#{i}"
+			nconfig.vm.network :private_network, ip: "10.0.0.2#{i}"
+			nconfig.vm.network "forwarded_port", guest: 80, host: "808#{i}"
+			nconfig.vm.provider "virtualbox" do |vb|
+				vb.memory = 256
+			end
+		end
+	end
+end

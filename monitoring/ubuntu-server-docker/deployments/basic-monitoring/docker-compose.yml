@@ -1,0 +1,44 @@
+version: '3'
+
+services:
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    volumes:
+      - /vagrant:/vagrant
+      - prometheus_data:/prometheus
+    ports:
+      - '9090:9090'
+    command:
+      - '-config.file=/vagrant/deployments/basic-monitoring/prometheus.yml'
+
+  node-exporter:
+    image: prom/node-exporter:latest
+    container_name: node-exporter
+    ports:
+     - '9100:9100'
+
+  cadvisor:
+    image: google/cadvisor:latest
+    container_name: cadvisor
+    volumes:
+      - "/:/rootfs:ro"
+      - "/sys:/sys:ro"
+      - "/var/lib/docker/:/var/lib/docker:ro"
+      - "/var/run/docker.sock:/var/run/docker.sock"
+    ports:
+     - '8080:8080'
+
+  grafana:
+    image: grafana/grafana
+    container_name: grafana
+    volumes:
+     - grafana_data:/var/lib/grafana
+    depends_on:
+      - prometheus
+    ports:
+      - "3000:3000"
+
+volumes:
+  prometheus_data: 
+  grafana_data: 

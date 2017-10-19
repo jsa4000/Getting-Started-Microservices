@@ -1,0 +1,34 @@
+--------------------
+- NOTES - 
+--------------------
+
+First, I think I should talk about me and about my previous carreer. The companies where I have been working previously. I can talk about Indra, and Amper that are the major companies. I can talk about my roles as am Architect or Analyst programers. Lastly I was involved more into the design on more complex distributed system in Amper that was selt to "Guardia Civil". I can also give some explanations about the Simulator and Nemesis.
+
+I am going to explain the area of bussiness of my current company. The main reason of its existence, the service that is providing as a European Satellite Service Provider (ESSP). Basically, the company is not a company that develop Softawre or sell Internet services or anything like that. For that reason it's very dificult to my department to be expanded. 
+
+Now we are trying to exand by using some of out current architecture since we now have the capacity to scale and provide distributed Computation. We now are providing services Rest API to get the data analyzed in real time and also we call to another services, send alerts, etc..
+
+This is where the different Piplelines come to place. For one hand we have the Batch Pipeline that we basically are storig the data into a Database, and some cosumers that are activated perdicodically launch some tasks or Jobs to Analyze the data until that moment. The other segmentation,  idf the realtime Pipeline.
+
+At first sight the architecture was clearle an Event base Architecture. We are constantly receiving messages and Packetgs from different sources such as receviers, streaming channels, FTP Sourcing, NTRIP, Files, Files from internet, etc.. As you can see there were so many different sources in order to gather all the data. For this we use a files system storage. We use Oracle to store all the Analyzed data and the rawdata receiver from the Sources were stored in file system storage. The crew working on alalyzsing the performances, ec.. were in charge to do the BAckups of this data periodically.
+
+Nowadays, my department has a total of six people working within the current Arquitecture. Some of them are specialist in different areas such as Database adminsitrator, kubernetes and Kafka adminsitrator (installation), Programers, me as a Software Architect and my boss.
+
+The legacy architecture, if we colud call it that way, used ad-hoc connections peer to peer between the different servers in order to copy files into folder to share the information analysed and raw data.
+
+
+
+Metodologies:
+
+SCRUM as the Agile Metodology used for every release: Product Log, BackLog, Sprint, Planning sessions, Release Planning.. We are not using Jira or any development Tool to follow up the progress and the state of the development. 
+
+Approach to Developments:
+
+- Event Driven Development:
+
+This is the main approach used to hold the current architecture implemented.
+
+	
+- Domain Driver Development
+- Test Driver Development
+- 

@@ -1,0 +1,12 @@
+{
+  "ID": "nodeexporter",
+  "Name": "nodeexporter",
+  "Address": "10.0.0.10",
+  "Port": 9100,
+  "check": {
+    "http": "http://10.0.0.10:9100",
+    "interval": "10s",
+    "timeout": "1s"
+   }
+}
+

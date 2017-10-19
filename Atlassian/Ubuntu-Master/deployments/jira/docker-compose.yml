@@ -1,0 +1,21 @@
+version: '3'
+services:
+  jira:
+    image: cptactionhank/atlassian-jira:latest
+    restart: always
+    ports:
+      - '80:8080'
+    links:
+      - database
+    volumes:
+      - jira-data:/var/atlassian/jira
+
+  database:
+    image: postgres:latest
+    restart: always
+    volumes:
+      - database-data:/var/lib/postgresql/data
+
+volumes:
+  jira-data:
+  database-data:

@@ -1,0 +1,12 @@
+{
+  "ID": "cadvisor",
+  "Name": "cadvisor",
+  "Address": "10.0.0.10",
+  "Port": 8080,
+  "check": {
+    "http": "http://10.0.0.10:8080",
+    "interval": "10s",
+    "timeout": "1s"
+   }
+}
+

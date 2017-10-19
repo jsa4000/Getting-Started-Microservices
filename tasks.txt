@@ -1,0 +1,6 @@
+Fabric8 vs Openshift: What’s the Difference?
+
+https://www.freelancinggig.com/blog/2017/06/01/fabric8-vs-openshift-whats-difference/
+
+https://blog.nimbleci.com/2016/08/31/how-to-build-docker-images-automatically-with-jenkins-pipeline/
+https://getintodevops.com/blog/building-your-first-docker-image-with-jenkins-2-guide-for-developers

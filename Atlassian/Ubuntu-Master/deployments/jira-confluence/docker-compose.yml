@@ -1,0 +1,40 @@
+version: '3'
+services:
+  jira:
+    image: cptactionhank/atlassian-jira:latest
+    restart: always
+    links:
+      - database
+    volumes:
+      - jira-data:/var/atlassian/jira
+
+  confluence:
+    image: cptactionhank/atlassian-confluence:latest
+    restart: always
+    links:
+      - database
+    volumes:
+      - confluence-data:/var/atlassian/confluence
+
+  database:
+    image: postgres:latest
+    restart: always
+    volumes:
+      - database-data:/var/lib/postgresql/data
+  nginx:
+    image: nginx
+    restart: always
+    ports:
+      - "80:80"
+    links:
+      - jira
+      - confluence
+    volumes:
+    - /vagrant:/vagrant
+    command: /vagrant/deployments/nginx/scripts/run_nginx.sh
+    environment:
+    - DOMAIN
+volumes:
+  jira-data:
+  confluence-data:
+  database-data:

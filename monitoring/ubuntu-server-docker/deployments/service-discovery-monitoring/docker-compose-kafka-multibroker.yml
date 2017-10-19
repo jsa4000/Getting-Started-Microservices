@@ -1,0 +1,158 @@
+version: '2'
+
+networks:
+  mynetwork:
+    driver: bridge
+
+services:
+  kafka1:
+    image: wurstmeister/kafka
+    depends_on:
+      - zoo1
+      - zoo2
+      - zoo3
+    networks:
+      - mynetwork
+    ports:
+      - "9092:9092"
+      - "9192:9192"
+    environment:
+      JMX_PORT: 9192
+      KAFKA_LOG_DIRS: /kafka
+      KAFKA_BROKER_ID: 1
+      KAFKA_CREATE_TOPICS: test-topic-1:1:2,test-topic-2:1:2,test-topic-3:1:2
+      KAFKA_ADVERTISED_HOST_NAME: 10.0.0.10
+      KAFKA_ADVERTISED_PORT: 9092
+      KAFKA_LOG_RETENTION_HOURS: "168"
+      KAFKA_LOG_RETENTION_BYTES: "100000000"
+      KAFKA_ZOOKEEPER_CONNECT:  zoo1:2181,zoo2:2181,zoo3:2181
+            
+  kafka2:
+    image: wurstmeister/kafka
+    depends_on:
+      - zoo1
+      - zoo2
+      - zoo3
+    networks:
+      - mynetwork
+    ports:
+      - "9093:9092"
+      - "9193:9193"
+    environment:
+      JMX_PORT: 9193
+      KAFKA_LOG_DIRS: /kafka
+      KAFKA_BROKER_ID: 2
+      KAFKA_ADVERTISED_HOST_NAME: 10.0.0.10
+      KAFKA_ADVERTISED_PORT: 9093
+      KAFKA_LOG_RETENTION_HOURS: "168"
+      KAFKA_LOG_RETENTION_BYTES: "100000000"
+      KAFKA_ZOOKEEPER_CONNECT:  zoo1:2181,zoo2:2181,zoo3:2181
+
+  kafka3:
+    image: wurstmeister/kafka
+    depends_on:
+      - zoo1
+      - zoo2
+      - zoo3
+    networks:
+      - mynetwork
+    ports:
+      - "9094:9092"
+      - "9194:9194"
+    environment:
+      JMX_PORT: 9194
+      KAFKA_LOG_DIRS: /kafka
+      KAFKA_BROKER_ID: 3
+      KAFKA_ADVERTISED_HOST_NAME: 10.0.0.10
+      KAFKA_ADVERTISED_PORT: 9094
+      KAFKA_LOG_RETENTION_HOURS: "168"
+      KAFKA_LOG_RETENTION_BYTES: "100000000"
+      KAFKA_ZOOKEEPER_CONNECT:  zoo1:2181,zoo2:2181,zoo3:2181
+
+  zoo1:
+    image: elevy/zookeeper:latest
+    environment:
+      MYID: 1
+      SERVERS: zoo1,zoo2,zoo3
+    networks:
+      - mynetwork
+    ports:
+      - "2181:2181"
+      - "2888"
+      - "3888"
+
+  zoo2:
+    image: elevy/zookeeper:latest
+    environment:
+      MYID: 2
+      SERVERS: zoo1,zoo2,zoo3
+    networks:
+      - mynetwork
+    ports:
+      - "2182:2181"
+      - "2888"
+      - "3888"
+
+  zoo3:
+    image: elevy/zookeeper:latest
+    environment:
+      MYID: 3
+      SERVERS: zoo1,zoo2,zoo3
+    networks:
+      - mynetwork
+    ports:
+      - "2183:2181"
+      - "2888"
+      - "3888"
+
+  kafkaexporter1:
+    image: sscaling/jmx-prometheus-exporter
+    container_name: kafkaexporter1
+    networks:
+      - mynetwork
+    ports: 
+      - "5556:5556" 
+    depends_on:
+      - kafka1
+    volumes:
+      - /vagrant:/vagrant
+    environment:
+      - JMX_PORT=9192
+      - JMX_HOST=kafka1
+      - HTTP_PORT=8080
+      - JMX_EXPORTER_CONFIG_FILE=/vagrant/deployments/service-discovery-monitoring/kafka-config.yml
+      
+  kafkaexporter2:
+    image: sscaling/jmx-prometheus-exporter
+    container_name: kafkaexporter2
+    networks:
+      - mynetwork
+    ports: 
+      - "5557:5556" 
+    depends_on:
+      - kafka2
+    volumes:
+      - /vagrant:/vagrant
+    environment:
+      - JMX_PORT=9193
+      - JMX_HOST=kafka2
+      - HTTP_PORT=8080
+      - JMX_EXPORTER_CONFIG_FILE=/vagrant/deployments/service-discovery-monitoring/kafka-config.yml
+      
+  kafkaexporter3:
+    image: sscaling/jmx-prometheus-exporter
+    container_name: kafkaexporter3
+    networks:
+      - mynetwork
+    ports: 
+      - "5558:5556" 
+    depends_on:
+      - kafka3
+    volumes:
+      - /vagrant:/vagrant
+    environment:
+      - JMX_PORT=9194
+      - JMX_HOST=kafka3
+      - HTTP_PORT=8080
+      - JMX_EXPORTER_CONFIG_FILE=/vagrant/deployments/service-discovery-monitoring/kafka-config.yml
+        

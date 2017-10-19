@@ -1,0 +1,14 @@
+{
+  "name": "sample_web_api",
+  "version": "1.0.0",
+  "description": "This is a basic example to run a Restful API using express and nodejs",
+  "main": "app.js",
+  "scripts": {
+	"launch": "node app.js"
+  },
+  "author": "Author Name <author.name@example.com>",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.15.4"
+  }
+}

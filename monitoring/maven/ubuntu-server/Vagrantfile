@@ -1,0 +1,16 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+Vagrant.configure("2") do |config|
+  config.vm.box = "ubuntu/xenial64"
+  config.vm.hostname = "ubuntu-server"
+  config.vm.network "private_network", ip: "10.0.0.11"
+  config.vm.synced_folder ".", "/vagrant"
+  config.vm.provider "virtualbox" do |vb|
+    vb.gui = false
+    vb.memory = "2048"
+  end
+  config.vm.provision :shell, path: "provision/base_install.sh"
+  config.vm.provision :shell, path: "provision/java_install.sh"
+  config.vm.provision :shell, path: "provision/maven_install.sh"
+end

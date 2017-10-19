@@ -1,0 +1,31 @@
+
+Vagrant.configure("2") do |config|
+ 
+  config.vm.define "lb1" do |lb1|
+    lb1.vm.box = "ubuntu/trusty64"
+    lb1.vm.hostname = "lb1"
+    lb1.vm.network "private_network", ip: "10.0.0.10"
+    lb1.vm.provision "shell", path: "provision/nginx_lb_install.sh"
+  end
+  
+  config.vm.define "web1" do |web1|
+    web1.vm.box = "ubuntu/trusty64"
+    web1.vm.hostname = "web1"
+    web1.vm.network "private_network", ip: "10.0.0.11"
+    web1.vm.provision "shell" do |shell|
+      shell.args = "1"
+      shell.path = "provision/nginx_web_install.sh"
+    end
+  end
+
+  config.vm.define "web2" do |web1|
+    web1.vm.box = "ubuntu/trusty64"
+    web1.vm.hostname = "web2"
+    web1.vm.network "private_network", ip: "10.0.0.12"
+    web1.vm.provision "shell" do |shell|
+      shell.args = "2"
+      shell.path = "provision/nginx_web_install.sh"
+    end
+  end
+
+end

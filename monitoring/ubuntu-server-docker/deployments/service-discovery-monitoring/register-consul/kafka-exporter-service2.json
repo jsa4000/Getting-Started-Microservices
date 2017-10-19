@@ -1,0 +1,12 @@
+{
+  "ID": "kafkaexporter2",
+  "Name": "kafkaexporter2",
+  "Address": "10.0.0.10",
+  "Port": 5557,
+  "check": {
+    "http": "http://10.0.0.10:5557",
+    "interval": "10s",
+    "timeout": "1s"
+   }
+}
+

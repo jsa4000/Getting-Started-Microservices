@@ -1,0 +1,16 @@
+---
+- hosts: loadbalancer
+  remote_user: vagrant
+  become: yes
+  roles:
+  - update
+  - loadbalancer
+
+- hosts: node
+  remote_user: vagrant
+  become: yes
+  roles:
+  - update
+  - nginx
+
+
