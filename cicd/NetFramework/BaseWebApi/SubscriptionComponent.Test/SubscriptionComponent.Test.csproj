@@ -60,7 +60,7 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\LogicComponent\SubscriptionComponent.csproj">
+    <ProjectReference Include="..\SubscriptionComponent\SubscriptionComponent.csproj">
       <Project>{45b2bedd-7f2a-4f7f-9f9d-6eaf881c5a52}</Project>
       <Name>SubscriptionComponent</Name>
     </ProjectReference>

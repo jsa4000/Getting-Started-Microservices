@@ -61,7 +61,7 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\BaseWebApi\StatisticsComponent.csproj">
+    <ProjectReference Include="..\StatisticsComponent\StatisticsComponent.csproj">
       <Project>{3040f50d-8f7f-44ad-8c73-f3e0082c9b2c}</Project>
       <Name>StatisticsComponent</Name>
     </ProjectReference>

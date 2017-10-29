@@ -17,8 +17,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\LogicComponent\SubscriptionComponent.csproj" />
     <ProjectReference Include="..\ModelComponent\ModelComponent.csproj" />
+    <ProjectReference Include="..\SubscriptionComponent\SubscriptionComponent.csproj" />
   </ItemGroup>
 
 </Project>
