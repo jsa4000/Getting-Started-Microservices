@@ -21,7 +21,10 @@
 [Dd]ebugPublic/
 [Rr]elease/
 [Rr]eleases/
+[Ii]nput/
+[Oo]utput/
 packages/
+tools/
 x64/
 x86/
 bld/

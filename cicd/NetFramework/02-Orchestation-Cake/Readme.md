@@ -10,19 +10,19 @@ Install the bootstrapper by downloading it from the Cake Resources repository:
 
    Open a new PowerShell window and run the following command.
 
-	Invoke-WebRequest https://cakebuild.net/download/bootstrapper/windows -OutFile build.ps1
+	  Invoke-WebRequest https://cakebuild.net/download/bootstrapper/windows -OutFile build.ps1
 
 - Linux
 
    Open a new shell and run the following command.
 
-	curl -Lsfo build.sh https://cakebuild.net/download/bootstrapper/linux
+	  curl -Lsfo build.sh https://cakebuild.net/download/bootstrapper/linux
 
 - OS X
 
    Open a new shell and run the following command.
 
-	curl -Lsfo build.sh https://cakebuild.net/download/bootstrapper/osx
+	  curl -Lsfo build.sh https://cakebuild.net/download/bootstrapper/osx
 
 ## 2. Create a Cake script
 
@@ -31,6 +31,12 @@ Add a cake script called build.cake to the same location as the bootstrapper scr
 	var target = Argument("target", "Default");
 
 	Task("Default")
+	  .Does(() =>
+	{
+	  Information("Hello World!");
+	});
+
+    Task("CustomTask")
 	  .Does(() =>
 	{
 	  Information("Hello World!");
@@ -45,6 +51,8 @@ Now you should be able to run your Cake script by invoking the bootstrapper.
 - Windows
 
 	./build.ps1
+
+	./build.ps1 -target CustomTask
 
    > If script execution fail due to the execution policy, you might have to tell PowerShell to allow running scripts. You do this by changing the execution policy. 
    
