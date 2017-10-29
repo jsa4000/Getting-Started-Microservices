@@ -1,3 +1,5 @@
+#tool nuget:?package=Wyam&version=1.0.0
+#addin nuget:?package=Cake.Wyam&version=1.0.0
 #tool nuget:?package=NUnit.ConsoleRunner&version=3.4.0
 //////////////////////////////////////////////////////////////////////
 // ARGUMENTS
@@ -11,7 +13,7 @@ var configuration = Argument("configuration", "Release");
 //////////////////////////////////////////////////////////////////////
 
 // Define directories.
-var buildDir = Directory("./src/Example/bin") + Directory(configuration);
+var buildDir = "./src/**/bin/" + configuration;
 
 //////////////////////////////////////////////////////////////////////
 // TASKS
@@ -20,14 +22,14 @@ var buildDir = Directory("./src/Example/bin") + Directory(configuration);
 Task("Clean")
     .Does(() =>
 {
-    CleanDirectory(buildDir);
+    CleanDirectories(buildDir);
 });
 
 Task("Restore-NuGet-Packages")
     .IsDependentOn("Clean")
     .Does(() =>
 {
-    NuGetRestore("./src/Example.sln");
+    NuGetRestore("./src/BaseWebApi.sln");
 });
 
 Task("Build")
@@ -37,13 +39,13 @@ Task("Build")
     if(IsRunningOnWindows())
     {
       // Use MSBuild
-      MSBuild("./src/Example.sln", settings =>
+      MSBuild("./src/BaseWebApi.sln", settings =>
         settings.SetConfiguration(configuration));
     }
     else
     {
       // Use XBuild
-      XBuild("./src/Example.sln", settings =>
+      XBuild("./src/BaseWebApi.sln", settings =>
         settings.SetConfiguration(configuration));
     }
 });
@@ -52,9 +54,21 @@ Task("Run-Unit-Tests")
     .IsDependentOn("Build")
     .Does(() =>
 {
-    NUnit3("./src/**/bin/" + configuration + "/*.Tests.dll", new NUnit3Settings {
+    NUnit3("./src/**/bin/" + configuration + "/*.Test.dll", new NUnit3Settings {
         NoResults = true
         });
+});
+
+Task("Doc-Build")
+    .IsDependentOn("Run-Unit-Tests")
+    .Does(() =>
+{
+    Wyam(new WyamSettings
+    {
+        Recipe = "Docs",
+        Theme = "Samson",
+        UpdatePackages = true
+    });
 });
 
 //////////////////////////////////////////////////////////////////////
@@ -62,7 +76,7 @@ Task("Run-Unit-Tests")
 //////////////////////////////////////////////////////////////////////
 
 Task("Default")
-    .IsDependentOn("Run-Unit-Tests");
+    .IsDependentOn("Doc-Build");
 
 //////////////////////////////////////////////////////////////////////
 // EXECUTION
