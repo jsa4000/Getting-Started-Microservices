@@ -4,11 +4,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{45B2BEDD-7F2A-4F7F-9F9D-6EAF881C5A52}</ProjectGuid>
+    <ProjectGuid>{F02F2778-5A3D-4CA0-A660-BA6021AA3E30}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>SubscriptionComponent</RootNamespace>
-    <AssemblyName>SubscriptionComponent</AssemblyName>
+    <RootNamespace>ModelComponent</RootNamespace>
+    <AssemblyName>ModelComponent</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -40,18 +40,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Subscription.cs" />
+    <Compile Include="IMemberManager.cs" />
+    <Compile Include="Member.cs" />
+    <Compile Include="MemberManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\StatisticsComponent\StatisticsComponent.csproj">
-      <Project>{3040f50d-8f7f-44ad-8c73-f3e0082c9b2c}</Project>
-      <Name>StatisticsComponent</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\ModelComponent\ModelComponent.csproj">
-      <Project>{f02f2778-5a3d-4ca0-a660-ba6021aa3e30}</Project>
-      <Name>ModelComponent</Name>
-    </ProjectReference>
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
