@@ -321,6 +321,12 @@ Configure the database, by using docker and executing Posgress command to create
 
 	$ sudo docker exec -it atlassian_database_1  psql -U postgres
 
+Or using directly docker compose and the service name:
+	
+	$ sudo docker-compose exec database  psql -U postgres
+	
+> By default, docker-compose looks for docker-compose.yml if *-f custom-docker-compose.yml* isn-t specified.
+	
 1. Create Data Bases
 	
    postgres=# CREATE DATABASE jira;

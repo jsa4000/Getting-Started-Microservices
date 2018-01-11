@@ -1,0 +1,23 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+# All Vagrant configuration is done below. The "2" in Vagrant.configure
+# configures the configuration version (we support older styles for
+# backwards compatibility). Please don't change it unless you know what
+# you're doing.
+
+Vagrant.configure("2") do |config|
+  config.vm.box = "ubuntu/xenial64"
+  config.vm.hostname = "Monitoring-Cluster"
+  config.vm.network "private_network", ip: "10.0.0.10"
+  config.vm.synced_folder ".", "/vagrant"
+  config.vm.provider "virtualbox" do |vb|
+     vb.gui = false
+	 vb.name = "Monitoring-Cluster"
+     vb.memory = "4096"
+  end
+  config.vm.provision :shell, path: "provision/ubuntu_update.sh"
+  config.vm.provision :shell, path: "provision/java_install.sh"
+  config.vm.provision :shell, path: "provision/docker_install.sh"
+  config.vm.provision :shell, path: "provision/docker_compose_install.sh"
+end

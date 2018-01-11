@@ -1,0 +1,75 @@
+version: '2'
+
+networks:
+  mynetwork:
+    driver: bridge  
+
+services:
+   
+  kafka2:
+    image: wurstmeister/kafka:0.11.0.1
+    networks:
+      - mynetwork
+    ports:
+      - "9092:9092"
+      - "9992:9992"
+    environment:
+      KAFKA_BROKER_ID: 2
+      KAFKA_BROKER_RACK: 2
+      KAFKA_JMX_OPTS: "-Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Djava.rmi.server.hostname=10.0.0.12 -Dcom.sun.management.jmxremote.rmi.port=9992"
+      JMX_PORT: 9992
+      KAFKA_ADVERTISED_HOST_NAME: 10.0.0.12
+      KAFKA_ADVERTISED_PORT: 9092
+      KAFKA_ZOOKEEPER_CONNECT: 10.0.0.11:22181,10.0.0.11:32181,10.0.0.11:42181
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'false'
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+
+  kafkaexporter2:
+    image: sscaling/jmx-prometheus-exporter
+    container_name: kafkaexporter2
+    networks:
+      - mynetwork
+    ports: 
+      - "7071:7071" 
+    depends_on:
+      - kafka2
+    volumes:
+      - /vagrant/deployments/prom-jmx-exporter-config-1.yml:/opt/jmx_exporter/config.yml
+    environment:
+      SERVICE_PORT: 7071
+
+  kafka3:
+    image: wurstmeister/kafka:0.11.0.1
+    networks:
+      - mynetwork
+    ports:
+      - "9093:9092"
+      - "9993:9993"
+    environment:
+      KAFKA_BROKER_ID: 3
+      KAFKA_BROKER_RACK: 2
+      KAFKA_JMX_OPTS: "-Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Djava.rmi.server.hostname=10.0.0.12 -Dcom.sun.management.jmxremote.rmi.port=9993"
+      JMX_PORT: 9993
+      KAFKA_ADVERTISED_HOST_NAME: 10.0.0.12
+      KAFKA_ADVERTISED_PORT: 9093
+      KAFKA_ZOOKEEPER_CONNECT: 10.0.0.11:22181,10.0.0.11:32181,10.0.0.11:42181
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'false'
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+
+  kafkaexporter3:
+    image: sscaling/jmx-prometheus-exporter
+    container_name: kafkaexporter3
+    networks:
+      - mynetwork
+    ports: 
+      - "7072:7072" 
+    depends_on:
+      - kafka3
+    volumes:
+      - /vagrant/deployments/prom-jmx-exporter-config-2.yml:/opt/jmx_exporter/config.yml
+    environment:
+      SERVICE_PORT: 7072
+
+ 

@@ -1,0 +1,46 @@
+version: '2'
+
+networks:
+  mynetwork:
+    driver: bridge  
+
+services:
+  zookeeper:
+    image: wurstmeister/zookeeper
+    networks:
+      - mynetwork
+    ports:
+      - "2181:2181"
+      
+  kafka:
+    image: wurstmeister/kafka:0.11.0.1
+    depends_on:
+     - zookeeper
+    networks:
+      - mynetwork
+    ports:
+      - "9092:9092"
+      - "9992:9992"
+    environment:
+      KAFKA_JMX_OPTS: "-Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Djava.rmi.server.hostname=10.0.0.10 -Dcom.sun.management.jmxremote.rmi.port=9992"
+      JMX_PORT: 9992
+      KAFKA_ADVERTISED_HOST_NAME: 10.0.0.10
+      KAFKA_ADVERTISED_PORT: 9092
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+
+  kafkaexporter:
+    image: sscaling/jmx-prometheus-exporter
+    container_name: kafkaexporter
+    networks:
+      - mynetwork
+    ports: 
+      - "7071:7071" 
+    depends_on:
+      - kafka
+    volumes:
+      - /vagrant/deployments/Prometheus/prom-jmx-exporter-config.yml:/opt/jmx_exporter/config.yml
+    environment:
+      SERVICE_PORT: 7071
+
