@@ -24,7 +24,7 @@ In order to create Docker images and publish them into a repository (public or p
 
 ### Github
 
-- Sign up for an account on https://hub.docker.com/. After verifying your email you are ready to go and upload your first docker image.
+- Sign up for an account on [https://hub.docker.com/](https://hub.docker.com/). After verifying your email you are ready to go and upload your first docker image.
 
 - Log in on https://hub.docker.com/
 
@@ -32,7 +32,7 @@ In order to create Docker images and publish them into a repository (public or p
 
 - Log into the Docker Hub from the command line (Enter your password when prompted)
 
-   sudo docker login --username=javiersantos
+   sudo docker login --username=jsa4000
 
 - Check the image ID using
 
@@ -50,14 +50,14 @@ In order to create Docker images and publish them into a repository (public or p
 
 - Create a **tag** for your image (use IMAGE ID)
 
-    sudo docker tag 58a8d4f0d19a javiersantos/nodejs-sample:initial
+    sudo docker tag 58a8d4f0d19a jsa4000/nodejs-sample:initial
 
 - Push your image to the repository you created
 
-    sudo docker push javiersantos/nodejs-sample
+    sudo docker push jsa4000/nodejs-sample
 
     ```txt
-    The push refers to repository [docker.io/javiersantos/nodejs-sample]
+    The push refers to repository [docker.io/jajsa4000viersantos/nodejs-sample]
     c7ec1e07708b: Pushed 
     381c97ba7dc3: Mounted from library/node
     604c78617f34: Mounted from library/node
@@ -71,7 +71,7 @@ In order to create Docker images and publish them into a repository (public or p
 
 - Verify the image has been succesfully published
 
-    sudo docker pull javiersantos/nodejs-sample:initial
+    sudo docker pull jsa4000/nodejs-sample:initial
 
 ### Private Repository
 
@@ -83,7 +83,7 @@ To add a new (docker) respository into Kubernetes env use the following command
 
 In orde to create the deployment, no declarative way, use the following command:
 
-    kubectl run nodejs-sample --image=javiersantos/nodejs-sample:initial --port=8080
+    kubectl run nodejs-sample --image=jsa4000/nodejs-sample:initial --port=8080
 
 - Check the current status for *deployments* and *pods*
 
@@ -137,6 +137,8 @@ In order to expose the pods or deployments to other pods or externally, it is ne
 
 - Create 3 replicas so the deployment/service will be replicated over the nodes (if admin is not configured as replica node)
 
+    kubectl scale deployments/nodejs-sample --replicas=3
+
     curl http://10.0.0.12:32132/
     curl http://10.0.0.13:32132/
 
@@ -147,3 +149,65 @@ In order to expose the pods or deployments to other pods or externally, it is ne
     ```txt
     Hello World!
     ```
+
+## YAML Files
+
+Previous commands can be described as **DSL** files in order to create or update **operators** (deployment, service, deamonset, ..) in kubernetes
+
+Create a file with the deplyment *nodejs-sample-deployment.yaml*
+
+```yml
+apiVersion: apps/v1 # for versions before 1.9.0 use apps/v1beta2
+kind: Deployment
+metadata:
+  name: nodejs-deployment
+spec:
+  selector:
+    matchLabels:
+      name: nodejs
+  replicas: 2 # tells deployment to run 2 pods matching the template
+  template:
+    metadata:
+      labels:
+        name: nodejs
+    spec:
+      containers:
+      - name: nodejs-app
+        image: jsa4000/nodejs-sample:initial
+        ports:
+        - containerPort: 8080
+```
+
+Create a file with the service (NodePort type) to expose *nodejs-sample-service.yaml*
+
+```yml
+apiVersion: v1
+kind: Service
+metadata:
+  name: nodejs-service
+  labels:
+    name: nodejs-service
+spec:
+  type: NodePort
+  ports:
+    - port: 8080
+      nodePort: 30080
+      name: http
+      protocol: TCP
+  selector:
+    name: nodejs
+```
+
+**Create** or **Apply*** (update) both definitions using yml files.
+
+    kubectl create -f nodejs-sample-deployment.yaml
+    kubectl create -f nodejs-sample-service.yaml
+
+To scale the deployment use following command or update yml files replica parameter and use **apply** to update.
+
+    kubectl scale -f nodejs-sample-deployment.yaml --replicas=3
+
+To remove previous deployment and service
+
+    kubectl delete -f nodejs-sample-deployment.yaml
+    kubectl delete -f nodejs-sample-service.yaml

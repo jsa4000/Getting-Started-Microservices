@@ -1,0 +1,19 @@
+apiVersion: apps/v1 # for versions before 1.9.0 use apps/v1beta2
+kind: Deployment
+metadata:
+  name: nodejs-deployment
+spec:
+  selector:
+    matchLabels:
+      name: nodejs
+  replicas: 2 # tells deployment to run 2 pods matching the template
+  template:
+    metadata:
+      labels:
+        name: nodejs
+    spec:
+      containers:
+      - name: nodejs-app
+        image: jsa4000/nodejs-sample:initial
+        ports:
+        - containerPort: 8080

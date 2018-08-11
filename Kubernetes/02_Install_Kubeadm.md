@@ -634,6 +634,7 @@ Verify that the NGINX deployment is successful by using curl on the slave nodes:
     curl 10.0.0.12:31913 # This is working!
     curl 10.0.0.13:31913 # This is working!
 
-To remove the entire deployment
+To remove the entire deployment and service created
 
-    kubectl delete deployment
+    kubectl delete deployment/nginx
+    kubectl delete service/nginx
