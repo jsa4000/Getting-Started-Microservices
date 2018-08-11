@@ -233,6 +233,8 @@ Switch into the new user account with:
     sudo kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
     sudo kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/k8s-manifests/kube-flannel-rbac.yml
 
+    kubectl apply -f https://docs.projectcalico.org/v2.0/getting-started/kubernetes/installation/hosted/kubeadm/calico.yaml
+
 After applying **CNI** to the K8s cluster, you must see the following output when getting all nodes.
 
     sudo kubectl get nodes

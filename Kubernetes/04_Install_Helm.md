@@ -75,7 +75,7 @@ This can be done also after the init typing following commands. This solves the 
  The recommended way of deleting Tiller is with
 
     kubectl delete deployment tiller-deploy --namespace kube-system
-    kubectl service deployment tiller-deploy --namespace kube-system
+    kubectl delete service tiller-deploy --namespace kube-system
 
 or more concisely
 
