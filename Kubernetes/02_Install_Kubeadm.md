@@ -137,7 +137,7 @@ To initialize kubernetes cluster, it must be used the internal IP address to bro
 
 > It must be replaced *--apiserver-advertise-address* with the IP of your host.
 
-    sudo kubeadm init --pod-network-cidr=10.100.0.0/16 --apiserver-advertise-address=10.0.0.11 --kubernetes-version stable-1.8
+    sudo kubeadm init --pod-network-cidr=10.100.0.0/16 --apiserver-advertise-address=10.0.0.11 --kubernetes-version stable-1.11
 
 Or without specifying the kubernetes version to deploy.
 
@@ -386,6 +386,7 @@ The Kubernetes dashboard can be deployed as another Pod, which we can then view 
     > Note that they have different privileges.
 
   - Additionally, it could be used (teorically one of the following secrets previously created)
+
         kubectl -n kube-system get secret
         kubectl -n kube-system describe secret kubernetes-dashboard-head-token-h4fww
 
@@ -446,15 +447,39 @@ To delete *proxy* process (proxy)
     ps -a
     kill -9 <process ID>
 
+Always make sure your **pods** are running correctly and the number of **restarts** are normal.
+
+    sudo kubectl get pods --all-namespaces
+
+```txt
+NAMESPACE     NAME                                         READY     STATUS    RESTARTS   AGE
+kube-system   coredns-78fcdf6894-7m7ck                     1/1       Running   0          8m
+kube-system   coredns-78fcdf6894-sqmjn                     1/1       Running   0          8m
+kube-system   etcd-k8s-master                              1/1       Running   0          7m
+kube-system   kube-apiserver-k8s-master                    1/1       Running   0          7m
+kube-system   kube-controller-manager-k8s-master           1/1       Running   0          7m
+kube-system   kube-flannel-ds-amd64-9hgcm                  1/1       Running   1          5m
+kube-system   kube-flannel-ds-amd64-svctd                  1/1       Running   0          5m
+kube-system   kube-flannel-ds-amd64-xxrtk                  1/1       Running   0          7m
+kube-system   kube-proxy-9skb5                             1/1       Running   0          5m
+kube-system   kube-proxy-gqvp8                             1/1       Running   0          8m
+kube-system   kube-proxy-rjnds                             1/1       Running   0          5m
+kube-system   kube-scheduler-k8s-master                    1/1       Running   0          7m
+kube-system   kubernetes-dashboard-6948bdb78-n7rx4         1/1       Running   2          1m
+kube-system   kubernetes-dashboard-head-7478c547df-fgz5r   1/1       Running   2          1m
+```
+
 ## Basic Usage
 
 ### Run a Container
 
 From Kubernetes it can be created containers that are going to be managed by Kubernetes, instead of being created using Docker. This allows kebernets the proper orchestration and management for all containers created inside the cluster.
 
-Following command creates a pod with the nginx container.
+Following command creates a pod using the nginx container.
 
     kubectl run nginx-http --image=nginx:latest --port 8080
+
+> This command automatically creates a new **deployment** called *nginx-http*
 
 To get the name assigned to the port use
 
@@ -463,6 +488,13 @@ To get the name assigned to the port use
 ```txt
 NAME                     READY     STATUS              RESTARTS   AGE
 nginx-http-7f6bf97964-f7qtg   0/1       ContainerCreating   0          1m
+```
+
+    kubectl get deployment
+
+```txt
+NAME         DESIRED   CURRENT   UP-TO-DATE   AVAILABLE   AGE
+nginx-http   1         1         1            1           9m
 ```
 
 To get more detailed information use the describe (node|pod|image) and the *Name* of the pod.
@@ -504,3 +536,104 @@ Conditions:
   PodScheduled      True
 
 ```
+
+To **remove** a pod use the following syntax
+
+    kubectl delete pod nginx-http-7f6bf97964-f7qtg
+
+### Deployment and Services
+
+Following command creates a **deployment** using the *nginx* container.
+
+    kubectl create deployment nginx --image=nginx:latest
+
+To get the name assigned to the port use
+
+    kubectl get deployments
+
+```txt
+NAME      DESIRED   CURRENT   UP-TO-DATE   AVAILABLE   AGE
+nginx     1         1         1            1           15s
+```
+
+To get more detailed information use the describe (node|pod|image) and the *Name* of the pod.
+
+    kubectl describe deployment nginx
+
+```txt
+Name:                   nginx
+Namespace:              default
+CreationTimestamp:      Sat, 11 Aug 2018 16:14:15 +0000
+Labels:                 app=nginx
+Annotations:            deployment.kubernetes.io/revision=1
+Selector:               app=nginx
+Replicas:               1 desired | 1 updated | 1 total | 1 available | 0 unavailable
+StrategyType:           RollingUpdate
+MinReadySeconds:        0
+RollingUpdateStrategy:  25% max unavailable, 25% max surge
+Pod Template:
+  Labels:  app=nginx
+  Containers:
+   nginx:
+    Image:        nginx:latest
+    Port:         <none>
+    Host Port:    <none>
+    Environment:  <none>
+    Mounts:       <none>
+  Volumes:        <none>
+Conditions:
+  Type           Status  Reason
+  ----           ------  ------
+  Available      True    MinimumReplicasAvailable
+  Progressing    True    NewReplicaSetAvailable
+OldReplicaSets:  <none>
+NewReplicaSet:   nginx-b685dc965 (1/1 replicas created)
+Events:
+  Type    Reason             Age   From                   Message
+  ----    ------             ----  ----                   -------
+  Normal  ScalingReplicaSet  50s   deployment-controller  Scaled up replica set nginx-b685dc965 to 1
+
+```
+
+Make the NGINX container accessible via the internet creating a **service**
+
+    kubectl create service nodeport nginx --tcp=80:80
+
+Get the current services and Networking IPs
+
+    kubectl get svc
+
+```txt
+NAME         TYPE        CLUSTER-IP     EXTERNAL-IP   PORT(S)        AGE
+kubernetes   ClusterIP   10.96.0.1      <none>        443/TCP        48m
+nginx        NodePort    10.102.63.73   <none>        80:31913/TCP   12s
+```
+
+Since it has not been specified an external port, kubernetes assign one automatically (*31913*)
+
+Verify that the NGINX deployment is successful by using curl on the slave nodes:
+
+    curl 10.0.0.12:31913
+    curl 10.0.0.13:31913 # This is working!
+
+To create previous deployment use the following command
+
+    kubectl scale deployments/nginx --replicas=3
+
+To get the name assigned to the port use
+
+    kubectl get deployments
+
+```txt
+NAME      DESIRED   CURRENT   UP-TO-DATE   AVAILABLE   AGE
+nginx     3         3         3            3           13m
+```
+
+Verify that the NGINX deployment is successful by using curl on the slave nodes:
+
+    curl 10.0.0.12:31913 # This is working!
+    curl 10.0.0.13:31913 # This is working!
+
+To remove the entire deployment
+
+    kubectl delete deployment
