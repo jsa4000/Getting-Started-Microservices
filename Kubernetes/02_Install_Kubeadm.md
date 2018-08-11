@@ -46,7 +46,7 @@ Master components provide the cluster’s control plane. Master components make 
 
 - **kube-controller-manager**: Component on the master that runs controllers. Logically, each controller is a separate process, but to reduce complexity, they are all compiled into a single binary and run in a single process.
 
-- **cloud-controller-manager**: cloud-controller-manager runs controllers that interact with the underlying cloud providers. 
+- **cloud-controller-manager**: cloud-controller-manager runs controllers that interact with the underlying cloud providers.
 
 #### Node Components
 
@@ -85,7 +85,7 @@ Addons are pods and services that implement cluster features. The pods may be ma
 
         ip link or ifconfig -a
 
-  - The product_uuid can be checked by using the command 
+  - The product_uuid can be checked by using the command
 
         sudo cat /sys/class/dmi/id/product_uuid
 
@@ -498,9 +498,9 @@ Containers:
       /var/run/secrets/kubernetes.io/serviceaccount from default-token-5q25n (ro)
 Conditions:
   Type              Status
-  Initialized       True 
-  Ready             True 
-  ContainersReady   True 
-  PodScheduled      True 
+  Initialized       True
+  Ready             True
+  ContainersReady   True
+  PodScheduled      True
 
 ```
