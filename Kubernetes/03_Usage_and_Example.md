@@ -1,5 +1,7 @@
 # Node.js Sample
 
+> The folder with the files and the code is in */samples/nodejs-sample*
+
 ## Build Docker image
 
 In order to build the docker image:
