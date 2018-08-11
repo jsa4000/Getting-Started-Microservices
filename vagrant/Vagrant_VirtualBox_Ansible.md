@@ -1,6 +1,6 @@
 # Vagrant, Virtual Box and Ansible
 
-##1 Install Linux Server Manually
+## 1 Install Linux Server Manually
 
 Install Virtual Machine Ubuntu server 16.04. 
 

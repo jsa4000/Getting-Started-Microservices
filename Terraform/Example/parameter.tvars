@@ -1,0 +1,19 @@
+username = 	    "MyUserNAme"
+password = 	    "MyPassword"
+
+domain_name = 	"MyDomainName"
+project_name  = "MyProjectName"
+
+key_pair = 	    "KeyPair-4c14"
+tenant_name = 	"eu-de"
+endpoint = 	    "https://iam.eu-de.otc.t-systems.com:443/v3"
+
+flavor_name = 	"s2.medium.1"
+image_name  = 	"Standard_Debian_9_latest"
+
+security_group = "4f71fdaa-b069-4189-a95f-a283c8ed620c"
+fixed_ip = "10.20.163.199"
+subnet_cidr = "10.20.163.0/24"
+network_uuid = "345a8e5a-5c0c-4058-a85c-2a37e89a2eed"
+
+

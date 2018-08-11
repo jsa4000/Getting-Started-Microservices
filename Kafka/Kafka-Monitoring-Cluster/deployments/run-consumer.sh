@@ -3,19 +3,22 @@ sudo docker run -it wurstmeister/kafka:0.11.0.1 bash
 TEST KAFKA
 
 # kafka-topics.sh --create --topic test2 --zookeeper 10.0.0.10:2181 --partitions 1 --replication-factor 1
-
+# kafka-topics.sh --create --topic OCS-CdrEvent --zookeeper 10.0.0.10:2181 --partitions 1 --replication-factor 1
 
 # kafka-console-producer.sh --broker-list 10.0.0.10:9092 --topic test2
-
+# kafka-console-producer.sh --broker-list 10.0.0.10:9092 --topic OCS-CdrEvent
 
 # kafka-console-consumer.sh --bootstrap-server 10.0.0.10:9092 --topic test2 --from-beginning
-
+# kafka-console-consumer.sh --bootstrap-server 10.0.0.10:9092 --topic OCS-CdrEvent --from-beginning
 
 TEST REAL EXAMPLE
 # kafka-topics.sh --list --zookeeper 10.0.0.10:2181
 # kafka-topics.sh --describe --zookeeper 10.0.0.10:2181
 # kafka-console-consumer.sh --bootstrap-server 10.0.0.10:9092 --topic OCS-CdrEvent --from-beginning
 
+TO REMOVE EVERY DOCKER CONTAINER
+
+# sudo docker rm $(sudo docker ps -a -q)
 
 PERFORMANCE COMMANDS:
 
