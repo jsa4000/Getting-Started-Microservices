@@ -139,6 +139,8 @@ To initialize kubernetes cluster, it must be used the internal IP address to bro
 
     sudo kubeadm init --pod-network-cidr=10.100.0.0/16 --apiserver-advertise-address=10.0.0.11 --kubernetes-version stable-1.11
 
+    sudo kubeadm init --pod-network-cidr=10.244.0.0/16 --apiserver-advertise-address=10.0.0.11 --kubernetes-version stable-1.11
+
 Or without specifying the kubernetes version to deploy.
 
     sudo kubeadm init --pod-network-cidr=10.100.0.0/16 --apiserver-advertise-address=10.0.0.11
@@ -901,3 +903,35 @@ containers:
     args:
         - --apiserver-host=http://my-address:port
 ```
+
+### Testing connectivity between pods
+
+Connect to a different pod, eg ruby pod:
+
+    kubectl exec -it some-pod-name -- /bin/sh
+
+Verify it can ping to the service in question:
+
+    ping redis
+
+Can it connect to the port? (or telnet)
+
+    nc -zv redis 6379
+
+### How to Enable IP Forwarding in Linux
+
+TYpe the following inline method for ip forwarding
+
+    sudo sysctl -w net.ipv4.ip_forward=1
+
+For permanent settings, edit */etc/sysctl.conf* file and search for the following lines:
+
+    sudo vi /etc/sysctl.conf
+
+Uncomment the next line to enable packet forwarding for IPv4
+
+    net.ipv4.ip_forward=1
+
+After editinh the file run the command
+
+    sudo sysctl -p /etc/sysctl.conf
