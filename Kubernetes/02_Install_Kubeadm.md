@@ -503,30 +503,6 @@ If kubectl cannnot connect to that specific pod, then check the **NODE** where i
 Refer to our FAQ and wiki pages for more information: https://github.com/kubernetes/dashboard/wiki/FAQ
 ```
 
-### Error on api server
-
-If anyone comes across this issue, as I did, I was able to fix it by setting nodeSelector on kubernetes-dashboard.yaml file to look up the master's label. Only by running dashboard on my master node was I able to get it working:
-
-```yml
-    nodeSelector:
-        node-role.kubernetes.io/master:
-```
-
-There is a fix that's been put in kubernetes-dashboard.yaml but it only sets the toleration, which as I discovered doesn't require that the pod runs on master, simply allows it.
-
-or uncommenting the --apiserver-host=http://my-address:port arg in the containers[0].args section:
-
-```yml
-containers:
-    - name: kubernetes-dashboard
-    image: gcr.io/google_containers/kubernetes-dashboard-amd64:v1.8.0
-    ports:
-    - containerPort: 9090
-        protocol: TCP
-    args:
-        - --apiserver-host=http://my-address:port
-```
-
 ## Basic Usage
 
 ### Run a Container
@@ -700,3 +676,228 @@ To remove the entire deployment and service created
 
     kubectl delete deployment/nginx
     kubectl delete service/nginx
+
+## Issues
+
+### Flannel issue with Vagrant
+
+#### Change default Flannel Network Interface
+
+[Configuring Flannel to use a non default interface in kubernetes](https://stackoverflow.com/questions/47845739/configuring-flannel-to-use-a-non-default-interface-in-kubernetes)
+[Playing with Kubeadm in Vagrant](https://medium.com/@joatmon08/playing-with-kubeadm-in-vagrant-machines-part-2-bac431095706)
+[Troubleshooting kubeadm](https://kubernetes.io/docs/setup/independent/troubleshooting-kubeadm/)
+
+First, see the Netword intefaces created on your machine.
+
+    ifconfig
+
+```txt
+enp0s3    Link encap:Ethernet  HWaddr 02:17:6d:c2:33:c4
+          inet addr:10.0.2.15  Bcast:10.0.2.255  Mask:255.255.255.0
+          inet6 addr: fe80::17:6dff:fec2:33c4/64 Scope:Link
+          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
+          RX packets:343486 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:68337 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:1000
+          RX bytes:414045784 (414.0 MB)  TX bytes:4433271 (4.4 MB)
+
+enp0s8    Link encap:Ethernet  HWaddr 08:00:27:95:d8:e3
+          inet addr:10.0.0.11  Bcast:10.0.0.255  Mask:255.255.255.0
+          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
+          RX packets:960 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:1105 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:1000
+          RX bytes:140714 (140.7 KB)  TX bytes:983142 (983.1 KB)
+```
+
+Get all the pods and search for **flannel** pods created
+
+    kubectl get pods --all-namespaces | grep flannel
+
+```txt
+kube-system   kube-flannel-ds-amd64-b6q79          1/1       Running   0          6m
+kube-system   kube-flannel-ds-amd64-gg7rw          1/1       Running   0          6m
+```
+
+Look for the logs inside on of those pods to verify the network interface interface being used by flannel.
+
+    kubectl logs -n kube-system  kube-flannel-ds-amd64-b6q79
+
+```txt
+vagrant@k8s-master:~$ kubectl logs -n kube-system  kube-flannel-ds-amd64-b6q79
+I0812 13:23:23.906510       1 main.go:475] Determining IP address of default interface
+I0812 13:23:23.906721       1 main.go:488] Using interface with name enp0s3 and address 10.0.2.15
+I0812 13:23:23.906731       1 main.go:505] Defaulting external address to interface address (10.0.2.15)
+I0812 13:23:23.917951       1 kube.go:131] Waiting 10m0s for node controller to sync
+I0812 13:23:23.917961       1 kube.go:294] Starting kube subnet manager
+I0812 13:23:24.918824       1 kube.go:138] Node controller sync successful
+I0812 13:23:24.918845       1 main.go:235] Created subnet manager: Kubernetes Subnet Manager - k8s-master
+```
+
+As the example avoce the interface that flannel is using is the **enp0s3**, not the **enp0s8** that is the one that is used to connect outside with the IP **10.0.0.11**.
+
+This is a note that is already explained the official [documentation](https://github.com/coreos/flannel/blob/master/Documentation/troubleshooting.md#vagrant) of flannel.
+
+> Vagrant typically assigns two interfaces to all VMs. The first, for which all hosts are assigned the IP address 10.0.2.15, is for external traffic that gets NATed.
+This may lead to problems with flannel. By default, flannel selects the first interface on a host. This leads to all hosts thinking they have the same public IP address. To prevent this issue, pass the --iface eth1 flag to flannel so that the second interface is chosen.
+
+Following are the changes to be performed on the yaml file of flannel **--iface=enp0s8**
+
+```yml
+ containers:
+  - name: kube-flannel
+    image: quay.io/coreos/flannel:v0.10.0-amd64
+    command:
+    - /opt/bin/flanneld
+    args:
+    - --ip-masq
+    - --kube-subnet-mgr
+    - --iface=enp0s8
+```
+
+These changes can be done after applying the flanned configuration by editing the daemon set.
+
+    kubectl get daemonset --all-namespaces
+
+```txt
+NAMESPACE     NAME                      DESIRED   CURRENT   READY     UP-TO-DATE   AVAILABLE   NODE SELECTOR                     AGE
+kube-system   kube-flannel-ds-amd64     2         2         2         2            2           beta.kubernetes.io/arch=amd64     17m
+```
+
+    kubectl --namespace=kube-system edit daemonset kube-flannel-ds-amd64
+
+Update the container declaration
+
+```yml
+ spec:
+   containers:
+   - args:
+     - --ip-masq
+     - --kube-subnet-mgr
+     - --iface=enp0s8
+     command:
+     - /opt/bin/flanneld
+```
+
+Kill the pods so they will be restarted again by kubernetes with the new network interface.
+
+    kubectl --namespace=kube-system delete pod -l app=flannel
+    kubectl get pods --all-namespaces
+
+Verify flannel pods are using the right networking interface.
+
+    kubectl logs -n kube-system  kube-flannel-ds-amd64-b6q79
+
+```txt
+I0812 13:50:16.507721       1 main.go:488] Using interface with name enp0s8 and address 10.0.0.11
+I0812 13:50:16.507782       1 main.go:505] Defaulting external address to interface address (10.0.0.11)
+I0812 13:50:16.605468       1 kube.go:131] Waiting 10m0s for node controller to sync
+I0812 13:50:16.605526       1 kube.go:294] Starting kube subnet manager
+I0812 13:50:17.605592       1 kube.go:138] Node controller sync successful
+```
+
+#### Configure kubelet in Workers
+
+You have to use a secondary interface if using private IPs with Vagrant (again in my case, enp0s8).
+
+    kubectl get nodes k8s-node01 -o yaml
+
+```yml
+apiVersion: v1
+kind: Node
+
+status:
+  addresses:
+  - address: 10.0.2.15
+```
+
+Looking at the logs command with debug (-v=9), I found the pod was showing:
+
+    "hostIP": "10.0.2.15",
+    "podIP": "10.244.2.4",
+
+And the hostIP corresponded to that virtual network interface that was internal to the VM... so effectively kubectl was querying localhost to see a pod that was on a different Vagrant-powered VM.
+
+To summarize the linked post in the comment above, you have to edit the kubelet config (in /etc/systemd/system/kubelet.service.d/10-kubeadm.conf) and add or modify the KUBELET_EXTRA_ARGS to have the --node-ip flag, like so:
+
+    Environment="KUBELET_EXTRA_ARGS=--node-ip=VAGRANT_VM_EXTERNAL_IP_HERE"
+
+    less /etc/systemd/system/kubelet.service.d/10-kubeadm.conf
+
+```txt
+[Service]
+Environment="KUBELET_KUBECONFIG_ARGS=--bootstrap-kubeconfig=/etc/kubernetes/bootstrap-kubelet.conf --kubeconfig=/etc/kubernetes/kubelet.conf"
+Environment="KUBELET_SYSTEM_PODS_ARGS=--pod-manifest-path=/etc/kubernetes/manifests --allow-privileged=true"
+Environment="KUBELET_NETWORK_ARGS=--network-plugin=cni --cni-conf-dir=/etc/cni/net.d --cni-bin-dir=/opt/cni/bin"
+Environment="KUBELET_DNS_ARGS=--cluster-dns=10.96.0.10 --cluster-domain=cluster.local"
+Environment="KUBELET_AUTHZ_ARGS=--authorization-mode=Webhook --client-ca-file=/etc/kubernetes/pki/ca.crt"
+Environment="KUBELET_CADVISOR_ARGS=--cadvisor-port=0"
+Environment="KUBELET_CGROUP_ARGS=--cgroup-driver=systemd"
+Environment="KUBELET_CERTIFICATE_ARGS=--rotate-certificates=true --cert-dir=/var/lib/kubelet/pki"
+Environment="KUBELET_EXTRA_ARGS=--node-ip=<worker IP address>"
+ExecStart=
+ExecStart=/usr/bin/kubelet $KUBELET_KUBECONFIG_ARGS $KUBELET_SYSTEM_PODS_ARGS $KUBELET_NETWORK_ARGS $KUBELET_DNS_ARGS $KUBELET_AUTHZ_ARGS $KUBELET_CADVISOR_ARGS $KUBELET_CGROUP_ARGS $KUBELET_CERTIFICATE_ARGS $KUBELET_EXTRA_ARGS
+```
+
+    Environment="KUBELET_EXTRA_ARGS=--node-ip=10.0.0.11
+
+In newer version of kubelet **KUBELET_EXTRA_ARGS** has been moved to *EnvironmentFile=-/etc/default/kubelet*
+
+```txt
+# Note: This dropin only works with kubeadm and kubelet v1.11+
+[Service]
+Environment="KUBELET_KUBECONFIG_ARGS=--bootstrap-kubeconfig=/etc/kubernetes/bootstrap-kubelet.conf --kubeconfig=/etc/kubernetes/kubelet.conf"
+Environment="KUBELET_CONFIG_ARGS=--config=/var/lib/kubelet/config.yaml"
+Environment="KUBELET_EXTRA_ARGS=--node-ip=10.0.0.11"
+# This is a file that "kubeadm init" and "kubeadm join" generates at runtime, populating the KUBELET_KUBEADM_ARGS variable dynamically
+EnvironmentFile=-/var/lib/kubelet/kubeadm-flags.env
+# This is a file that the user can use for overrides of the kubelet args as a last resort. Preferably, the user should use
+# the .NodeRegistration.KubeletExtraArgs object in the configuration files instead. KUBELET_EXTRA_ARGS should be sourced from this file.
+EnvironmentFile=-/etc/default/kubelet
+ExecStart=
+ExecStart=/usr/bin/kubelet $KUBELET_KUBECONFIG_ARGS $KUBELET_CONFIG_ARGS $KUBELET_KUBEADM_ARGS $KUBELET_EXTRA_ARGS
+```
+
+    sudo vi /etc/default/kubelet
+
+Add the parameter with *--node-ip=10.0.0.12*
+
+    KUBELET_EXTRA_ARGS=--node-ip=10.0.0.12
+
+Then restart kubelet
+
+    systemctl daemon-reload
+    systemctl restart kubelet
+
+### Error on api server
+
+Check where is the api-server located
+
+    kubectl cluster-info
+
+```txt
+Kubernetes master is running at https://10.0.0.11:6443
+KubeDNS is running at https://10.0.0.11:6443/api/v1/namespaces/kube-system/services/kube-dns:dns/proxy
+```
+
+If anyone comes across this issue, as I did, I was able to fix it by setting nodeSelector on kubernetes-dashboard.yaml file to look up the master's label. Only by running dashboard on my master node was I able to get it working:
+
+```yml
+    nodeSelector:
+        node-role.kubernetes.io/master:
+```
+
+There is a fix that's been put in kubernetes-dashboard.yaml but it only sets the toleration, which as I discovered doesn't require that the pod runs on master, simply allows it.
+
+or uncommenting the --apiserver-host=http://my-address:port arg in the containers[0].args section:
+
+```yml
+containers:
+    - name: kubernetes-dashboard
+    image: gcr.io/google_containers/kubernetes-dashboard-amd64:v1.8.0
+    ports:
+    - containerPort: 9090
+        protocol: TCP
+    args:
+        - --apiserver-host=http://my-address:port
+```
