@@ -235,6 +235,8 @@ Switch into the new user account with:
 
     kubectl apply -f https://docs.projectcalico.org/v2.0/getting-started/kubernetes/installation/hosted/kubeadm/calico.yaml
 
+    kubectl apply -f "https://cloud.weave.works/k8s/net?k8s-version=$(kubectl version | base64 | tr -d '\n')"
+
 After applying **CNI** to the K8s cluster, you must see the following output when getting all nodes.
 
     sudo kubectl get nodes
@@ -469,6 +471,60 @@ kube-system   kube-proxy-rjnds                             1/1       Running   0
 kube-system   kube-scheduler-k8s-master                    1/1       Running   0          7m
 kube-system   kubernetes-dashboard-6948bdb78-n7rx4         1/1       Running   2          1m
 kube-system   kubernetes-dashboard-head-7478c547df-fgz5r   1/1       Running   2          1m
+```
+
+If there are many error use following command
+
+     sudo kubectl get pods --all-namespaces -o wide
+
+```txt
+NAMESPACE     NAME                                   READY     STATUS             RESTARTS   AGE       IP           NODE         NOMINATED NODE
+kube-system   coredns-78fcdf6894-29ml2               1/1       Running            1          21m       10.100.1.2   k8s-node01   <none>
+kube-system   coredns-78fcdf6894-pc75w               1/1       Running            1          21m       10.100.1.3   k8s-node01   <none>
+
+kube-system   kubernetes-dashboard-6948bdb78-v6fsh   0/1       CrashLoopBackOff   3          8m        10.100.1.4   k8s-node01   <none>
+```
+
+Use this command to see the specific logs for that pods/namespace
+
+    kubectl --namespace="kube-system" logs kubernetes-dashboard-6948bdb78-v6fsh
+
+If kubectl cannnot connect to that specific pod, then check the **NODE** where it has been placed by kubernetes, connect to it and check the logs directly from that docker container
+
+    sudo docker ps
+    sudo docker logs 8ff276a9d16
+
+```txt
+2018/08/12 06:38:47 Starting overwatch
+2018/08/12 06:38:47 Using in-cluster config to connect to apiserver
+2018/08/12 06:38:47 Using service account token for csrf signing
+2018/08/12 06:38:47 No request provided. Skipping authorization
+2018/08/12 06:39:17 Error while initializing connection to Kubernetes apiserver. This most likely means that the cluster is misconfigured (e.g., it has invalid apiserver certificates or service accounts configuration) or the --apiserver-host param points to a server that does not exist. Reason: Get https://10.96.0.1:443/version: dial tcp 10.96.0.1:443: i/o timeout
+Refer to our FAQ and wiki pages for more information: https://github.com/kubernetes/dashboard/wiki/FAQ
+```
+
+### Error on api server
+
+If anyone comes across this issue, as I did, I was able to fix it by setting nodeSelector on kubernetes-dashboard.yaml file to look up the master's label. Only by running dashboard on my master node was I able to get it working:
+
+```yml
+    nodeSelector:
+        node-role.kubernetes.io/master:
+```
+
+There is a fix that's been put in kubernetes-dashboard.yaml but it only sets the toleration, which as I discovered doesn't require that the pod runs on master, simply allows it.
+
+or uncommenting the --apiserver-host=http://my-address:port arg in the containers[0].args section:
+
+```yml
+containers:
+    - name: kubernetes-dashboard
+    image: gcr.io/google_containers/kubernetes-dashboard-amd64:v1.8.0
+    ports:
+    - containerPort: 9090
+        protocol: TCP
+    args:
+        - --apiserver-host=http://my-address:port
 ```
 
 ## Basic Usage
