@@ -97,73 +97,109 @@ To list all available charts on the reposiory run the following command
 
     helm search
 
-Install **mysql** chart
+In order to install any **chart**, the command is basically the following
 
     helm install stable/mysql
 
-```txt
-NAME:   pouring-snail
-LAST DEPLOYED: Sun Aug 12 07:14:26 2018
-NAMESPACE: default
-STATUS: DEPLOYED
+Depending if we are working on **cloud** or **bare-metal** environments, it depends the way **PersistenceVolume** (**PV**) and **PersistenceVolumeClaim** (**PVC**) are managed automatically by k8s. There are multiple types of storages, depending on **Dynamic types** or **persistance volumes**. The abstraction for both concepts is the PVC (**Persistance Volume Class**). In this [link](https://kubernetes.io/docs/concepts/storage/persistent-volumes/) you can take a look the **StorageClass** supported by kubernetes.
 
-RESOURCES:
-==> v1/Secret
-NAME                 TYPE    DATA  AGE
-pouring-snail-mysql  Opaque  2     0s
+For bare-metal environment it is neccesary to create manually the persistance volumne. In this case the StoreType is **local**. This is passed through commands to helm when installing the package.
 
-==> v1/ConfigMap
-NAME                      DATA  AGE
-pouring-snail-mysql-test  1     0s
+- Create the Persistance Volumne *pv-volume.yaml*
 
-==> v1/PersistentVolumeClaim
-NAME                 STATUS   VOLUME  CAPACITY  ACCESS MODES  STORAGECLASS  AGE
-pouring-snail-mysql  Pending  0s
+    ```yml
+    kind: PersistentVolume
+    apiVersion: v1
+    metadata:
+    name: task-pv-volume
+    labels:
+        type: local
+    spec:
+    storageClassName: local
+    capacity:
+        storage: 10Gi
+    accessModes:
+        - ReadWriteOnce
+    hostPath:
+        path: "/mnt/data"
+    ````
 
-==> v1/Service
-NAME                 TYPE       CLUSTER-IP     EXTERNAL-IP  PORT(S)   AGE
-pouring-snail-mysql  ClusterIP  10.102.51.213  <none>       3306/TCP  0s
+- Apply this file to kubernetes
 
-==> v1beta1/Deployment
-NAME                 DESIRED  CURRENT  UP-TO-DATE  AVAILABLE  AGE
-pouring-snail-mysql  1        1        1           0          0s
+    sudo kubectl create -f pv-volume.yaml
 
-==> v1/Pod(related)
-NAME                                 READY  STATUS   RESTARTS  AGE
-pouring-snail-mysql-d6c855b9b-zdq5g  0/1    Pending  0         0s
+- Install the helm package providinf the information related to **sudo kubectl create -f pv-volume.2.yaml**. This autmatically will claim for an available store, in this case the previous store created.
+
+    sudo helm install --name mysql-db --set mysqlRootPassword=secretpassword,mysqlUser=admin,mysqlPassword=admin,mysqlDatabase=default-schema,persistence.storageClass=local stabl e/mysql
+
+    ```txt
+    NAME:   pouring-snail
+    LAST DEPLOYED: Sun Aug 12 07:14:26 2018
+    NAMESPACE: default
+    STATUS: DEPLOYED
+
+    RESOURCES:
+    ==> v1/Secret
+    NAME                 TYPE    DATA  AGE
+    pouring-snail-mysql  Opaque  2     0s
+
+    ==> v1/ConfigMap
+    NAME                      DATA  AGE
+    pouring-snail-mysql-test  1     0s
+
+    ==> v1/PersistentVolumeClaim
+    NAME                 STATUS   VOLUME  CAPACITY  ACCESS MODES  STORAGECLASS  AGE
+    pouring-snail-mysql  Pending  0s
+
+    ==> v1/Service
+    NAME                 TYPE       CLUSTER-IP     EXTERNAL-IP  PORT(S)   AGE
+    pouring-snail-mysql  ClusterIP  10.102.51.213  <none>       3306/TCP  0s
+
+    ==> v1beta1/Deployment
+    NAME                 DESIRED  CURRENT  UP-TO-DATE  AVAILABLE  AGE
+    pouring-snail-mysql  1        1        1           0          0s
+
+    ==> v1/Pod(related)
+    NAME                                 READY  STATUS   RESTARTS  AGE
+    pouring-snail-mysql-d6c855b9b-zdq5g  0/1    Pending  0         0s
 
 
-NOTES:
-MySQL can be accessed via port 3306 on the following DNS name from within your cluster:
-pouring-snail-mysql.default.svc.cluster.local
+    NOTES:
+    MySQL can be accessed via port 3306 on the following DNS name from within your cluster:
+    pouring-snail-mysql.default.svc.cluster.local
 
-To get your root password run:
+    To get your root password run:
 
-    MYSQL_ROOT_PASSWORD=$(kubectl get secret --namespace default pouring-snail-mysql -o jsonpath="{.data.mysql-root-password}" | base64 --decode; echo)
+        MYSQL_ROOT_PASSWORD=$(kubectl get secret --namespace default pouring-snail-mysql -o jsonpath="{.data.mysql-root-password}" | base64 --decode; echo)
 
-To connect to your database:
+    To connect to your database:
 
-1. Run an Ubuntu pod that you can use as a client:
+    1. Run an Ubuntu pod that you can use as a client:
 
-    kubectl run -i --tty ubuntu --image=ubuntu:16.04 --restart=Never -- bash -il
+        kubectl run -i --tty ubuntu --image=ubuntu:16.04 --restart=Never -- bash -il
 
-2. Install the mysql client:
+    2. Install the mysql client:
 
-    $ apt-get update && apt-get install mysql-client -y
+        $ apt-get update && apt-get install mysql-client -y
 
-3. Connect using the mysql cli, then provide your password:
-    $ mysql -h pouring-snail-mysql -p
+    3. Connect using the mysql cli, then provide your password:
+        $ mysql -h pouring-snail-mysql -p
 
-To connect to your database directly from outside the K8s cluster:
-    MYSQL_HOST=127.0.0.1
-    MYSQL_PORT=3306
+    To connect to your database directly from outside the K8s cluster:
+        MYSQL_HOST=127.0.0.1
+        MYSQL_PORT=3306
 
-    # Execute the following commands to route the connection:
-    export POD_NAME=$(kubectl get pods --namespace default -l "app=pouring-snail-mysql" -o jsonpath="{.items[0].metadata.name}")
-    kubectl port-forward $POD_NAME 3306:3306
+        # Execute the following commands to route the connection:
+        export POD_NAME=$(kubectl get pods --namespace default -l "app=pouring-snail-mysql" -o jsonpath="{.items[0].metadata.name}")
+        kubectl port-forward $POD_NAME 3306:3306
 
-    mysql -h ${MYSQL_HOST} -P${MYSQL_PORT} -u root -p${MYSQL_ROOT_PASSWORD}
-```
+        mysql -h ${MYSQL_HOST} -P${MYSQL_PORT} -u root -p${MYSQL_ROOT_PASSWORD}
+    ```
+
+To modify something about the configuration, definitions can be exported and applied again.
+
+    sudo kubectl get services mysql-db -o yaml --export > mysql.yaml
+    sudo kubectl apply -f mysql.yaml
 
 In the example above, the stable/mysql chart was released, and the name of our new release is smiling-penguin. You get a simple idea of the features of this MySQL chart by running
 
@@ -203,6 +239,7 @@ In order to accesos to the Chart externally, it recommend you to perform some op
 
 ## References
 
+- [Application Dashboard for Kubernetes](https://kubeapps.com/)
 - [Official Helm Website](https://helm.sh/)
 - [Quickstart Guide](https://docs.helm.sh/using_helm/#quickstart-guide)
 - [How To install Helm](http://zero-to-jupyterhub.readthedocs.io/en/latest/setup-helm.html)

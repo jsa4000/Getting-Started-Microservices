@@ -935,3 +935,7 @@ Uncomment the next line to enable packet forwarding for IPv4
 After editinh the file run the command
 
     sudo sysctl -p /etc/sysctl.conf
+
+## References
+
+- [kubeadm workshop](https://github.com/luxas/kubeadm-workshop)
