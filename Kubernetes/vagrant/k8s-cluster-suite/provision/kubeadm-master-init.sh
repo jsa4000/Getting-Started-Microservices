@@ -2,11 +2,13 @@
 echo "- Initializing kubeadm from Master Node"
 
 echo "-    Initializing kubeadm"
-mkdir /vagrant/files/logs
-kubeadm init --pod-network-cidr=10.244.0.0/16 --apiserver-advertise-address=10.0.0.11 --kubernetes-version stable-1.11 > /vagrant/files/logs/installation-kubedm.log
+mkdir /vagrant/files/kube-config
+
+kubeadm init --pod-network-cidr=10.244.0.0/16 --apiserver-advertise-address=10.0.0.11 --kubernetes-version stable-1.11 > /vagrant/files/kube-config/kubeadm-install.log
+cp -i /etc/kubernetes/admin.conf /vagrant/files/kube-config
 
 # Create a script to join k8n nodes to cluster 
-cat /vagrant/files/logs/installation-kubedm.log | grep "kubeadm join" > /vagrant/files/logs/join-k8s-node.sh
+cat /vagrant/files/kube-config/kubeadm-install.log | grep "kubeadm join" > /vagrant/files/kube-config/join-k8s-node.sh
 
 echo "-    Initializing kubectl"
 
