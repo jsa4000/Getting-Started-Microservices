@@ -109,7 +109,7 @@ For bare-metal environment it is neccesary to create manually the persistance vo
 
 - Create the Persistance Volumne *pv-volumes.yaml*
 
-> This directories should be created on the storage server or node selected (**nodeSelector=k8s-node2**) previously.
+> This directories should be created on the storage server or node selected (**nodeSelector.diskType=ssd**) previously.
 
     ```yml
     kind: PersistentVolume
@@ -157,50 +157,56 @@ For bare-metal environment it is neccesary to create manually the persistance vo
         sudo mkdir /mnt/data/00001
         sudo mkdir /mnt/data/00001
 
+- Create a label onto the k8s-node2 to identify where the pods must be installed.
+
+        sudo kubectl label nodes/k8s-node2 diskType=ssd
+        sudo kubectl get nodes --show-labels
+
 - Install the helm package providing the information *(**storageClassName**)* created on **pv-volumes.yaml**. This autmatically will claim for an available store, in this case the previous store created.
 
-> Note in the command the parameter **nodeSelector=k8s-node2** has been used to create the pods in the same node since the persistence resides in that node. In the next section shared storages will be seen for more advance and neat features.
+> Note in the command the parameter **nodeSelector.diskType=ssd** has been used to create the pods in the same node since the persistence resides in that node. In the next section shared storages will be seen for more advance and neat features.
 
-    sudo helm install --name mysql-db --set mysqlRootPassword=secretpassword,mysqlUser=admin,mysqlPassword=admin,mysqlDatabase=default-schema,persistence.storageClass=local stable/mysql
+    sudo helm install --name mysql-db --set nodeSelector.diskType=ssd,mysqlRootPassword=secretpassword,mysqlUser=admin,mysqlPassword=admin,mysqlDatabase=default-schema,persistence.storageClass=local stable/mysql
 
     ```txt
-    NAME:   pouring-snail
-    LAST DEPLOYED: Sun Aug 12 07:14:26 2018
+    NAME:   mysql-db
+    LAST DEPLOYED: Sat Aug 18 13:31:26 2018
     NAMESPACE: default
     STATUS: DEPLOYED
 
     RESOURCES:
-    ==> v1/Secret
-    NAME                 TYPE    DATA  AGE
-    pouring-snail-mysql  Opaque  2     0s
-
-    ==> v1/ConfigMap
-    NAME                      DATA  AGE
-    pouring-snail-mysql-test  1     0s
-
-    ==> v1/PersistentVolumeClaim
-    NAME                 STATUS   VOLUME  CAPACITY  ACCESS MODES  STORAGECLASS  AGE
-    pouring-snail-mysql  Pending  0s
-
     ==> v1/Service
-    NAME                 TYPE       CLUSTER-IP     EXTERNAL-IP  PORT(S)   AGE
-    pouring-snail-mysql  ClusterIP  10.102.51.213  <none>       3306/TCP  0s
+    NAME      TYPE       CLUSTER-IP      EXTERNAL-IP  PORT(S)   AGE
+    mysql-db  ClusterIP  10.104.197.156  <none>       3306/TCP  0s
 
     ==> v1beta1/Deployment
-    NAME                 DESIRED  CURRENT  UP-TO-DATE  AVAILABLE  AGE
-    pouring-snail-mysql  1        1        1           0          0s
+    NAME      DESIRED  CURRENT  UP-TO-DATE  AVAILABLE  AGE
+    mysql-db  1        1        1           0          0s
 
     ==> v1/Pod(related)
-    NAME                                 READY  STATUS   RESTARTS  AGE
-    pouring-snail-mysql-d6c855b9b-zdq5g  0/1    Pending  0         0s
+    NAME                       READY  STATUS    RESTARTS  AGE
+    mysql-db-78cbb845d8-9kx7z  0/1    Init:0/1  0         0s
+
+    ==> v1/Secret
+    NAME      TYPE    DATA  AGE
+    mysql-db  Opaque  2     0s
+
+    ==> v1/ConfigMap
+    NAME           DATA  AGE
+    mysql-db-test  1     0s
+
+    ==> v1/PersistentVolumeClaim
+    NAME      STATUS  VOLUME    CAPACITY  ACCESS MODES  STORAGECLASS  AGE
+    mysql-db  Bound   pv-00004  10Gi      RWO           local         0s
+
 
     NOTES:
     MySQL can be accessed via port 3306 on the following DNS name from within your cluster:
-    pouring-snail-mysql.default.svc.cluster.local
+    mysql-db.default.svc.cluster.local
 
     To get your root password run:
 
-        MYSQL_ROOT_PASSWORD=$(kubectl get secret --namespace default pouring-snail-mysql -o jsonpath="{.data.mysql-root-password}" | base64 --decode; echo)
+        MYSQL_ROOT_PASSWORD=$(kubectl get secret --namespace default mysql-db -o jsonpath="{.data.mysql-root-password}" | base64 --decode; echo)
 
     To connect to your database:
 
@@ -225,6 +231,15 @@ For bare-metal environment it is neccesary to create manually the persistance vo
 
         mysql -h ${MYSQL_HOST} -P${MYSQL_PORT} -u root -p${MYSQL_ROOT_PASSWORD}
     ```
+
+Verify the node has been installed on k8s-node2
+
+     sudo kubectl get pods -o wide
+
+```txt
+NAME                        READY     STATUS    RESTARTS   AGE       IP           NODE        NOMINATED NODE
+mysql-db-78cbb845d8-9kx7z   1/1       Running   0          21s       10.244.2.3   k8s-node2   <none>
+```
 
 To modify something about the configuration, definitions can be exported and applied again.
 
@@ -285,11 +300,17 @@ Export the service as NodePort (**Ingress** is the way to export this to the out
     SELECT * FROM authors
     ```
 
+Verify (mysql) the deletion of the pod, so it will be restarted again using the volume and installed in the same node
+
+    sudo kubectl delete pods/mysql-db-78cbb845d8-9kx7z
+
 To uninstall a release.
 
     sudo helm list
     sudo helm delete <NAME>
     sudo helm del --purge <NAME>
+
+In order to recover the persistance volumes, you may have to delete and recreate the PersistentVolume resource.
 
 To remove all releases
 
@@ -297,15 +318,102 @@ To remove all releases
 
 ### Install MySQL (shared volume)
 
+In ordes to install packages with stateful state, it is needed to rely on shared storage capabilities. On bare metal installation, the easisest way is configuring a NFS server so it will be used among kubernetes cluster and pods.
 
+- [Set Up an NFS Mount on Ubuntu 16.04](https://www.digitalocean.com/community/tutorials/how-to-set-up-an-nfs-mount-on-ubuntu-16-04)
+- [kubernetes bare metal storage](https://medium.com/devityoself/kubernetes-bare-metal-storage-49b69d090dfa)
+- [using persistent volumes on baremetal](https://docs.giantswarm.io/guides/using-persistent-volumes-on-baremetal/)
+- [persistent storage nfs](https://docs.okd.io/latest/install_config/persistent_storage/persistent_storage_nfs.html)
 
+To verify if NFS server is already installed, we use the following command (from k8s-master where the NFS server are going to be installed)
 
+    dpkg -la | grep nfs
 
+If there is no result from previous command then proceed to install the server.
 
+    sudo apt-get update
+    sudo apt-get install nfs-kernel-server -y
 
+Create the folder where nfs data is stored. In this case we create *volumes* folder and the desired number of volumes with a fix name convencion *pvXXXXX*
 
+    sudo mkdir -p /data/volumes
+    sudo mkdir pv{001..010}
 
+    # Transfer the owner to sudo to anybody (recursively)
+    sudo chown -R nobody:nogroup /data
 
+Add this folder into the shared folder for NFS server
+
+    sudo vi /etc/exports
+
+    ## Add following line to share the entire content
+    /data *(rw,no_root_squash,no_subtree_check)
+
+Restart the server
+
+    sudo systemctl restart nfs-kernel-server
+
+Create following **PersistanceVolume** operators configuring the **nfs server** and *storageClassName*
+
+```yml
+kind: PersistentVolume
+apiVersion: v1
+metadata:
+ name: pv-001
+ labels:
+  type: nfs-pv-volume
+spec:
+ storageClassName: nfs-shared
+ capacity:
+  storage: 10Gi
+ accessModes:
+  - ReadWriteOnce
+ nfs:
+  server: 10.0.0.11
+  path: "/data/volumes/pv001"
+---
+kind: PersistentVolume
+apiVersion: v1
+metadata:
+ name: pv-002
+ labels:
+  type: nfs-pv-volume
+spec:
+ storageClassName: nfs-shared
+ capacity:
+  storage: 10Gi
+ accessModes:
+ - ReadWriteOnce
+ nfs:
+  server: 10.0.0.11
+  path: "/data/volumes/pv002"
+```
+
+Install *stable/mysql* helm char using the *persistence.storageClass=nfs-shared* we have created and configured
+
+    sudo helm install --name mysql-db --set mysqlRootPassword=secretpassword,mysqlUser=admin,mysqlPassword=admin,mysqlDatabase=default-schema,persistence.storageClass=nfs-shared stable/mysql
+
+Check pv are already bound to the PersistenceVolumeClaim
+
+    sudo kubectl get pv -o wide
+
+Check pods are running
+
+    sudo kubectl get pods -o wide
+
+### NFS client on Windows
+
+Installing the NFS client for MS Windows
+
+> Install *Services for NFS* using *Programs and Features*
+
+Mounting the export from */etc/exports*
+
+    mount \\10.0.0.11\data\ J:
+
+To unmount all the nfs drives mounted type the following command
+
+    umount -f -a
 
 ## Create custom Charts from exiting
 
