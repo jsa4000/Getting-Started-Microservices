@@ -3,6 +3,8 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
+WORKERS_COUNT = 2
+
 Vagrant.configure("2") do |config|
  
 	# Create kubernets Master node
@@ -21,7 +23,7 @@ Vagrant.configure("2") do |config|
 	end
   
  	# Create kubernets Workers
-	(1..2).each do |i|
+	(1..WORKERS_COUNT).each do |i|
 		config.vm.define "k8s-node#{i}" do |nodek8sconfig|
 			nodek8sconfig.vm.box = "k8s-image-base"
 			nodek8sconfig.vm.hostname = "k8s-node#{i}"

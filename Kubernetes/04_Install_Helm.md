@@ -97,40 +97,71 @@ To list all available charts on the reposiory run the following command
 
     helm search
 
+### Install MySQL (static volume)
+
 In order to install any **chart**, the command is basically the following
 
     helm install stable/mysql
 
 Depending if we are working on **cloud** or **bare-metal** environments, it depends the way **PersistenceVolume** (**PV**) and **PersistenceVolumeClaim** (**PVC**) are managed automatically by k8s. There are multiple types of storages, depending on **Dynamic types** or **persistance volumes**. The abstraction for both concepts is the PVC (**Persistance Volume Class**). In this [link](https://kubernetes.io/docs/concepts/storage/persistent-volumes/) you can take a look the **StorageClass** supported by kubernetes.
 
-For bare-metal environment it is neccesary to create manually the persistance volumne. In this case the StoreType is **local**. This is passed through commands to helm when installing the package.
+For bare-metal environment it is neccesary to create manually the persistance volumne. In this exampla the storageTypeClass **local** is going to be defined. This is passed through commands to helm when installing the package and used by PersistanceVolumeClaim to bind the volume.
 
-- Create the Persistance Volumne *pv-volume.yaml*
+- Create the Persistance Volumne *pv-volumes.yaml*
+
+> This directories should be created on the storage server or node selected (**nodeSelector=k8s-node2**) previously.
 
     ```yml
     kind: PersistentVolume
     apiVersion: v1
     metadata:
-    name: task-pv-volume
-    labels:
+      name: pv-00001
+      labels:
         type: local
     spec:
-    storageClassName: local
-    capacity:
+      storageClassName: local
+      capacity:
         storage: 10Gi
-    accessModes:
+      accessModes:
         - ReadWriteOnce
-    hostPath:
-        path: "/mnt/data"
-    ````
+      hostPath:
+        path: "/mnt/data/00001"
+    ---
+    kind: PersistentVolume
+    apiVersion: v1
+    metadata:
+      name: pv-00002
+      labels:
+        type: local
+    spec:
+      storageClassName: local
+      capacity:
+        storage: 10Gi
+      accessModes:
+        - ReadWriteOnce
+      hostPath:
+        path: "/mnt/data/00002"
+    ```
 
 - Apply this file to kubernetes
 
-    sudo kubectl create -f pv-volume.yaml
+        sudo kubectl create -f pv-volumes.yaml
 
-- Install the helm package providinf the information related to **sudo kubectl create -f pv-volume.2.yaml**. This autmatically will claim for an available store, in this case the previous store created.
+        sudo kubectl get pv
+        sudo kubectl describe pv/pv-00001
 
-    sudo helm install --name mysql-db --set mysqlRootPassword=secretpassword,mysqlUser=admin,mysqlPassword=admin,mysqlDatabase=default-schema,persistence.storageClass=local stabl e/mysql
+- Create the directories for persistence previously defined
+
+        vagrant ssh k8s-node2
+
+        sudo mkdir /mnt/data/00001
+        sudo mkdir /mnt/data/00001
+
+- Install the helm package providing the information *(**storageClassName**)* created on **pv-volumes.yaml**. This autmatically will claim for an available store, in this case the previous store created.
+
+> Note in the command the parameter **nodeSelector=k8s-node2** has been used to create the pods in the same node since the persistence resides in that node. In the next section shared storages will be seen for more advance and neat features.
+
+    sudo helm install --name mysql-db --set mysqlRootPassword=secretpassword,mysqlUser=admin,mysqlPassword=admin,mysqlDatabase=default-schema,persistence.storageClass=local stable/mysql
 
     ```txt
     NAME:   pouring-snail
@@ -162,7 +193,6 @@ For bare-metal environment it is neccesary to create manually the persistance vo
     ==> v1/Pod(related)
     NAME                                 READY  STATUS   RESTARTS  AGE
     pouring-snail-mysql-d6c855b9b-zdq5g  0/1    Pending  0         0s
-
 
     NOTES:
     MySQL can be accessed via port 3306 on the following DNS name from within your cluster:
@@ -203,20 +233,81 @@ To modify something about the configuration, definitions can be exported and app
 
 In the example above, the stable/mysql chart was released, and the name of our new release is smiling-penguin. You get a simple idea of the features of this MySQL chart by running
 
-    helm inspect stable/mysql
+    sudo helm inspect stable/mysql
 
 Whenever you install a chart, a new release is created. So one chart can be installed multiple times into the same cluster. And each can be independently managed and upgraded.
 
+Export the service as NodePort (**Ingress** is the way to export this to the outside world).
+
+- Export the definition of the service already create and tweak the configuration (it can also edited directly)
+
+        get services/mysql-db -o yaml > mysql-db-service.yaml
+
+- Modify the files as follow
+
+    ```yml
+    apiVersion: v1
+    kind: Service
+    metadata:
+      creationTimestamp: 2018-08-18T08:39:33Z
+      labels:
+       app: mysql-db
+       chart: mysql-0.8.3
+       heritage: Tiller
+       release: mysql-db
+      name: mysql-db-export
+    spec:
+      ports:
+      - name: mysql
+        port: 3306
+        protocol: TCP
+        targetPort: mysql
+      selector:
+        app: mysql-db
+      sessionAffinity: None
+    type: NodePort
+
+    ```
+
+- Get the services
+
+        sudo kubectl get services
+
+- Use the NodePort *3306:30046/TCP* obtained from *mysql-db-export service* in a MySQL client
+
+    ```sql
+    CREATE TABLE authors (id INT, name VARCHAR(20), email VARCHAR(20));
+
+    INSERT INTO authors (id,name,email) VALUES(1,"Vivek","xuz@abc.com");
+    INSERT INTO authors (id,name,email) VALUES(2,"Priya","p@gmail.com");
+    INSERT INTO authors (id,name,email) VALUES(3,"Tom","tom@yahoo.com");
+
+    SELECT * FROM authors
+    ```
+
 To uninstall a release.
 
-    helm list
-    helm delete <NAME>
+    sudo helm list
+    sudo helm delete <NAME>
+    sudo helm del --purge <NAME>
 
 To remove all releases
 
     helm delete $(helm list --short)
 
-## Update Chart version
+### Install MySQL (shared volume)
+
+
+
+
+
+
+
+
+
+
+
+## Create custom Charts from exiting
 
 Get the git repostory with allt the charts from GitHub
 

@@ -324,6 +324,26 @@ kube-system   kube-flannel-ds-amd64-v4qcd          1/1       Running            
 kube-system   kube-flannel-ds-amd64-wnqmw          0/1       CrashLoopBackOff   36         3h
 ```
 
+If the node try to join into kubernetes cluster after the token han been **outdated**. It must be created a new one on master side.
+
+    sudo kubeadm token create
+
+    sudo kubeadm token list
+
+```txt
+TOKEN                     TTL       EXPIRES                USAGES                   DESCRIPTION   EXTRA GROUPS
+kc35ic.1xsgicp2d0ua2nv6   23h       2018-08-19T07:50:21Z   authentication,signing   <none>        system:bootstrappers:kubeadm:default-node-token
+```
+
+Finally on the node-side it must be used the following command to join.
+
+    sudo kubeadm join 10.0.0.11:6443 --token kc35ic.1xsgicp2d0ua2nv6  --discovery-token-unsafe-skip-ca-verification
+
+Verify on master the new node has been correctly joined into the cluster
+
+    sudo kubectl get nodes -o wide
+    sudo kubectl get pods -o wide --all-namespaces
+
 #### View the Dashboard UI
 
 [Web UI Dashboard](https://kubernetes.io/docs/tasks/access-application-cluster/web-ui-dashboard/)
