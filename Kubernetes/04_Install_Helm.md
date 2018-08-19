@@ -584,30 +584,51 @@ Verify that there is something listening to that port from outside the server.
 
     curl http://10.0.0.11:32700/
 
-Now lets create a **fan-out proxy** (or **reverse proxy**) to redirect the request over the different paths configured in ingress-controller. *monitoring-ingress*
+Now lets create a **fan-out proxy** (or **reverse proxy**) to redirect the request over the different paths configured in ingress-controller.
 
-```yml
-apiVersion: extensions/v1beta1
-kind: Ingress
-metadata:
-  annotations:
-      kubernetes.io/ingress.class: nginx
-  name: monitoring-ingress
-  namespace: default
-spec:
-  rules:
-  - host: monitoring.server.com
-    http:
-      paths:
-      - path: /prometheus
-        backend:
-          serviceName: prometheus-server
-          servicePort: 80
-      - path: /grafana
-        backend:
-          serviceName: grafana-dashboard
-          servicePort: 80
-```
+Because **grafana** and **prometheus** charts are in different namespaces, the ingress controller must be splitted into two.
+
+- *prometheus-ingress.yaml*
+
+    ```yml
+    apiVersion: extensions/v1beta1
+    kind: Ingress
+    metadata:
+    annotations:
+        kubernetes.io/ingress.class: nginx
+    name: monitoring-ingress
+    namespace: prometheus
+    spec:
+    rules:
+    - host: monitoring.server.com
+        http:
+        paths:
+        - path: /prometheus
+            backend:
+            serviceName: prometheus-server
+            servicePort: 80
+    ```
+
+- *grafana-ingress.yaml*
+
+    ```yml
+    apiVersion: extensions/v1beta1
+    kind: Ingress
+    metadata:
+    annotations:
+        kubernetes.io/ingress.class: nginx
+    name: grafana-ingress
+    namespace: grafana
+    spec:
+    rules:
+    - host: monitoring.server.com
+        http:
+        paths:
+        - path: /grafana
+            backend:
+            serviceName: grafana-dashboard
+            servicePort: 80
+    ```
 
 Create previous ingress service into kubernetes
 
