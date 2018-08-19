@@ -567,7 +567,10 @@ spec:
   - name: http
     port: 80
     targetPort: 80
-    nodePort: 32700
+    protocol: TCP
+  - name: https
+    port: 443
+    targetPort: 443
     protocol: TCP
   selector:
     app: nginx-ingress
@@ -632,11 +635,11 @@ prometheus    prometheus-pushgateway          ClusterIP   10.99.66.164     <none
 prometheus    prometheus-server               NodePort    10.101.148.147   <none>        80:30001/TCP      2m
 ```
 
-Since we want to use the local (clusterIP) we must use the Port 80.
+Since we want to use the local (clusterIP) of the service *prometheus-server* it must be used the Port 80 from  *80:30001/TCP*.
 
     prometheus-server.prometheus.svc.cluster.local:80
 
-For **grafana** is must be configured following internal url address to access to Prometheus metrics:
+For **grafana** is must be configured following internal **url** address to access to Prometheus metrics:
 
     http://prometheus-server.prometheus.svc.cluster.local:80
 

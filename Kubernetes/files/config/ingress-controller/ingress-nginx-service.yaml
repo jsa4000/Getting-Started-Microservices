@@ -9,7 +9,10 @@ spec:
   - name: http
     port: 80
     targetPort: 80
-    nodePort: 32700
+    protocol: TCP
+  - name: https
+    port: 443
+    targetPort: 443
     protocol: TCP
   selector:
     app: nginx-ingress
