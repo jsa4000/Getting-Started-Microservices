@@ -507,10 +507,10 @@ First, be sure having enough persistance volumes already provisioned (static). A
 Install **prometheus** and **grafana** using the following commands. Be aware of the parameters passed through the helm.
 
     # Install stable/prometheus
-    sudo helm install --name prometheus --namespace prometheus --set alertmanager.persistentVolume.storageClass=nfs-slow,server.persistentVolume.storageClass=nfs-slow stable/prometheus
+    sudo helm install --name prometheus --namespace prometheus --set alertmanager.persistentVolume.storageClass=nfs-slow,server.persistentVolume.storageClass=nfs-slow,server.service.type=NodePort,server.service.nodePort=30001 stable/prometheus
 
     # Install stable/grafana
-    sudo helm install --name grafana-dashboard --namespace grafana --set persistence.enabled=true,persistence.accessModes={ReadWriteOnce},persistence.size=8Gi,persistence.storageClassName=nfs-slow stable/grafana
+    sudo helm install --name grafana-dashboard --namespace grafana --set persistence.enabled=true,persistence.accessModes={ReadWriteOnce},persistence.size=8Gi,persistence.storageClassName=nfs-slow,service.type=NodePort stable/grafana
 
 See the list of helm chart installed
 
@@ -615,7 +615,36 @@ Check current ingress controllers
     sudo kubectl get ingress
     sudo kubectl describe ingress/monitoring-ingress
 
+Get the *admin* user password for grafana by running
 
+    kubectl get secret --namespace grafana grafana-dashboard -o jsonpath="{.data.admin-password}" | base64 --decode ; echo
+
+The internal **uri**  that is used to communicate between pods that belong to different namespaces is *service.namespace.svc.cluster.local*.
+
+    sudo kubectl get svc --all-namespaces
+
+```txt
+NAMESPACE     NAME                            TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)           AGE
+default       kubernetes                      ClusterIP   10.96.0.1        <none>        443/TCP           15m
+grafana       grafana-dashboard               NodePort    10.108.41.170    <none>        30002:30635/TCP   1m
+...
+prometheus    prometheus-pushgateway          ClusterIP   10.99.66.164     <none>        9091/TCP          2m
+prometheus    prometheus-server               NodePort    10.101.148.147   <none>        80:30001/TCP      2m
+```
+
+Since we want to use the local (clusterIP) we must use the Port 80.
+
+    prometheus-server.prometheus.svc.cluster.local:80
+
+For **grafana** is must be configured following internal url address to access to Prometheus metrics:
+
+    http://prometheus-server.prometheus.svc.cluster.local:80
+
+Finally, sse following dashboards
+
+- Node eXporter: 405
+- Cadvisor: 893
+- Kubernetes cluster monitoring: 1621
 
 ## Create custom Charts from reposirtory
 
