@@ -630,10 +630,41 @@ Because **grafana** and **prometheus** charts are in different namespaces, the i
             servicePort: 80
     ```
 
+> The host: **monitoring.server.com** should be added into the **host** file.
+
 Create previous ingress service into kubernetes
 
-    sudo kubectl apply -f /vagrant/files/monitoring/monitoring-ingress.yaml
+    sudo kubectl apply -f /vagrant/files/monitoring/prometheus-ingress.yaml
+    sudo kubectl apply -f /vagrant/files/monitoring/grafana-ingress.yaml
 
+Take a look in the logs to verify there is no errors
+
+    sudo kubectl logs pods/nginx-ingress-controller-5cbd7465d6-pc7vk
+
+```txt
+-------------------------------------------------------------------------------
+NGINX Ingress controller
+  Release:    0.17.1
+  Build:      git-12f7966
+  Repository: https://github.com/kubernetes/ingress-nginx.git
+-------------------------------------------------------------------------------
+
+nginx version: nginx/1.13.12
+W0819 16:45:26.075661       6 client_config.go:552] Neither --kubeconfig nor --master was specified.  Using the inClusterConfig.  This might not work.
+I0819 16:45:26.075772       6 main.go:191] Creating API client for https://10.96.0.1:443
+I0819 16:45:26.089072       6 main.go:235] Running in Kubernetes cluster version v1.11
+I0819 17:19:42.914675       6 controller.go:185] Backend successfully reloaded.
+I0819 17:19:52.312328       6 controller.go:169] Configuration changes detected, backend reload required.
+I0819 17:19:52.313812       6 event.go:221] Event(v1.ObjectReference{Kind:"Ingress", Namespace:"grafana", Name:"grafana-ingress", UID:"152316d4-a3d4-11e8-9732-02176dc233c4", APIVersion:"extensions/v1beta1", ResourceVersion:"9809", FieldPath:""}): type: 'Normal' reason: 'CREATE' Ingress grafana/grafana-ingress
+I0819 17:19:52.388332       6 controller.go:185] Backend successfully reloaded.
+I0819 17:19:57.554135       6 controller.go:169] Configuration changes detected, backend reload required.
+I0819 17:19:57.554546       6 event.go:221] Event(v1.ObjectReference{Kind:"Ingress", Namespace:"prometheus", Name:"prometheus-ingress", UID:"18431a3e-a3d4-11e8-9732-02176dc233c4", APIVersion:"extensions/v1beta1", ResourceVersion:"9821", FieldPath:""}): type: 'Normal' reason: 'CREATE' Ingress prometheus/prometheus-ingress
+I0819 17:19:57.630567       6 controller.go:185] Backend successfully reloaded.
+I0819 17:20:27.591126       6 status.go:362] updating Ingress grafana/grafana-ingress status to [{ }]
+I0819 17:20:27.592051       6 status.go:362] updating Ingress prometheus/prometheus-ingress status to [{ }]
+I0819 17:20:27.595962       6 event.go:221] Event(v1.ObjectReference{Kind:"Ingress", Namespace:"prometheus", Name:"prometheus-ingress", UID:"18431a3e-a3d4-11e8-9732-02176dc233c4", APIVersion:"extensions/v1beta1", ResourceVersion:"9870", FieldPath:""}): type: 'Normal' reason: 'UPDATE' Ingress prometheus/prometheus-ingress
+I0819 17:20:27.596286       6 event.go:221] Event(v1.ObjectReference{Kind:"Ingress", Namespace:"grafana", Name:"grafana-ingress", UID:"152316d4-a3d4-11e8-9732-02176dc233c4", APIVersion:"extensions/v1beta1", ResourceVersion:"9871", FieldPath:""}): type: 'Normal' reason: 'UPDATE' Ingress grafana/grafana-ingress
+```
 Check current ingress controllers
 
     sudo kubectl get ingress
