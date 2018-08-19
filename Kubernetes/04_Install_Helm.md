@@ -329,10 +329,14 @@ To verify if NFS server is already installed, we use the following command (from
 
     dpkg -la | grep nfs
 
-If there is no result from previous command then proceed to install the server.
+If there is no result from previous command then proceed to install the **server**.
 
     sudo apt-get update
     sudo apt-get install nfs-kernel-server -y
+
+On **workers**, or any node have to access to NFS server, it must be installed the following package instead
+
+    sudo apt install nfs-common -y
 
 Create the folder where nfs data is stored. In this case we create *volumes* folder and the desired number of volumes with a fix name convencion *pvXXXXX*
 
@@ -341,6 +345,7 @@ Create the folder where nfs data is stored. In this case we create *volumes* fol
 
     # Transfer the owner to sudo to anybody (recursively)
     sudo chown -R nobody:nogroup /data
+    sudo chmod -R 777 /data # Just for testing grant all persmissions
 
 Add this folder into the shared folder for NFS server
 
@@ -356,42 +361,42 @@ Restart the server
 Create following **PersistanceVolume** operators configuring the **nfs server** and *storageClassName*
 
 ```yml
-kind: PersistentVolume
 apiVersion: v1
+kind: PersistentVolume
 metadata:
- name: pv-001
- labels:
-  type: nfs-pv-volume
+  name: pv0001
 spec:
- storageClassName: nfs-shared
- capacity:
-  storage: 10Gi
- accessModes:
-  - ReadWriteOnce
- nfs:
-  server: 10.0.0.11
-  path: "/data/volumes/pv001"
+  capacity:
+    storage: 10Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Recycle
+  storageClassName: nfs-slow
+  nfs:
+   path: /data/volumes/pv001
+   server: 10.0.0.11
 ---
-kind: PersistentVolume
 apiVersion: v1
+kind: PersistentVolume
 metadata:
- name: pv-002
- labels:
-  type: nfs-pv-volume
+  name: pv0002
 spec:
- storageClassName: nfs-shared
- capacity:
-  storage: 10Gi
- accessModes:
- - ReadWriteOnce
- nfs:
-  server: 10.0.0.11
-  path: "/data/volumes/pv002"
+  capacity:
+    storage: 10Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Recycle
+  storageClassName: nfs-slow
+  nfs:
+   path: /data/volumes/pv002
+   server: 10.0.0.11
 ```
+
+> **persistentVolumeReclaimPolicy** define the bahaviour of What happens to a persistent volume when released from its claim. See [Kubernetes API Documentation](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.11/#persistentvolumeclaim-v1-core) for further available options.
 
 Install *stable/mysql* helm char using the *persistence.storageClass=nfs-shared* we have created and configured
 
-    sudo helm install --name mysql-db --set mysqlRootPassword=secretpassword,mysqlUser=admin,mysqlPassword=admin,mysqlDatabase=default-schema,persistence.storageClass=nfs-shared stable/mysql
+    sudo helm install --name mysql-db --set mysqlRootPassword=secretpassword,mysqlUser=admin,mysqlPassword=admin,mysqlDatabase=default-schema,persistence.storageClass=nfs-slow stable/mysql
 
 Check pv are already bound to the PersistenceVolumeClaim
 
@@ -400,6 +405,24 @@ Check pv are already bound to the PersistenceVolumeClaim
 Check pods are running
 
     sudo kubectl get pods -o wide
+
+### Mount NFS on Linux
+
+First, go to a worker (i.e *k8s-node1*) to verify NFS server is visbile from outside.
+
+In order to mount an external NFS server use the **mount** command
+
+    sudo mount -t nfs 10.0.0.11:/data/volumes/pv001 /home/vagrant/tmp
+
+> Now */data/volumes/pv001* and */data/volumes/pv001* are in sync.
+
+To list all the mounts performed on the system type
+
+    mount
+
+To unmount use the path used for mount the volume
+
+    sudo umount /home/vagrant/tmp -l
 
 ### NFS client on Windows
 

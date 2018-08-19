@@ -18,6 +18,7 @@ Vagrant.configure("2") do |config|
 			vb.name = "k8s-master"
 			vb.memory = "2048"
 		end
+		masterk8sconfig.vm.provision :shell, path: "provision/nfs-server-master-install.sh"
 		masterk8sconfig.vm.provision :shell, path: "provision/config_k8s_nodes.sh"
 		masterk8sconfig.vm.provision :shell, path: "provision/kubeadm-master-init.sh"
 	end
@@ -34,6 +35,7 @@ Vagrant.configure("2") do |config|
 				vb.name = "k8s-node#{i}"
 				vb.memory = "2048"
 			end
+			nodek8sconfig.vm.provision :shell, path: "provision/nfs-client-node-install.sh"
 			nodek8sconfig.vm.provision :shell, path: "provision/config_k8s_nodes.sh"
 			nodek8sconfig.vm.provision :shell, path: "provision/kubeadm-node-init.sh"
 		end
