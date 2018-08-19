@@ -85,7 +85,7 @@ or more concisely
 
     helm reset
 
-## Example Chart
+## Example Chart (MySQL)
 
 To install a chart, you can run the helm **install** command. Helm has several ways to find and install a chart, but the easiest is to use one of the official stable charts.
 
@@ -464,6 +464,7 @@ First, go to a worker (i.e *k8s-node1*) to verify NFS server is visbile from out
 
 In order to mount an external NFS server use the **mount** command
 
+    mkdir -p /home/vagrant/tmp
     sudo mount -t nfs 10.0.0.11:/data/volumes/pv001 /home/vagrant/tmp
 
 > Now */data/volumes/pv001* and */data/volumes/pv001* are in sync.
@@ -490,7 +491,133 @@ To unmount all the nfs drives mounted type the following command
 
     umount -f -a
 
-## Create custom Charts from exiting
+## Example Chart (Prometheus and Grafana)
+
+In this section, it is going to be explained how to install **prometheus** and **grafana** charts using **Helm**
+
+> We are going to use [Kubeapps Hub](https://hub.kubeapps.com/) to look for **prometheus** and **grafana** specifications and parameters. However it can be seen directly from [Github](https://github.com/helm/charts).
+
+First, be sure having enough persistance volumes already provisioned (static). At least, it will be needed three of them.
+
+    sudo kubectl get pv -o wide
+
+    # If No resources found.
+    sudo kubectl apply -f  /vagrant/files/volumes/pv-nfs-volumes-001_010.yaml
+
+Install **prometheus** and **grafana** using the following commands. Be aware of the parameters passed through the helm.
+
+    # Install stable/prometheus
+    sudo helm install --name prometheus --namespace prometheus --set alertmanager.persistentVolume.storageClass=nfs-slow,server.persistentVolume.storageClass=nfs-slow stable/prometheus
+
+    # Install stable/grafana
+    sudo helm install --name grafana-dashboard --namespace grafana --set persistence.enabled=true,persistence.accessModes={ReadWriteOnce},persistence.size=8Gi,persistence.storageClassName=nfs-slow stable/grafana
+
+See the list of helm chart installed
+
+    sudo helm list
+
+```txtNAME                    REVISION        UPDATED                         STATUS          CHART                   APP VERSION     NAMESPACE
+grafana-dashboard       1               Sun Aug 19 13:58:53 2018        DEPLOYED        grafana-1.14.0          5.2.2           grafana
+prometheus              1               Sun Aug 19 13:53:04 2018        DEPLOYED        prometheus-7.0.2        2.3.2           prometheus
+```
+
+Check the status for pv, pvs and pods currently **binded** and **running**.
+
+    sudo kubectl get pv -o wide
+    sudo kubectl get pvc -o wide --all-namespaces
+    sudo kubectl get pods -o wide --all-namespaces
+
+Create the Ingress controller that binds both **grafana** and **prometheus** endpoints.
+
+    sudo kubectl get svc -o wide -n=grafana
+    sudo kubectl get svc -o wide -n=prometheus -l component=server
+
+```txt
+NAME                TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)   AGE       SELECTOR
+prometheus-server   ClusterIP   10.107.151.168   <none>        80/TCP    15m       app=prometheus,component=server,release=prometheus
+grafana-dashboard   ClusterIP   10.105.92.251    <none>        80/TCP    9m        app=grafana,release=grafana-dashboard
+```
+
+Install **ingress controller**
+
+    sudo helm install stable/nginx-ingress --name nginx-ingress --set controller.stats.enabled=true,controller.metrics.enabled=true
+
+Check the services that nginx-ingress controller has created
+
+```yml
+NAMESPACE     NAME                               TYPE           CLUSTER-IP       EXTERNAL-IP   PORT(S)                      AGE
+default       kubernetes                         ClusterIP      10.96.0.1        <none>        443/TCP                      5h
+default       nginx-ingress-controller           LoadBalancer   10.110.62.104    <pending>     80:30989/TCP,443:31158/TCP   4m
+default       nginx-ingress-controller-metrics   ClusterIP      10.110.41.27     <none>        9913/TCP                     4m
+default       nginx-ingress-controller-stats     ClusterIP      10.107.111.243   <none>        18080/TCP                    4m
+default       nginx-ingress-default-backend      ClusterIP      10.97.106.240    <none>        80/TCP                       4m
+```
+
+On **cloud** environments the service *nginx-ingress-controller* (load balancer) creates a new ELB with elastic external-ip. However, on **bare-metal** environments, it is needed to create a service that exposes the nginx-ingress controller to the outside as a NodePort. Following file *ingress-nginx-service.yaml* exposes **app: nginx-ingress** to port **32700**
+
+```yml
+apiVersion: v1
+kind: Service
+metadata:
+  name: ingress-nginx
+  namespace: default
+spec:
+  type: NodePort
+  ports:
+  - name: http
+    port: 80
+    targetPort: 80
+    nodePort: 32700
+    protocol: TCP
+  selector:
+    app: nginx-ingress
+```
+
+    sudo kubectl apply -f /vagrant/files/ingress-controller/ingress-nginx-service.yaml
+
+> This is the official [service](https://raw.githubusercontent.com/kubernetes/ingress-nginx/master/deploy/provider/baremetal/service-nodeport.yaml) with some changes in it.
+
+Verify that there is something listening to that port from outside the server.
+
+    curl http://10.0.0.11:32700/
+
+Now lets create a **fan-out proxy** (or **reverse proxy**) to redirect the request over the different paths configured in ingress-controller. *monitoring-ingress*
+
+```yml
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  annotations:
+      kubernetes.io/ingress.class: nginx
+  name: monitoring-ingress
+  namespace: default
+spec:
+  rules:
+  - host: monitoring.server.com
+    http:
+      paths:
+      - path: /prometheus
+        backend:
+          serviceName: prometheus-server
+          servicePort: 80
+      - path: /grafana
+        backend:
+          serviceName: grafana-dashboard
+          servicePort: 80
+```
+
+Create previous ingress service into kubernetes
+
+    sudo kubectl apply -f /vagrant/files/monitoring/monitoring-ingress.yaml
+
+Check current ingress controllers
+
+    sudo kubectl get ingress
+    sudo kubectl describe ingress/monitoring-ingress
+
+
+
+## Create custom Charts from reposirtory
 
 Get the git repostory with allt the charts from GitHub
 
