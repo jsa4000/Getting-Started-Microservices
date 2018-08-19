@@ -256,7 +256,7 @@ Export the service as NodePort (**Ingress** is the way to export this to the out
 
 - Export the definition of the service already create and tweak the configuration (it can also edited directly)
 
-        get services/mysql-db -o yaml > mysql-db-service.yaml
+        sudo kubectl sget services/mysql-db -o yaml > mysql-db-service.yaml
 
 - Modify the files as follow
 
@@ -360,6 +360,8 @@ Restart the server
 
 Create following **PersistanceVolume** operators configuring the **nfs server** and *storageClassName*
 
+Crate a file in order to create the volumes assigned to the NFS folders created previously. *pv-nfs-volumes-001_010.yaml.yaml*
+
 ```yml
 apiVersion: v1
 kind: PersistentVolume
@@ -394,17 +396,67 @@ spec:
 
 > **persistentVolumeReclaimPolicy** define the bahaviour of What happens to a persistent volume when released from its claim. See [Kubernetes API Documentation](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.11/#persistentvolumeclaim-v1-core) for further available options.
 
-Install *stable/mysql* helm char using the *persistence.storageClass=nfs-shared* we have created and configured
+Create those volumes into Kubernetes cluster
+
+    sudo kubectl apply -f /vagrant/files/volumes/pv-nfs-volumes-001_010.yaml
+
+Install *stable/mysql* helm char using the *persistence.storageClass=nfs-slow* we have created and configured
 
     sudo helm install --name mysql-db --set mysqlRootPassword=secretpassword,mysqlUser=admin,mysqlPassword=admin,mysqlDatabase=default-schema,persistence.storageClass=nfs-slow stable/mysql
 
-Check pv are already bound to the PersistenceVolumeClaim
+Check pv are already **bounded** to the PersistenceVolumeClaim
 
     sudo kubectl get pv -o wide
 
-Check pods are running
+```txt
+NAME      CAPACITY   ACCESS MODES   RECLAIM POLICY   STATUS      CLAIM              STORAGECLASS   REASON    AGE
+pv0001    10Gi       RWO            Recycle          Available                      nfs-slow                 4m
+...
+pv0009    10Gi       RWO            Recycle          Available                      nfs-slow                 4m
+pv0010    10Gi       RWO            Recycle          Bound       default/mysql-db   nfs-slow                 4m
+```
+
+Verify there is data into **NFS server** for **/data/volumes/pv010**
+
+Check pvc are already **bounded** to the PersistenceVolume
+
+    sudo kubectl get pvc -o wide
+
+```txt
+NAME       STATUS    VOLUME    CAPACITY   ACCESS MODES   STORAGECLASS   AGE
+mysql-db   Bound     pv0010    10Gi       RWO            nfs-slow       1m
+```
+
+Check create pods are running
 
     sudo kubectl get pods -o wide
+
+```txt
+NAME                        READY     STATUS    RESTARTS   AGE       IP           NODE        NOMINATED NODE
+mysql-db-67bd8bc5db-jlq47   1/1       Running   0          2m        10.244.2.2   k8s-node2   <none>
+```
+
+If the status if not equal to *running* check the logs by using these commands
+
+    sudo kubectl logs pods/mysql-db-67bd8bc5db-jlq47
+    sudo kubectl describe pods/mysql-db-67bd8bc5db-jlq47
+
+Create the NodePort or Ingress controller to test the MYSQL installation (Check previous chapter for the changes to to).
+
+    sudo kubectl get services/mysql-db -o yaml > mysql-db-service.yaml
+    sudo kubectl apply -f mysql-db-service.yaml
+
+Check if the service has been created
+
+    sudo kubectl get services -o wide
+
+Connect to MYSQl and create some tables and insert data.
+
+Remove the pods in order to verify the Persistence is running accordingly.
+
+    sudo kubectl delete pods/mysql-db-67bd8bc5db-jlq47
+
+Check again MySQL database
 
 ### Mount NFS on Linux
 
