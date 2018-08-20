@@ -527,7 +527,9 @@ Check the status for pv, pvs and pods currently **binded** and **running**.
     sudo kubectl get pvc -o wide --all-namespaces
     sudo kubectl get pods -o wide --all-namespaces
 
-Create the Ingress controller that binds both **grafana** and **prometheus** endpoints.
+Create the **Ingress controller** that binds both **grafana** and **prometheus** endpoints.
+
+> An **ingress controller** is a way to unify all the different endpoints inside a kubernetes cluster using a series of **rules** and **behaviours**. Also, ingress controllers is a way to avoid creating load-balancers on a cloud plovider whatever a service is created. Using a ingress controllers (usually one per namespace or context) unifies all the different changes of the services an update its configuration dinamically. It can acts as a **reverse proxy** and as a **load balancer**.
 
     sudo kubectl get svc -o wide -n=grafana
     sudo kubectl get svc -o wide -n=prometheus -l component=server
@@ -538,7 +540,9 @@ prometheus-server   ClusterIP   10.107.151.168   <none>        80/TCP    15m    
 grafana-dashboard   ClusterIP   10.105.92.251    <none>        80/TCP    9m        app=grafana,release=grafana-dashboard
 ```
 
-Install **ingress controller**
+### Nginx Ingress Controller**
+
+Following command install nginx-ingress controller
 
     sudo helm install stable/nginx-ingress --name nginx-ingress --set controller.stats.enabled=true,controller.metrics.enabled=true
 
@@ -594,9 +598,9 @@ Because **grafana** and **prometheus** charts are in different namespaces, the i
     apiVersion: extensions/v1beta1
     kind: Ingress
     metadata:
-    annotations:
+     annotations:
         kubernetes.io/ingress.class: nginx
-    name: monitoring-ingress
+     name: monitoring-ingress
     namespace: prometheus
     spec:
     rules:
@@ -615,9 +619,9 @@ Because **grafana** and **prometheus** charts are in different namespaces, the i
     apiVersion: extensions/v1beta1
     kind: Ingress
     metadata:
-    annotations:
+      annotations:
         kubernetes.io/ingress.class: nginx
-    name: grafana-ingress
+      name: grafana-ingress
     namespace: grafana
     spec:
     rules:
@@ -665,10 +669,176 @@ I0819 17:20:27.592051       6 status.go:362] updating Ingress prometheus/prometh
 I0819 17:20:27.595962       6 event.go:221] Event(v1.ObjectReference{Kind:"Ingress", Namespace:"prometheus", Name:"prometheus-ingress", UID:"18431a3e-a3d4-11e8-9732-02176dc233c4", APIVersion:"extensions/v1beta1", ResourceVersion:"9870", FieldPath:""}): type: 'Normal' reason: 'UPDATE' Ingress prometheus/prometheus-ingress
 I0819 17:20:27.596286       6 event.go:221] Event(v1.ObjectReference{Kind:"Ingress", Namespace:"grafana", Name:"grafana-ingress", UID:"152316d4-a3d4-11e8-9732-02176dc233c4", APIVersion:"extensions/v1beta1", ResourceVersion:"9871", FieldPath:""}): type: 'Normal' reason: 'UPDATE' Ingress grafana/grafana-ingress
 ```
+
 Check current ingress controllers
 
     sudo kubectl get ingress
     sudo kubectl describe ingress/monitoring-ingress
+
+### Traefik Ingress Controller**
+
+> Before proceed to the installation, is it **recommended** to fetch all *helm-charts* from its repo and modify them accordingly. This way ensures to use the proper version over the time. Later on, we can decide if some variables will be modified on the file *values.yaml* or passing through parameters during the installation.
+
+Following command install traefik-ingress controller
+
+    sudo helm install --name traefik-ingress --namespace kube-system --set serviceType=NodePort,dashboard.enabled=true,metrics.prometheus.enabled=true,rbac.enabled=true stable/traefik
+
+> *rbac.enabled=true* this parameter has been enabled to ensure communication between **kube-system** namespace and **other** namespaces based on role-based for this deployment.
+
+Following is the information created about the service and NodePorts
+
+    sudo kubectl describe svc traefik-ingress --namespace kube-system
+    sudo kubectl get -n kube-system svc/traefik-ingress -o yaml
+
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  creationTimestamp: 2018-08-20T18:14:47Z
+  labels:
+    app: traefik
+    chart: traefik-1.41.0
+    heritage: Tiller
+    release: traefik-ingress
+  name: traefik-ingress
+  namespace: kube-system
+  resourceVersion: "16459"
+  selfLink: /api/v1/namespaces/kube-system/services/traefik-ingress
+  uid: ebde43ba-a4a4-11e8-b1e6-02176dc233c4
+spec:
+  clusterIP: 10.107.99.179
+  externalTrafficPolicy: Cluster
+  ports:
+  - name: http
+    nodePort: 31559
+    port: 80
+    protocol: TCP
+    targetPort: http
+  - name: https
+    nodePort: 31388
+    port: 443
+    protocol: TCP
+    targetPort: httpn
+  - name: metrics
+    nodePort: 30094
+    port: 8080
+    protocol: TCP
+    targetPort: dash
+  selector:
+    app: traefik
+    release: traefik-ingress
+  sessionAffinity: None
+  type: NodePort
+status:
+  loadBalancer: {}
+```
+
+This is the link to access to the [dashboard](http://10.0.0.11:30094/dashboard/) and the [metrics](http://10.0.0.11:30094/metrics).
+
+The configmap shows some of the previous configuration performed during the installation.
+
+    sudo kubectl get -n kube-system cm/traefik-ingress -o yaml
+
+```yaml
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  creationTimestamp: 2018-08-20T18:54:23Z
+  labels:
+    app: traefik
+    chart: traefik-1.41.0
+    heritage: Tiller
+    release: traefik-ingress
+  name: traefik-ingress
+  namespace: kube-system
+  resourceVersion: "19884"
+  selfLink: /api/v1/namespaces/kube-system/configmaps/traefik-ingress
+  uid: 73fc543e-a4aa-11e8-b1e6-02176dc233c4
+data:
+  traefik.toml: |
+    # traefik.toml
+    logLevel = "INFO"
+    defaultEntryPoints = ["http", "httpn"]
+    [entryPoints]
+      [entryPoints.http]
+      address = ":80"
+      compress = true
+      [entryPoints.httpn]
+      address = ":8880"
+      compress = true
+    [kubernetes]
+    [web]
+    address = ":8080"
+    [web.metrics.prometheus]
+```
+
+Now, let´s install prometheus and grafana enabling direcly an ingress controller.
+
+    # Install stable/prometheus
+    sudo helm install --name prometheus --namespace prometheus --set alertmanager.persistentVolume.storageClass=nfs-slow,server.persistentVolume.storageClass=nfs-slow,server.service.type=NodePort,server.service.nodePort=30001,server.ingress.enabled=true,server.ingress.annotations."kubernetes\.io/ingress\.class"=traefik,server.ingress.hosts={prometheus.monitoring.com} stable/prometheus
+
+    # Install stable/grafana
+    sudo helm install --name grafana-dashboard --namespace grafana --set persistence.enabled=true,persistence.accessModes={ReadWriteOnce},persistence.size=8Gi,persistence.storageClassName=nfs-slow,service.type=NodePort,ingress.enabled=true,ingress.annotations."kubernetes\.io/ingress\.class"=traefik,ingress.hosts={grafana.monitoring.com} stable/grafana
+
+> Note how the parameter `kubernetes.io/ingress.class: traefik` has been converted to `ingress.annotations."kubernetes\.io/ingress\.class"=traefik`.
+
+```yaml
+ingress:
+  annotations:
+    kubernetes.io/ingress.class: traefik
+```
+
+Get the Grafana admin password using the following command
+
+    kubectl get secret --namespace grafana grafana-dashboard -o jsonpath="{.data.admin-password}" | base64 --decode ; echo
+
+Now configure the host with the following
+
+```txt
+10.0.0.11   grafana.monitoring.com
+10.0.0.11   prometheus.monitoring.com
+```
+
+Both services (by ingress controller) can be accesses from links bellow:
+
+- [Traefik Dashboard](http://10.0.0.11:30576/dashboard/)
+- [grafana dashboard](http://grafana.monitoring.com:31971/login)
+- [prometheus dashboard](http://prometheus.monitoring.com:31971)
+
+#### Prometheus Operator
+
+In order to install kubernets operator use the following command
+
+    sudo kubectl apply -f https://raw.githubusercontent.com/coreos/prometheus-operator/master/bundle.yaml
+
+Create a file with the ServiceMonitor Operator defined in Kubernetes Operator
+
+```yaml
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+    name: traefik-metrics-sm
+    labels:
+        app: traefik
+        prometheus: kube-prometheus
+spec:
+    selector:
+        matchLabels:
+            app: traefik
+    namespaceSelector:
+        matchNames:
+            - kube-system
+    endpoints:
+    - port: metrics
+      interval: 10s
+      honorLabels: true
+```
+
+Apply the file to kubernetes cluster
+
+    sudo kubectl apply -f /vagrant/files/traefik-metrics-sm.yaml
+
+### Configuration
 
 Get the *admin* user password for grafana by running
 
