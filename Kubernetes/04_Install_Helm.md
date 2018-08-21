@@ -809,6 +809,10 @@ Both services (by ingress controller) can be accesses from links bellow:
 
 #### Prometheus Operator
 
+Prometheus operator is a way to update the endpoints and scrapping for new deployments without modifying the configuration file *prometheus.yaml*. Once a ServiceMonitor is created a new Prometheus server is created to fetch the metrics for these new endpoints.
+
+[Prometheus Operator guide](https://github.com/coreos/prometheus-operator/blob/master/Documentation/user-guides/getting-started.md)
+
 In order to install kubernets operator we can use helm charts agains
 
     # Add new repo to helm **coreos**
@@ -820,32 +824,101 @@ In order to install kubernets operator we can use helm charts agains
     # Install prometheus operator chart into the same namespaces as prometheus
     sudo helm install --name prometheus-operator --namespace prometheus --set rbacEnable=true coreos/prometheus-operator
 
-Create a file with a **ServiceMonitor** Operator defined in Kubernetes Operator
+Create a file with the following content **RBAC**,**ServiceMonitor**, **Prometheus** and **Prometheus Dashboard**.
 
 ```yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: prometheus
+---
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: ClusterRole
+metadata:
+  name: prometheus
+rules:
+- apiGroups: [""]
+  resources:
+  - nodes
+  - services
+  - endpoints
+  - pods
+  verbs: ["get", "list", "watch"]
+- apiGroups: [""]
+  resources:
+  - configmaps
+  verbs: ["get"]
+- nonResourceURLs: ["/metrics"]
+  verbs: ["get"]
+---
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: ClusterRoleBinding
+metadata:
+  name: prometheus
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: prometheus
+subjects:
+- kind: ServiceAccount
+  name: prometheus
+  namespace: default
+---
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
-    name: traefik-metrics-sm
+    name: prometheus-metrics-sm
     labels:
-        app: traefik
-        prometheus: kube-prometheus
+        prometheus: traefik
 spec:
     selector:
         matchLabels:
-            app: traefik
+            app: traefik        # This is the label usedon Traefik-Ingress service
     namespaceSelector:
         matchNames:
-            - kube-system
+            - kube-system       # This is dthe domain where the Traefik service has been deployed.
     endpoints:
-    - port: metrics
+    - port: metrics             # This is the port name created on Traefik-Ingress service
       interval: 10s
       honorLabels: true
+---
+apiVersion: monitoring.coreos.com/v1
+kind: Prometheus
+metadata:
+  name: prometheus-traefik
+  labels:
+        prometheus: prometheus
+spec:
+  serviceAccountName: prometheus
+  serviceMonitorSelector:
+    matchLabels:
+        prometheus: traefik
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: prometheus
+spec:
+  type: NodePort
+  ports:
+  - name: web
+    nodePort: 30900
+    port: 9090
+    protocol: TCP
+    targetPort: web
+  selector:
+    app: prometheus
 ```
 
-Apply the file to kubernetes cluster
+Apply the content of the yaml file to kubernetes cluster.
 
-    sudo kubectl apply -f /vagrant/files/traefik-metrics-sm.yaml
+    sudo kubectl apply -f /vagrant/files/traefik-metrics-prometheus.yaml
+
+Verify the installation and deployment has no errors (such as permessions or denied access to pods)
+
+    sudo kubectl logs prometheus-prometheus-traefik-0 prometheus
+
+Go to [prometheus dashboard](http://10.0.0.11:30900) to check the new endpoint has been added.
 
 ### Configuration
 
