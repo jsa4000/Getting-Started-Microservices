@@ -775,7 +775,7 @@ data:
 Now, let´s install prometheus and grafana enabling direcly an ingress controller.
 
     # Install stable/prometheus
-    sudo helm install --name prometheus --namespace prometheus --set alertmanager.persistentVolume.storageClass=nfs-slow,server.persistentVolume.storageClass=nfs-slow,server.service.type=NodePort,server.service.nodePort=30001,server.ingress.enabled=true,server.ingress.annotations."kubernetes\.io/ingress\.class"=traefik,server.ingress.hosts={prometheus.monitoring.com} stable/prometheus
+    sudo helm install --name prometheus --namespace prometheus --set alertmanager.persistentVolume.storageClass=nfs-slow,server.persistentVolume.storageClass=nfs-slow,server.service.type=NodePort,server.service.nodePort=30001,server.ingress.enabled=true,server.ingress.annotations."kubernetes\.io/ingress\.class"=traefik,server.ingress.hosts={prometheus.monitoring.com},alertmanager.service.type=NodePort,alertmanager.ingress.enabled=true,alertmanager.ingress.annotations."kubernetes\.io/ingress\.class"=traefik,alertmanager.ingress.hosts={alertmanager.monitoring.com} stable/prometheus
 
     # Install stable/grafana
     sudo helm install --name grafana-dashboard --namespace grafana --set persistence.enabled=true,persistence.accessModes={ReadWriteOnce},persistence.size=8Gi,persistence.storageClassName=nfs-slow,service.type=NodePort,ingress.enabled=true,ingress.annotations."kubernetes\.io/ingress\.class"=traefik,ingress.hosts={grafana.monitoring.com} stable/grafana
@@ -797,6 +797,7 @@ Now configure the host with the following
 ```txt
 10.0.0.11   grafana.monitoring.com
 10.0.0.11   prometheus.monitoring.com
+10.0.0.11   alertmanager.monitoring.com
 ```
 
 Both services (by ingress controller) can be accesses from links bellow:
@@ -804,14 +805,22 @@ Both services (by ingress controller) can be accesses from links bellow:
 - [Traefik Dashboard](http://10.0.0.11:30576/dashboard/)
 - [grafana dashboard](http://grafana.monitoring.com:31971/login)
 - [prometheus dashboard](http://prometheus.monitoring.com:31971)
+- [AlertManager dashboard](http://alertmanager.monitoring.com:31971)
 
 #### Prometheus Operator
 
-In order to install kubernets operator use the following command
+In order to install kubernets operator we can use helm charts agains
 
-    sudo kubectl apply -f https://raw.githubusercontent.com/coreos/prometheus-operator/master/bundle.yaml
+    # Add new repo to helm **coreos**
+    sudo helm repo add coreos https://s3-eu-west-1.amazonaws.com/coreos-charts/stable/
 
-Create a file with the ServiceMonitor Operator defined in Kubernetes Operator
+    # Verify the repo has been added correctly
+    sudo helm repo list
+
+    # Install prometheus operator chart into the same namespaces as prometheus
+    sudo helm install --name prometheus-operator --namespace prometheus --set rbacEnable=true coreos/prometheus-operator
+
+Create a file with a **ServiceMonitor** Operator defined in Kubernetes Operator
 
 ```yaml
 apiVersion: monitoring.coreos.com/v1
