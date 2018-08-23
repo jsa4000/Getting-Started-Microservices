@@ -827,11 +827,14 @@ In order to install kubernets operator we can use helm charts agains
 Create a file with the following content **RBAC**,**ServiceMonitor**, **Prometheus** and **Prometheus Dashboard**.
 
 ```yaml
+## Create the Service Account called prometheus to be used by Prometheus Operator service
 apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: prometheus
 ---
+# Create a ClusterRole called prometheus to grant acces to a partucluar resources on k8s cluster
+# The kind Role just apply to one particular namespace.
 apiVersion: rbac.authorization.k8s.io/v1beta1
 kind: ClusterRole
 metadata:
@@ -851,6 +854,7 @@ rules:
 - nonResourceURLs: ["/metrics"]
   verbs: ["get"]
 ---
+# This create the binding between the 'ServiceAccount.prometheus' and 'ClusterRole.prometheus'
 apiVersion: rbac.authorization.k8s.io/v1beta1
 kind: ClusterRoleBinding
 metadata:
@@ -869,11 +873,11 @@ kind: ServiceMonitor
 metadata:
     name: prometheus-metrics-sm
     labels:
-        prometheus: traefik
+        tier: edge
 spec:
     selector:
         matchLabels:
-            app: traefik        # This is the label usedon Traefik-Ingress service
+            app: traefik        # This is the label used by Traefik-Ingress service
     namespaceSelector:
         matchNames:
             - kube-system       # This is dthe domain where the Traefik service has been deployed.
@@ -892,7 +896,7 @@ spec:
   serviceAccountName: prometheus
   serviceMonitorSelector:
     matchLabels:
-        prometheus: traefik
+        tier: edge
 ---
 apiVersion: v1
 kind: Service

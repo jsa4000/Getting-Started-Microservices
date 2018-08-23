@@ -1,3 +1,0 @@
-# Persistence and StatefulSet
-
-## Introduction
