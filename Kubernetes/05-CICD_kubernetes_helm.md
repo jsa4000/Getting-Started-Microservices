@@ -14,7 +14,7 @@ In order to install Nexus into a kubernets cluster use the following command
 
 > In the current chart-helm version there is an *error* with the **nexus-proxy** pods. In order to **solve** the issue is neccesary to force helm to get the nexus-proxy image **v2.2.0**.
 
-    sudo helm upgrade --install sonatype-nexus stable/sonatype-nexus --namespace devops --set nexusProxy.imageTag=2.2.0,persistence.storageClass=nfs-slow,nexusBackup.persistence.enabled=false,ingress.enabled=true,ingress.annotations."kubernetes\.io/ingress\.class"=traefik,nexusProxy.env.nexusHttpHost=nexus.devops.com,ingress.tls.enabled=false
+    sudo helm upgrade --install sonatype-nexus stable/sonatype-nexus --namespace devops --set nexusProxy.imageTag=2.2.0,persistence.storageClass=nfs-slow,nexusBackup.persistence.enabled=false,ingress.enabled=true,ingress.annotations."kubernetes\.io/ingress\.class"=traefik,nexusProxy.env.nexusHttpHost=nexus.devops.com,nexusProxy.env.nexusDockerHost=docker-registry.devops.com,ingress.tls.enabled=false
 
 > The default login is admin/admin123
 
@@ -22,11 +22,50 @@ Add the DNS to the host file on your system
 
 ```txt
 10.0.0.11   nexus.devops.com
+10.0.0.11   ndocker-registryexus.devops.com
 ```
 
 Those are the URLs to access to Sonatype Nexus Repository.
 
 - [Nexus Dashboard](http://nexus.devops.com:31971)
+
+#### Push image to repository
+
+- AS an example, start, clone a repo with a `DockerFile` to build
+
+    git clone https://github.com/crccheck/docker-hello-world.git
+
+- Build the image and use a local tag
+
+    sudo docker build -t docker-hello-world .
+
+- Add the `nexus.devops.com` -> `10.0.0.11` to the host file
+
+    sudo vi /etc/hosts
+
+- Since Nexus has been deplyed using http, it is needed to set up the following configuration
+
+    sudo vi /etc/docker/daemon.json
+
+    {"insecure-registries": ["nexus.devops.com:31971"]}
+
+- Login to the current repository
+
+    sudo docker login nexus.devops.com:31971
+
+- Get the id of the tag created
+
+    sudo docker image list
+
+- Tag the docker image usinf the host previously configured
+
+> This is using the official *nexus documentation*
+
+    sudo docker tag 95042a53b601 nexus.devops.com:31971/hello-world:latest
+
+- Finally **publish** the docker image to the registry
+
+    sudo docker push nexus.devops.com:31971/hello-world:latest
 
 ### GitLab (Repository + CICD)
 
