@@ -22,12 +22,33 @@ Add the DNS to the host file on your system
 
 ```txt
 10.0.0.11   nexus.devops.com
-10.0.0.11   ndocker-registryexus.devops.com
+10.0.0.11   docker-registry.devops.com
 ```
+
+> Remember to use **HTTP Port 5003** when creating **docker-registry**, son *nexus-proxy* redirect `docker-registry.devops.com` to that port.
 
 Those are the URLs to access to Sonatype Nexus Repository.
 
 - [Nexus Dashboard](http://nexus.devops.com:31971)
+- [Docker Registry API](http://docker-registry.devops.com:31971)
+
+#### Issues
+
+There are some settings needed to create a **docker-repository** from Nexus UI.
+
+- Configure *HTTP Port 5003* when docker repository is created
+- Use *self-hosted* docker repositories. However it can be created a group so *proxy* and the *hosted* repositories share images.
+- Allow incoming requests and Docker v1 API
+
+In order to reproduce this error try to connect to http://docker-registry.devops.com:31971
+
+    sudo kubectl logs -n devops sonatype-nexus-6458bc949f-pbmw6 nexus-proxy
+
+```txt
+2018-08-25 16:25:34,768 [ERROR] [vert.x-eventloop-thread-0] [io.vertx.core.http.impl.HttpClientRequestImpl] io.netty.channel.AbstractChannel$AnnotatedConnectException: Connection refused: localhost/127.0.0.1:5003
+2018-08-25 16:25:52,922 [ERROR] [vert.x-eventloop-thread-0] [io.vertx.core.net.impl.ConnectionBase] java.io.IOException: Connection reset by peer
+vagrant@k8s-master:~$
+```
 
 #### Push image to repository
 
@@ -47,7 +68,11 @@ Those are the URLs to access to Sonatype Nexus Repository.
 
     sudo vi /etc/docker/daemon.json
 
-    {"insecure-registries": ["nexus.devops.com:31971"]}
+    {"insecure-registries": ["docker-registry.devops.com:31971"]}
+
+- Restart docker service to apply the new configuration
+
+    sudo service docker restart
 
 - Login to the current repository
 
@@ -66,6 +91,16 @@ Those are the URLs to access to Sonatype Nexus Repository.
 - Finally **publish** the docker image to the registry
 
     sudo docker push nexus.devops.com:31971/hello-world:latest
+
+> Sometimes if it is not working inside k8s cluster (because *ingress*, *roles*, *namespaces*, etc..), it is recommended to use first a simple docker image to get in working to save some time.
+
+    # To rin Nexus3 container exposing the Ports for the UI and Docker regitry use the following command,
+    sudo docker run -d -p 8081:8081 -p 8123:8123 --name nexus sonatype/nexus3
+
+#### References
+
+- [Create a private docker registry using Nexus3 Docker image](https://www.ivankrizsan.se/2016/06/09/create-a-private-docker-registry/)
+- [Publish a Maven package on Nexus 3](https://www.baeldung.com/maven-deploy-nexus)
 
 ### GitLab (Repository + CICD)
 
@@ -132,7 +167,7 @@ SonarQube is an open sourced code quality scanning tool. The documentation of th
 - Add the new dns to the host file
 
 ```txt
-10.0.0.11   sonarqube.monitoring.com
+10.0.0.11   sonarqube.devops.com
 ```
 
 - Login to [sonarqube](http://sonarqube.devops.com:31971)
