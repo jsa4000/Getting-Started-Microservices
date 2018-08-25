@@ -50,7 +50,7 @@ In order to reproduce this error try to connect to http://docker-registry.devops
 vagrant@k8s-master:~$
 ```
 
-#### Push image to repository
+#### Push docker image to repository
 
 - AS an example, start, clone a repo with a `DockerFile` to build
 
@@ -76,7 +76,7 @@ vagrant@k8s-master:~$
 
 - Login to the current repository
 
-    sudo docker login nexus.devops.com:31971
+    sudo docker login docker-registry.devops.com:31971
 
 - Get the id of the tag created
 
@@ -86,11 +86,11 @@ vagrant@k8s-master:~$
 
 > This is using the official *nexus documentation*
 
-    sudo docker tag 95042a53b601 nexus.devops.com:31971/hello-world:latest
+    sudo docker tag 95042a53b601 docker-registry.devops.com:31971/hello-world:latest
 
 - Finally **publish** the docker image to the registry
 
-    sudo docker push nexus.devops.com:31971/hello-world:latest
+    sudo docker push docker-registry.devops.com:31971/hello-world:latest
 
 > Sometimes if it is not working inside k8s cluster (because *ingress*, *roles*, *namespaces*, etc..), it is recommended to use first a simple docker image to get in working to save some time.
 
