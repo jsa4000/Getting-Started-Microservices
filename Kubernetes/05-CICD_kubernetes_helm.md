@@ -40,7 +40,7 @@ There are some settings needed to create a **docker-repository** from Nexus UI.
 - Use *self-hosted* docker repositories. However it can be created a group so *proxy* and the *hosted* repositories share images.
 - Allow incoming requests and Docker v1 API
 
-In order to reproduce this error try to connect to http://docker-registry.devops.com:31971
+In order to reproduce this error try to connect to [docker-registry](http://docker-registry.devops.com:31971)
 
     sudo kubectl logs -n devops sonatype-nexus-6458bc949f-pbmw6 nexus-proxy
 
@@ -121,7 +121,7 @@ vagrant@k8s-master:~$
   </distributionManagement>
   ```
 
-  - Disable the defautlt maven-deploy-plugin since it will be using the 
+  - Disable the defautlt ``maven-deploy-plugin``
 
   ```xml
   <plugin>

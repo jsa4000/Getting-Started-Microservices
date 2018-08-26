@@ -308,6 +308,8 @@ adminadmin123
 
 ## Roles and Rules
 
+## Affinity vs NodeSelector
+
 ## Loggin
 
 [Logging](https://kubernetes.io/docs/concepts/cluster-administration/logging/)
