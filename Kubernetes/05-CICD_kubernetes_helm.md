@@ -32,7 +32,7 @@ Those are the URLs to access to Sonatype Nexus Repository.
 - [Nexus Dashboard](http://nexus.devops.com:31971)
 - [Docker Registry API](http://docker-registry.devops.com:31971)
 
-#### Issues
+#### Nexus Issues
 
 There are some settings needed to create a **docker-repository** from Nexus UI.
 
@@ -50,54 +50,138 @@ In order to reproduce this error try to connect to http://docker-registry.devops
 vagrant@k8s-master:~$
 ```
 
-#### Push docker image to repository
+#### Publish docker image to repository
 
 - AS an example, start, clone a repo with a `DockerFile` to build
 
-    git clone https://github.com/crccheck/docker-hello-world.git
+        git clone https://github.com/crccheck/docker-hello-world.git
 
 - Build the image and use a local tag
 
-    sudo docker build -t docker-hello-world .
+        sudo docker build -t docker-hello-world .
 
 - Add the `nexus.devops.com` -> `10.0.0.11` to the host file
 
-    sudo vi /etc/hosts
+        sudo vi /etc/hosts
 
 - Since Nexus has been deplyed using http, it is needed to set up the following configuration
 
-    sudo vi /etc/docker/daemon.json
+        sudo vi /etc/docker/daemon.json
 
-    {"insecure-registries": ["docker-registry.devops.com:31971"]}
+        {"insecure-registries": ["docker-registry.devops.com:31971"]}
 
 - Restart docker service to apply the new configuration
 
-    sudo service docker restart
+        sudo service docker restart
 
 - Login to the current repository
 
-    sudo docker login docker-registry.devops.com:31971
+        sudo docker login docker-registry.devops.com:31971
 
 - Get the id of the tag created
 
-    sudo docker image list
+        sudo docker image list
 
 - Tag the docker image usinf the host previously configured
 
 > This is using the official *nexus documentation*
 
-    sudo docker tag 95042a53b601 docker-registry.devops.com:31971/hello-world:latest
+        sudo docker tag 95042a53b601 docker-registry.devops.com:31971/hello-world:latest
 
 - Finally **publish** the docker image to the registry
 
-    sudo docker push docker-registry.devops.com:31971/hello-world:latest
+        sudo docker push docker-registry.devops.com:31971/hello-world:latest
 
 > Sometimes if it is not working inside k8s cluster (because *ingress*, *roles*, *namespaces*, etc..), it is recommended to use first a simple docker image to get in working to save some time.
 
     # To rin Nexus3 container exposing the Ports for the UI and Docker regitry use the following command,
     sudo docker run -d -p 8081:8081 -p 8123:8123 --name nexus sonatype/nexus3
 
-#### References
+#### Publish maven package to repository
+
+- First access to Nexus3 UI, login and create a new **hosted-reposritoy** for **maven2** packages.
+
+> Be care about the *Maven2/Version Policy*, this will filter the packages you publish to match with that particular tag: *snapshot*, *release*, etc..
+
+- Secondly, it must be added the following code into the *pom.xml* on the proyect
+
+  - Add a **distributionManagement** tag with `repository` (releases), `snapshotRepository` (snapshost) , etc..
+
+  ```xml
+  <distributionManagement>
+    <repository>
+       <id>nexus-releases</id>
+       <url>http://nexus.devops.com:31971/repository/maven-releases/</url>
+    </repository>
+     <snapshotRepository>
+        <id>nexus-snapshots</id>
+        <name>Internal Snapshots</name>
+        <url>http://nexus.devops.com:31971/repository/maven-snapshots/</url>
+    </snapshotRepository>
+  </distributionManagement>
+  ```
+
+  - Disable the defautlt maven-deploy-plugin since it will be using the 
+
+  ```xml
+  <plugin>
+     <groupId>org.apache.maven.plugins</groupId>
+     <artifactId>maven-deploy-plugin</artifactId>
+     <version>${maven-deploy-plugin.version}</version>
+     <configuration>
+        <skip>true</skip>
+     </configuration>
+  </plugin>
+  ```
+
+  - Add the `nexus-staging-maven-plugin` to create a new goal that publish the packages into Nexus repository.
+
+  ```xml
+  <plugin>
+    <groupId>org.sonatype.plugins</groupId>
+    <artifactId>nexus-staging-maven-plugin</artifactId>
+    <version>1.5.1</version>
+    <executions>
+       <execution>
+          <id>default-deploy</id>
+          <phase>deploy</phase>
+          <goals>
+             <goal>deploy</goal>
+          </goals>
+       </execution>
+    </executions>
+    <configuration>
+       <serverId>nexus</serverId>
+       <nexusUrl>http://nexus.devops.com:31971/nexus</nexusUrl>
+       <skipStaging>true</skipStaging>
+    </configuration>
+  </plugin>
+  ```
+
+- Add the credentials needed to publish into Nexus3 reposository.This configuration is glolbally configured into maven in ``settings.xml``
+
+  ```xml
+  <servers>
+     <server>
+        <id>nexus-snapshots</id>
+        <username>admin</username>
+        <password>admin123</password>
+     </server>
+  </servers>
+  <servers>
+     <server>
+        <id>nexus-releases</id>
+        <username>admin</username>
+        <password>admin123</password>
+     </server>
+  </servers>
+  ```
+
+- Finally, compile the proyect using ``mnv``
+
+        mvn clean deploy
+
+#### Nexus References
 
 - [Create a private docker registry using Nexus3 Docker image](https://www.ivankrizsan.se/2016/06/09/create-a-private-docker-registry/)
 - [Publish a Maven package on Nexus 3](https://www.baeldung.com/maven-deploy-nexus)
@@ -121,23 +205,57 @@ Following are the steps:
 
 - Add the GitLab repository to helm
 
-    sudo helm repo add gitlab https://charts.gitlab.io/
+        sudo helm repo add gitlab https://charts.gitlab.io/
 
 - Forze to update all the repos and packages
 
-    sudo helm repo update
+        sudo helm repo update
 
 - Install helm. In this [link](https://gitlab.com/charts/gitlab/blob/master/doc/installation/command-line-options.md) it can be seen all que commands.
 
-    sudo helm upgrade --install gitlab gitlab/gitlab --version=1.0.1 --namespace devops --set global.hosts.domain=devops.com,global.hosts.externalIP=10.0.0.11,certmanager-issuer.email=jsa4000@hotmail.com,registry.enabled=false,minio.persistence.storageClass=nfs-slow,gitlab.gitaly.enabled=false,gitlab.sidekiq.enabled=false,gitlab.unicorn.enabled=false,gitlab.migrations.enabled=false,gitlab-runner.install=false,prometheus.install=false,certmanager.install=false,certmanager.rbac.create=false,prometheus.rbac.create=false,gitlab-runner.rbac.create=false,redis.persistence.storageClass=nfs-slow
+        sudo helm upgrade --install gitlab gitlab/gitlab --version=1.0.1 --namespace devops --set global.hosts.domain=devops.com,certmanager-issuer.email=jsa4000@hotmail.com,registry.enabled=false,minio.persistence.storageClass=nfs-slow,gitlab.gitaly.enabled=false,gitlab.sidekiq.enabled=false,gitlab.unicorn.enabled=true,gitlab.migrations.enabled=false,gitlab-runner.install=false,prometheus.install=false,certmanager.install=false,certmanager.rbac.create=false,prometheus.rbac.create=false,gitlab-runner.rbac.create=false,redis.persistence.storageClass=nfs-slow,postgresql.persistence.storageClass=nfs-slow,nginx-ingress.controller.service.type=NodePort,nginx-ingress.controller.stats.enabled=false,nginx-ingress.controller.metrics.enabled=false,nginx-ingress.defaultBackend.replicaCount=1,nginx-ingress.controller.replicaCount=1,gitlab.gitlab-shell.minReplicas=1,gitlab.gitlab-shell.maxReplicas=1,nginx-ingress.controller.service.externalTrafficPolicy=Cluster
 
-    sudo helm upgrade --install gitlab gitlab/gitlab --version=1.0.1 --namespace devops -f /vagrant/files/values-minikube-minimum.yaml
+        sudo helm upgrade --install gitlab gitlab/gitlab --version=1.0.1 --namespace devops --set global.hosts.domain=devops.com,certmanager-issuer.email=jsa4000@hotmail.com,registry.enabled=false,minio.persistence.storageClass=nfs-slow,gitlab.gitaly.enabled=true,gitlab.sidekiq.enabled=false,gitlab.unicorn.enabled=true,gitlab.migrations.enabled=false,gitlab-runner.install=false,prometheus.install=false,certmanager.install=false,certmanager.rbac.create=false,prometheus.rbac.create=false,gitlab-runner.rbac.create=false,redis.persistence.storageClass=nfs-slow,postgresql.persistence.storageClass=nfs-slow,nginx-ingress.controller.service.type=NodePort,nginx-ingress.controller.stats.enabled=false,nginx-ingress.controller.metrics.enabled=false,nginx-ingress.defaultBackend.replicaCount=1,nginx-ingress.controller.replicaCount=1,gitlab.gitlab-shell.minReplicas=1,gitlab.gitlab-shell.maxReplicas=1,nginx-ingress.controller.service.externalTrafficPolicy=Cluster,gitlab.unicorn.image.repository=registry.gitlab.com/gitlab-org/build/cng/gitlab-unicorn-ce,gitlab.gitaly.persistence.storageClass=nfs-slow,gitlab.gitaly.persistence.size=10Gi,gitlab.unicorn.minReplicas=1,gitlab.unicorn.maxReplicas=1,
+        gitlab.unicorn.workerProcesses=1
+
+  > Note that the parameter **postgresql.persistence.storageClass** is not included in the offcial documentation inside ``values.yaml``. **Helm** automatically takes the *sub-charts* and propage the variables to the rest of the sub-charts, usign a *folder-type* structure to go deeper into the *hierarchy*.
+  > Previous configuration is inteneded to be the minimal as possible to run in a local environment, no replicas no high-availability for pods.
+  > There is no ``externalIP`` and ``externalTrafficPolicy`` ingress has been changed from *Local* to **Cluster**.
 
 - Check the status of the resources
 
-    sudo kubectl get pods,svc,pvc,pv,ingress -n devops
+        # Check the status of all resources
+        sudo kubectl get pods,svc,pvc,pv,ingress -n devops
 
-- Since there is no parameter to specify the StorageClassName, it is needed to manually change the configuration.
+        # To check where ingress-controller exporse the Ports to the outside
+        sudo kubectl get svc,ingress -n devops
+
+- Check if it can be access to some of the resources:
+
+  > First get where *gitlab-nginx-ingress-controller* NodePort service is configured for acceptinh Http outside connections.
+
+  - [Minio Dashboard](http://minio.devops.com:32682)
+  - [GitLab Dashboard](http://gitlab.devops.com:32682/)
+
+#### GitLab Issues
+
+##### Minio Access key
+
+In order to get minio *access-key* and *secret-key* is neccesary to access to the **secrets** and convert each key from Base64
+
+    sudo kubectl get secret -n devops gitlab-minio-secret -o yaml
+
+To get the ``accesskey`` and ``secretkey`` just parse the records from *json* format.
+
+    # Get The Access Key
+    sudo kubectl get secret -n devops gitlab-minio-secret -o jsonpath="{.data.accesskey}" | base64 --decode ; echo
+
+    #Get the Secret Key
+    sudo kubectl get secret -n devops gitlab-minio-secret -o jsonpath="{.data.secretkey}" | base64 --decode ; echo
+
+##### Persistence Volume in **Pending** state
+
+This *state* is caused because it has not been specified the StorageClassName. In this case, it is needed to manually change the configuration.
 
     sudo kubectl get -n devops pvc/gitlab-postgresql -o yaml > /vagrant/files/gitlab-postgresql-pvc.yaml
 
@@ -153,8 +271,8 @@ spec:
 
 - Delete and apply following changes.
 
-    sudo kubectl delete -n devops pvc/gitlab-postgresql
-    sudo kubectl apply -f /vagrant/files/gitlab-postgresql-pvc.yaml
+        sudo kubectl delete -n devops pvc/gitlab-postgresql
+        sudo kubectl apply -f /vagrant/files/gitlab-postgresql-pvc.yaml
 
 ### SonarQube
 
@@ -162,22 +280,22 @@ SonarQube is an open sourced code quality scanning tool. The documentation of th
 
 - Install the sonarqube helm-chart using the following command.
 
-    sudo helm upgrade --install sonarqube stable/sonarqube --namespace devops --set ingress.enabled=true,ingress.hosts={sonarqube.devops.com},ingress.annotations."kubernetes\.io/ingress\.class"=traefik,service.type=NodePort,postgresql.persistence.storageClass=nfs-slow
+        sudo helm upgrade --install sonarqube stable/sonarqube --namespace devops --set ingress.enabled=true,ingress.hosts={sonarqube.devops.com},ingress.annotations."kubernetes\.io/ingress\.class"=traefik,service.type=NodePort,postgresql.persistence.storageClass=nfs-slow
 
 - Add the new dns to the host file
 
-```txt
-10.0.0.11   sonarqube.devops.com
-```
+        ```txt
+        10.0.0.11   sonarqube.devops.com
+        ```
 
 - Login to [sonarqube](http://sonarqube.devops.com:31971)
 
-> The default login is admin/admin.
+    > The default login is admin/admin.
 
 - Get the token to later review the code. (This can the gotten again using the *help* option *Analyze a new project*)
 
-    Token: 4511865a5cd74f05fd27c43cceeb8d8ebe48605c
+        Token: 4511865a5cd74f05fd27c43cceeb8d8ebe48605c
 
-    mvn sonar:sonar -Dsonar.host.url=http://sonarqube.devops.com:31971 -Dsonar.login=4511865a5cd74f05fd27c43cceeb8d8ebe48605c
+        mvn sonar:sonar -Dsonar.host.url=http://sonarqube.devops.com:31971 -Dsonar.login=4511865a5cd74f05fd27c43cceeb8d8ebe48605c
 
 ## References
