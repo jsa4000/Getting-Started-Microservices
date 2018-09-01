@@ -213,9 +213,10 @@ Following are the steps:
 
 - Install helm. In this [link](https://gitlab.com/charts/gitlab/blob/master/doc/installation/command-line-options.md) it can be seen all que commands.
 
-        sudo helm upgrade --install gitlab gitlab/gitlab --version=1.0.1 --namespace devops --set global.hosts.domain=devops.com,certmanager-issuer.email=jsa4000@hotmail.com,registry.enabled=false,minio.persistence.storageClass=nfs-slow,gitlab.gitaly.enabled=false,gitlab.sidekiq.enabled=false,gitlab.unicorn.enabled=true,gitlab.migrations.enabled=false,gitlab-runner.install=false,prometheus.install=false,certmanager.install=false,certmanager.rbac.create=false,prometheus.rbac.create=false,gitlab-runner.rbac.create=false,redis.persistence.storageClass=nfs-slow,postgresql.persistence.storageClass=nfs-slow,nginx-ingress.controller.service.type=NodePort,nginx-ingress.controller.stats.enabled=false,nginx-ingress.controller.metrics.enabled=false,nginx-ingress.defaultBackend.replicaCount=1,nginx-ingress.controller.replicaCount=1,gitlab.gitlab-shell.minReplicas=1,gitlab.gitlab-shell.maxReplicas=1,nginx-ingress.controller.service.externalTrafficPolicy=Cluster
+        sudo helm upgrade --install gitlab gitlab/gitlab --version=1.0.1 --namespace devops --set global.hosts.domain=devops.com,certmanager-issuer.email=jsa4000@hotmail.com,registry.enabled=false,minio.persistence.storageClass=nfs-slow,gitlab.gitaly.enabled=true,gitlab.sidekiq.enabled=false,gitlab.unicorn.enabled=true,gitlab.migrations.enabled=true,gitlab-runner.install=false,prometheus.install=false,certmanager.install=false,certmanager.rbac.create=false,prometheus.rbac.create=false,gitlab-runner.rbac.create=false,redis.persistence.storageClass=nfs-slow,postgresql.persistence.storageClass=nfs-slow,nginx-ingress.controller.service.type=NodePort,nginx-ingress.controller.stats.enabled=false,nginx-ingress.controller.metrics.enabled=false,nginx-ingress.defaultBackend.replicaCount=1,nginx-ingress.controller.replicaCount=1,gitlab.gitlab-shell.minReplicas=1,gitlab.gitlab-shell.maxReplicas=1,nginx-ingress.controller.service.externalTrafficPolicy=Cluster,gitlab.unicorn.image.repository=registry.gitlab.com/gitlab-org/build/cng/gitlab-unicorn-ce,gitlab.gitaly.persistence.storageClass=nfs-slow,gitlab.gitaly.persistence.size=10Gi,gitlab.unicorn.minReplicas=1,gitlab.unicorn.maxReplicas=1,gitlab.unicorn.workerProcesses=1,gitlab.migrations.image.repository=registry.gitlab.com/gitlab-org/build/cng/gitlab-rails-ce,gitlab.workhorse.image=registry.gitlab.com/gitlab-org/build/cng/gitlab-workhorse-ce,global.ingress.configureCertmanager=false
 
-        sudo helm upgrade --install gitlab gitlab/gitlab --version=1.0.1 --namespace devops --set global.hosts.domain=devops.com,certmanager-issuer.email=jsa4000@hotmail.com,registry.enabled=false,minio.persistence.storageClass=nfs-slow,gitlab.gitaly.enabled=false,gitlab.sidekiq.enabled=false,gitlab.unicorn.enabled=true,gitlab.migrations.enabled=false,gitlab-runner.install=false,prometheus.install=false,certmanager.install=false,certmanager.rbac.create=false,prometheus.rbac.create=false,gitlab-runner.rbac.create=false,redis.persistence.storageClass=nfs-slow,postgresql.persistence.storageClass=nfs-slow,nginx-ingress.controller.service.type=NodePort,nginx-ingress.controller.stats.enabled=false,nginx-ingress.controller.metrics.enabled=false,nginx-ingress.defaultBackend.replicaCount=1,nginx-ingress.controller.replicaCount=1,gitlab.gitlab-shell.minReplicas=1,gitlab.gitlab-shell.maxReplicas=1,nginx-ingress.controller.service.externalTrafficPolicy=Cluster,gitlab.unicorn.image.repository=registry.gitlab.com/gitlab-org/build/cng/gitlab-unicorn-ce,gitlab.gitaly.persistence.storageClass=nfs-slow,gitlab.gitaly.persistence.size=10Gi,gitlab.unicorn.minReplicas=1,gitlab.unicorn.maxReplicas=1,gitlab.unicorn.workerProcesses=1
+  
+        sudo helm upgrade --install gitlab gitlab/gitlab-omnibus --namespace devops --set baseDomain=devops.com,legoEmail=jsa4000@gmail.com,postgresStorageSize=10Gi,gitlabDataStorageSize=10Gi,gitlabRegistryStorageSize=10Gi,gitlabConfigStorageClass=nfs-slow,gitlabDataStorageClass=nfs-slow,gitlabRegistryStorageClass=nfs-slow,postgresStorageClass=nfs-slow,redisStorageClass=nfs-slow,gitlab-runner.gitlabUrl=gitlab-gitlab.devops.svc.cluster.local:8005,baseIP=10.0.0.11,pagesExternalScheme=http,pagesExternalDomain=pages-devops.com
 
   > Note that the parameter **postgresql.persistence.storageClass** is not included in the offcial documentation inside ``values.yaml``. **Helm** automatically takes the *sub-charts* and propage the variables to the rest of the sub-charts, usign a *folder-type* structure to go deeper into the *hierarchy*.
   > Previous configuration is inteneded to be the minimal as possible to run in a local environment, no replicas no high-availability for pods.
@@ -233,22 +234,22 @@ Following are the steps:
 
   > First get where *gitlab-nginx-ingress-controller* NodePort service is configured for acceptinh Http outside connections.
 
-  - [Minio Dashboard](http://minio.devops.com:32092)
-  - [GitLab Dashboard](http://gitlab.devops.com:32092/)
+  - [Minio Dashboard](http://minio.devops.com:30560)
+  - [GitLab Dashboard](http://gitlab.devops.com:30560/)
 
 #### GitLab Issues
 
-##### WARNING: This version of GitLab depends on gitlab-shell 8.1.1, but you're running Unknown. Please update gitlab-shell
+##### Fix: WARNING: This version of GitLab depends on gitlab-shell 8.1.1, but you're running Unknown. Please update gitlab-shell
 
-Get the full yaml definition of the ``gitlab-unicorn`` deployment
+Get the full yaml definition from the ``gitlab-unicorn`` deployment
 
         sudo kubectl get deploy -n devops gitlab-unicorn -o yaml > /vagrant/files/gitlab-unicorn-deploy.yaml
 
+Delete previous deployment since it is neccesary to remove some chackings
+
         sudo kubectl delete -n devops deploy/gitlab-unicorn
 
-        sudo kubectl apply -f /vagrant/files/gitlab-unicorn-deploy.yaml
-
-Add the ``BYPASS_SCHEMA_VERSION`` env variable to skip the wait for deps
+Add the ``BYPASS_SCHEMA_VERSION`` env variable to skip the ``wait-for-deps``
 
 ```yaml
   - args:
@@ -259,6 +260,10 @@ Add the ``BYPASS_SCHEMA_VERSION`` env variable to skip the wait for deps
         - name: GITALY_FEATURE_DEFAULT_ON
           value: "1"
 ```
+
+Finallt, create again the deplyment using the mod.
+
+        sudo kubectl apply -f /vagrant/files/gitlab-unicorn-deploy.yaml
 
 ##### Minio Access key
 
