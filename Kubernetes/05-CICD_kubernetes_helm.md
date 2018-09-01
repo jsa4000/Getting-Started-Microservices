@@ -229,6 +229,10 @@ Following are the steps:
         # To check where ingress-controller exporse the Ports to the outside
         sudo kubectl get svc,ingress -n devops
 
+- Initial login
+
+        sudo kubectl get secret gitlab-gitlab-initial-root-password -ojsonpath={.data.password} | base64 --decode ; echo
+
 - Check if it can be access to some of the resources:
 
   > First get where *gitlab-nginx-ingress-controller* NodePort service is configured for acceptinh Http outside connections.
