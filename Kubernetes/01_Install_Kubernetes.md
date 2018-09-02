@@ -82,8 +82,8 @@ The nodes are where your workloads (containers and pods, etc) run. To add new no
 - Become root (ie. sudo su -)
 - Run the command that was output by kubeadm init. For example:
 
-      ~$ kubeadm join --token <token> <master-ip>:<master-port>
-       ~$ kubectl get nodes
+        ~$ kubeadm join --token <token> <master-ip>:<master-port>
+        ~$ kubectl get nodes
 
 ## Controlling your cluster from machines other than the master
 
@@ -92,6 +92,76 @@ In order to get a kubectl on some other computer (e.g. laptop) to talk to your c
     scp root@<master ip>:/etc/kubernetes/admin.conf .
     kubectl --kubeconfig ./admin.conf get nodes
     kubectl --namespace=kube-system describe pod kube-dns-2924299975-dfp17
+
+## Installing MiniKube
+
+1. Install dependencies (virstual-box)
+
+        sudo apt-get install virtualbox virtualbox-ext-pack
+
+1. Install Kubectl
+
+        sudo apt-get update && sudo apt-get install -y apt-transport-https
+        curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
+        sudo touch /etc/apt/sources.list.d/kubernetes.list 
+        echo "deb http://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee -a /etc/apt/sources.list.d/kubernetes.list
+        sudo apt-get update
+        sudo apt-get install -y kubectl
+
+1. Install Minikube
+
+        curl -Lo minikube https://storage.googleapis.com/minikube/releases/v0.28.2/minikube-linux-amd64 && chmod +x minikube && sudo mv minikube /usr/local/bin/
+
+1. Start Minikube
+
+        # Basic command to start minikube cluster
+        minikube start
+
+        # Required to specify the **VM** driver to install
+        minikube start --vm-driver="virtualbox"
+
+        # Specify VM capacity such as memory or CPUs
+        minikube start --disk-size 80g --cpus 3 --memory 8192
+
+1. Verify the installation
+
+    minikube version
+    kubectl version
+
+    minikube status
+    kubectl.exe cluster-info
+
+1. Start the dashboard
+
+        minikube dashboard
+
+1. Enable addons for **ingress** and **kube-dns** support for helm charts and deployments
+
+    minikube addons enable ingress
+    minikube addons enable kube-dns
+
+1. Install helm
+
+        # Download and setup helm
+        curl https://raw.githubusercontent.com/kubernetes/helm/master/scripts/get
+
+        # Initialize helm and intall tiller on kubernetes cluster
+        helm init
+
+        # Verify the vesrion
+        helm version
+
+1. Check the current pods installed.
+
+    kubetl get pods --all-namespaces
+
+1. Delete Minikube
+
+    minikube delete
+
+    > Delete Minikube is needed if variables are changed such as memory, cpus, etc. in order to be applied
+
+> Minikube doesn not work with **VirtualBox** since it has not implementet ``VT-X/AMD-v`` for virtualization.
 
 ## References
 
