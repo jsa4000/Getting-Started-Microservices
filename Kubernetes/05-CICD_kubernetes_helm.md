@@ -211,11 +211,13 @@ Following are the steps:
 
         sudo helm repo update
 
-- Install helm. In this [link](https://gitlab.com/charts/gitlab/blob/master/doc/installation/command-line-options.md) it can be seen all que commands.
+- Install helm
+  
+  > In this [link](https://gitlab.com/charts/gitlab/blob/master/doc/installation/command-line-options.md) it can be seen all que commands.
 
         # Install Gitlab community Edition
 
-        sudo helm upgrade --install gitlab gitlab/gitlab --version=1.0.1 --namespace devops --set global.hosts.domain=devops.com,certmanager-issuer.email=jsa4000@hotmail.com,registry.enabled=false,minio.persistence.storageClass=nfs-slow,gitlab.gitaly.enabled=true,gitlab.sidekiq.enabled=false,gitlab.unicorn.enabled=true,gitlab.migrations.enabled=true,gitlab-runner.install=false,prometheus.install=false,certmanager.install=true,certmanager.rbac.create=true,prometheus.rbac.create=false,gitlab-runner.rbac.create=false,redis.persistence.storageClass=nfs-slow,postgresql.persistence.storageClass=nfs-slow,nginx-ingress.controller.service.type=NodePort,nginx-ingress.controller.stats.enabled=false,nginx-ingress.controller.metrics.enabled=false,nginx-ingress.defaultBackend.replicaCount=1,nginx-ingress.controller.replicaCount=1,gitlab.gitlab-shell.minReplicas=1,gitlab.gitlab-shell.maxReplicas=1,nginx-ingress.controller.service.externalTrafficPolicy=Cluster,gitlab.unicorn.image.repository=registry.gitlab.com/gitlab-org/build/cng/gitlab-unicorn-ce,gitlab.gitaly.persistence.storageClass=nfs-slow,gitlab.gitaly.persistence.size=10Gi,gitlab.unicorn.minReplicas=1,gitlab.unicorn.maxReplicas=1,gitlab.unicorn.workerProcesses=1,gitlab.migrations.image.repository=registry.gitlab.com/gitlab-org/build/cng/gitlab-rails-ce,gitlab.workhorse.image=registry.gitlab.com/gitlab-org/build/cng/gitlab-workhorse-ce
+        sudo helm upgrade --install gitlab gitlab/gitlab --version=1.0.1 --namespace devops --set global.hosts.domain=devops.com,certmanager-issuer.email=jsa4000@hotmail.com,registry.enabled=false,minio.persistence.storageClass=nfs-slow,gitlab.gitaly.enabled=true,gitlab.sidekiq.enabled=false,gitlab.unicorn.enabled=true,gitlab.migrations.enabled=true,gitlab-runner.install=false,prometheus.install=false,certmanager.install=true,certmanager.rbac.create=true,prometheus.rbac.create=false,gitlab-runner.rbac.create=false,redis.persistence.storageClass=nfs-slow,postgresql.persistence.storageClass=nfs-slow,nginx-ingress.controller.service.type=NodePort,nginx-ingress.controller.stats.enabled=false,nginx-ingress.controller.metrics.enabled=false,nginx-ingress.defaultBackend.replicaCount=1,nginx-ingress.controller.replicaCount=1,gitlab.gitlab-shell.minReplicas=1,gitlab.gitlab-shell.maxReplicas=1,nginx-ingress.controller.service.externalTrafficPolicy=Cluster,gitlab.unicorn.image.repository=registry.gitlab.com/gitlab-org/build/cng/gitlab-unicorn-ce,gitlab.gitaly.persistence.storageClass=nfs-slow,gitlab.gitaly.persistence.size=10Gi,gitlab.unicorn.minReplicas=1,gitlab.unicorn.maxReplicas=1,gitlab.unicorn.workerProcesses=1,gitlab.migrations.image.repository=registry.gitlab.com/gitlab-org/build/cng/gitlab-rails-ce,gitlab.workhorse.image.repository=registry.gitlab.com/gitlab-org/build/cng/gitlab-workhorse-ce
 
         # Install gitlab-omnibus version (deprecated)
 
@@ -228,18 +230,20 @@ Following are the steps:
         # https://gitlab.com/charts/gitlab/blob/master/doc/minikube/README.md
         # gitlab.192.168.99.100.nip.io
 
-        helm upgrade --install gitlab gitlab/gitlab --version=1.0.1 --namespace devops -f https://gitlab.com/charts/gitlab/raw/master/examples/values-minikube-minimum.yaml --set gitlab.migrations.image.repository=registry.gitlab.com/gitlab-org/build/cng/gitlab-rails-ce,gitlab.sidekiq.image.repository=registry.gitlab.com/gitlab-org/build/cng/gitlab-sidekiq-ce,gitlab.unicorn.image.repository=registry.gitlab.com/gitlab-org/build/cng/gitlab-unicorn-ce,gitlab.workhorse.image=registry.gitlab.com/gitlab-org/build/cng/gitlab-workhorse-ce
+        helm upgrade --install gitlab gitlab/gitlab --version=1.0.1 --namespace devops -f https://gitlab.com/charts/gitlab/raw/master/examples/values-minikube-minimum.yaml --set gitlab.migrations.image.repository=registry.gitlab.com/gitlab-org/build/cng/gitlab-rails-ce,gitlab.sidekiq.image.repository=registry.gitlab.com/gitlab-org/build/cng/gitlab-sidekiq-ce,gitlab.unicorn.image.repository=registry.gitlab.com/gitlab-org/build/cng/gitlab-unicorn-ce,gitlab.workhorse.image.repository=registry.gitlab.com/gitlab-org/build/cng/gitlab-workhorse-ce
 
-        helm upgrade --install gitlab gitlab/gitlab -f https://gitlab.com/charts/gitlab/raw/master/examples/values-minikube.yaml
+        helm upgrade --install gitlab gitlab/gitlab --version=1.0.1 --namespace devops -f https://gitlab.com/charts/gitlab/raw/master/examples/values-minikube-minimum.yaml.yaml
 
         # To get the pem certificate from the secret
-        kubectl get secret gitlab-wildcard-tls-ca -ojsonpath={.data.cfssl_ca} | base64 --decode > gitlab.192.168.99.100.nip.io.ca.pem
-        certutil –addstore -enterprise –f "Root" <pathtocertificatefile>
+        kubectl get secret -n devops gitlab-wildcard-tls-ca -ojsonpath={.data.cfssl_ca} | base64 --decode > gitlab.192.168.99.100.nip.io.ca.pem
+
+        # Install certificate on computers OS.
+        certutil –addstore -enterprise –f "Root" gitlab.192.168.99.100.nip.io.ca.pem
 
         # To get the root
-        kubectl get secret gitlab-gitlab-initial-root-password -ojsonpath={.data.password} | base64 --decode ; echo
+        kubectl get secret -n devops gitlab-gitlab-initial-root-password -ojsonpath={.data.password} | base64 --decode ; echo
 
-  > Tip [Map IP.wildcard DNS to Any IP Address](http://nip.io/)
+  > Wildcard DNS for any IP address [nip.io](http://nip.io/) or [xip.io](http://xip.io/)
   > Note that the parameter **postgresql.persistence.storageClass** is not included in the offcial documentation inside ``values.yaml``. **Helm** automatically takes the *sub-charts* and propage the variables to the rest of the sub-charts, usign a *folder-type* structure to go deeper into the *hierarchy*.
   > Previous configuration is inteneded to be the minimal as possible to run in a local environment, no replicas no high-availability for pods.
   > There is no ``externalIP`` and ``externalTrafficPolicy`` ingress has been changed from *Local* to **Cluster**.
