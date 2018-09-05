@@ -267,7 +267,30 @@ Following are the steps:
 
 #### GitLab Issues
 
+##### Gitlab-runner
+
+In order to create a runner, the parameters needed depends on the cluster created and the info gitlab provide in the ui.
+
+- gitlabUrl : http://gitlab-unicorn.devops.svc.cluster.local:8080 (unicorn)
+- runnerRegistrationToken: XczB7FPqhkTazACzQV6Mg74dGfQ8jA6NxlB1Et4eWUL5muStWQanR5EWwMaLfhLd
+- rbac.create: true
+- runners.cloneUrl: http://gitlab-unicorn.devops.svc.cluster.local:8181 (workhorse)
+
+Finally, run the following command to install the runner chart
+
+        sudo helm upgrade --install gitlab-runner gitlab/gitlab-runner --namespace devops --set runnerRegistrationToken=XczB7FPqhkTazACzQV6Mg74dGfQ8jA6NxlB1Et4eWUL5muStWQanR5EWwMaLfhLd,rbac.create=true,gitlabUrl=http://gitlab-unicorn.devops.svc.cluster.local:8080,runners.cloneUrl=http://gitlab-unicorn.devops.svc.cluster.local:8181
+
+Verify the pod is currently running
+
+##### Error 404, 500, etc
+
+These errors are basically related with certificates and ssl connections through secure protocols.
+
+To fix this issue use **http** protocol instead.
+
 ##### Fix: WARNING: This version of GitLab depends on gitlab-shell 8.1.1, but you're running Unknown. Please update gitlab-shell
+
+> Simply install gitlab-unicorn + other dependendcies required
 
 Get the full yaml definition from the ``gitlab-unicorn`` deployment
 
