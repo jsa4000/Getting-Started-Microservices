@@ -1,4 +1,4 @@
-package com.tracing.gateway.controller;
+package com.tracing.server1.controller;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -9,9 +9,9 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
 @RestController
-public class GatewayController {
+public class ServerController {
 
-    private final Logger logger = LoggerFactory.getLogger(GatewayController.class);
+    private final Logger logger = LoggerFactory.getLogger(ServerController.class);
 
     @Autowired
     private RestTemplate restTemplate;
@@ -29,13 +29,4 @@ public class GatewayController {
         logger.info("End Call to Status endpoint");
         return "Chaining + " + response.getBody();
     }
-
-    @RequestMapping("/server1/status")
-    public String server1() {
-        logger.info("Start Call to Server1 endpoint");
-        ResponseEntity<String> response = restTemplate.getForEntity("http://localhost:8081/status", String.class);
-        logger.info("End Call to Server1 endpoint");
-        return "Server1 Status: " + response.getBody();
-    }
-
 }
