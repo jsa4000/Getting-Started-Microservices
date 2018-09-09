@@ -28,6 +28,6 @@ dependencies {
 	compile('io.opentracing:opentracing-api:0.31.0')
 	compile('io.opentracing.contrib:opentracing-spring-jaeger-web-starter:0.2.1')
 	compile('io.opentracing.contrib:opentracing-concurrent:0.1.0')
-	compileOnly('org.projectlombok:lombok')
+	compileOnly('org.projectlombok:lombok:1.16.20')
 	testCompile('org.springframework.boot:spring-boot-starter-test')
 }

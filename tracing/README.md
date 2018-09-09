@@ -111,8 +111,8 @@ Similarly, given a Carrier, an injected trace may be **Extracted**, yielding a S
         # Using Jaeger
         sudo docker run -d -p 5775:5775/udp -p 6831:6831/udp -p 6832:6832/udp -p 5778:5778 -p 16686:16686 -p 14268:14268 -p 9411:9411 jaegertracing/all-in-one:latest
 
-        # Using Zipkin instead and use gradle dependencies.
-        sudo docker run --rm -it -p 9411:9411 openzipkin/zipkin
+        # Using Zipkin instead and use gradle dependencies. (Since Port is already used for jaeger, 9412 is exposed instead)
+        sudo docker run -d -p 9412:9411 openzipkin/zipkin
 
     > Use the [Jaegger client documentation](https://github.com/jaegertracing/jaeger-client-java/tree/master/jaeger-core) and [Available protocols](https://www.jaegertracing.io/docs/1.6/getting-started/) to configure the jaeger's address and port.
 
@@ -121,12 +121,19 @@ Similarly, given a Carrier, an injected trace may be **Extracted**, yielding a S
     ```Groovy
     // https://mvnrepository.com/artifact/io.opentracing/opentracing-api
     compile('io.opentracing:opentracing-api:0.31.0')
-    // https://github.com/opentracing-contrib/java-spring-jaeger
-    compile('io.opentracing.contrib:opentracing-spring-jaeger-web-starter:0.2.1')
-    // https://mvnrepository.com/artifact/io.zipkin.reporter2/zipkin-reporter
-    compile('io.zipkin.reporter2:zipkin-sender-okhttp3:2.7.8')
     // https://github.com/opentracing-contrib/java-concurrent
     compile('io.opentracing.contrib:opentracing-concurrent:0.1.0')
+
+    // Jaeger Implementation
+    // https://github.com/opentracing-contrib/java-spring-jaeger
+    compile('io.opentracing.contrib:opentracing-spring-jaeger-web-starter:0.2.1')
+
+    // Zipkin Implementation
+    // https://github.com/openzipkin-contrib/brave-opentracing
+    compile('io.zipkin.brave:brave:5.3.0')
+    compile('io.zipkin.reporter2:zipkin-sender-okhttp3:2.7.8')
+    compile('io.opentracing.brave:brave-opentracing:0.32.1')
+
     ```
 
 1. Basically use the following snippet to use OpenTracing API and Jaeger implementation
@@ -134,6 +141,21 @@ Similarly, given a Carrier, an injected trace may be **Extracted**, yielding a S
     > If no settings are changed, spans will be reported to the UDP port *6831* of *localhost*. The simplest way to change this behavior is to set the following properties:
 
     ```java
+    import brave.Tracing;
+    import brave.opentracing.BraveTracer;
+    import io.jaegertracing.Configuration.ReporterConfiguration;
+    import io.jaegertracing.Configuration.SamplerConfiguration;
+    import io.jaegertracing.Configuration.SenderConfiguration;
+    import io.jaegertracing.internal.samplers.ConstSampler;
+    import io.opentracing.Tracer;
+    import org.springframework.boot.web.client.RestTemplateBuilder;
+    import org.springframework.context.annotation.Bean;
+    import org.springframework.context.annotation.Configuration;
+    import org.springframework.web.client.RestTemplate;
+    import zipkin2.reporter.AsyncReporter;
+    import zipkin2.reporter.okhttp3.OkHttpSender;
+    import brave.sampler.Sampler;
+
     @Bean
     public Tracer jaegerTracer() {
         return new io.jaegertracing.Configuration("gateway-service" )
@@ -142,7 +164,24 @@ Similarly, given a Carrier, an injected trace may be **Extracted**, yielding a S
                         .withSender(new SenderConfiguration().withAgentHost("10.0.0.10").withAgentPort(6831)))
                 .getTracer();
     }
+
+    //@Bean
+    public Tracer zipkinTracer() {
+        OkHttpSender sender = OkHttpSender.create("http://10.0.0.10:9412/api/v2/spans");
+        AsyncReporter reporter = AsyncReporter.create(sender);
+
+        Tracing braveTracer = Tracing.newBuilder()
+                .localServiceName("gateway-service")
+                .spanReporter(reporter)
+                .traceId128Bit(true)
+                .sampler(Sampler.ALWAYS_SAMPLE)
+                .build();
+
+        return BraveTracer.create(braveTracer);
+    }
     ```
+
+> User ``expose OPEN_TRACING_PROVIDER=ZIPKIN`` to set the provider to use **ZIPKIN** or **JAEGER**
 
 1. Verify java logs and jaeger with the **traceId** and **Spans**
 
