@@ -27,6 +27,11 @@ dependencies {
 	compile('org.springframework.boot:spring-boot-starter-web')
 	compile('io.opentracing:opentracing-api:0.31.0')
 	compile('io.opentracing.contrib:opentracing-spring-jaeger-web-starter:0.2.1')
+	compile('io.springfox:springfox-swagger2:2.9.2')
+	compile('io.springfox:springfox-swagger-ui:2.9.2')
+	compile('io.zipkin.reporter2:zipkin-sender-okhttp3:2.7.8')
+    compile('io.zipkin.brave:brave:5.3.0')
+    compile('io.opentracing.brave:brave-opentracing:0.32.1')
 	compileOnly('org.projectlombok:lombok')
 	testCompile('org.springframework.boot:spring-boot-starter-test')
 }

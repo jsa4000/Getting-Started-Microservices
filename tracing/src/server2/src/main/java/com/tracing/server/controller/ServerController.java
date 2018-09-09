@@ -26,8 +26,8 @@ public class ServerController {
     }
 
     @RequestMapping("/customer")
-    public String customer() throws Exception  {
-        //return "Customer Info: OK";
-        throw new Exception("Customer Error");
+    public String customer() {
+        return "customer-02313";
+        //throw new Exception("Customer Error");
     }
 }

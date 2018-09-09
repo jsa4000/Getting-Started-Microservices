@@ -1,4 +1,4 @@
-# Tracing in Microservices
+# TRACING
 
 ## Introduction
 
@@ -6,17 +6,101 @@
 
 Developers and engineering organizations are trading in old, monolithic systems for modern microservice architectures, and they do so for numerous compelling reasons: system components scale independently, dev teams stay small and agile, deployments are continuous and decoupled, and so on.
 
-That said, once a production system contends with real concurrency or splits into many services, crucial (and formerly easy) tasks become difficult: *user-facing latency optimization*, *root-cause analysis of backend errors*, *communication about distinct pieces of a now-distributed system*, etc.
+That said, once a production system contends with real concurrency or splits into many services, crucial (and formerly easy) tasks become difficult:
 
-Contemporary **distributed tracing systems** (e.g., **Zipkin**, **Jaeger**, Dapper, HTrace, X-Trace, among others) aim to address these issues, but they do so via application-level instrumentation using incompatible APIs. Developers are uneasy about tightly coupling their polyglot systems to any particular distributed tracing implementation, yet the application-level instrumentation APIs for these many distinct tracing systems have remarkably similar semantics.
+- *user-facing latency optimization*
+- *root-cause analysis of backend errors*
+- *communication about distinct pieces of a now-distributed system*
+- *others*
 
-### Why OpenTracing
+Contemporary **distributed tracing systems** (e.g., **Zipkin**, **Jaeger**, Dapper, HTrace, X-Trace, among others) aim to address these issues, but they do so via *application-level* instrumentation using **incompatible** APIs. 
 
-Enter **OpenTracing**: by offering **consistent**, **expressive**, **vendor-neutral APIs** for popular platforms, OpenTracing makes it easy for developers to add (or switch) tracing implementations with an O(1) configuration change. OpenTracing also offers a lingua franca for OSS instrumentation and platform-specific tracing helper libraries. Please refer to the Semantic Specification.
+Developers are **uneasy** about tightly coupling their polyglot systems to any particular distributed tracing implementation, yet the application-level instrumentation APIs for these many distinct tracing systems have remarkably **similar** semantics.
 
-### What is a Trace
+### Why **OpenTracing**
+
+Enter **OpenTracing** by offering **consistent**, **expressive**, **vendor-neutral APIs** for popular platforms, OpenTracing makes it easy for developers to add (or switch) tracing implementations with an O(1) configuration change.
+
+OpenTracing also offers a lingua franca for OSS **instrumentation** and **platform-specific tracing helper** libraries.
+
+### What is a **Trace**
 
 At the highest level, a **trace** tells the **story** of a **transaction** or workflow as it propagates through a (potentially distributed) system. In OpenTracing, a trace is a **directed acyclic graph** (DAG) of **spans**: named, timed operations representing a contiguous segment of work in that trace.
+
+**SpanContext** refers to a *call* that has been exchanged between two services (service1 -> service2, DAG). This RPC call uses the same traceId, however the span must be unique with a timestamp and other metadata that can be appended into the span such as: parentId, tag, Event-type, etc..
+
+**Tracer** interface that must be implemented by the different **providers** or user cases: java spring boot, rxJava, rabbitmq-client, kafka-client, etc..
+
+```java
+
+package io.opentracing;
+
+import io.opentracing.propagation.Format;
+
+/**
+ * Tracer is a simple, thin interface for Span creation and propagation across arbitrary transports.
+ */
+public interface Tracer {
+  
+    ScopeManager scopeManager();
+
+    Span activeSpan();
+
+    SpanBuilder buildSpan(String operationName);
+
+    <C> void inject(SpanContext spanContext, Format<C> format, C carrier);
+
+    <C> SpanContext extract(Format<C> format, C carrier);
+
+    interface SpanBuilder {
+
+        SpanBuilder asChildOf(SpanContext parent);
+
+        SpanBuilder asChildOf(Span parent);
+
+        SpanBuilder addReference(String referenceType, SpanContext referencedContext);
+
+        SpanBuilder ignoreActiveSpan();
+
+        /** Same as {@link Span#setTag(String, String)}, but for the span being built. */
+        SpanBuilder withTag(String key, String value);
+
+        /** Same as {@link Span#setTag(String, boolean)}, but for the span being built. */
+        SpanBuilder withTag(String key, boolean value);
+
+        /** Same as {@link Span#setTag(String, Number)}, but for the span being built. */
+        SpanBuilder withTag(String key, Number value);
+
+        /** Specify a timestamp of when the Span was started, represented in microseconds since epoch. */
+        SpanBuilder withStartTimestamp(long microseconds);
+
+        Scope startActive(boolean finishSpanOnClose);
+
+        Span start();
+    }
+}
+
+```
+
+### Basic approach: **Inject**, **Extract**, and **Carriers**
+
+Any **SpanContext** in a **trace** may be **Injected** into what OpenTracing refers to as a **Carrier**. A **Carrier** is an interface or data structure that's useful for inter-process communication (IPC); that is, the **Carrier** is something that ``carries`` the tracing state from one process to another.
+
+The OpenTracing specification includes two required Carrier formats, though custom Carrier formats are possible as well.
+
+Similarly, given a Carrier, an injected trace may be **Extracted**, yielding a SpanContext instance which is semantically identical to the one Injected into the Carrier.
+
+### Exampe Sequence
+
+> Following sequence shows how it is implemented ``Tracer`` interface from *OpenTracing API* using **HTTP** protocol. The way traceId, spans, etc.. are injected/extracted is by using the *headers* defined in HTTP protocol. For other protocols this could not be possible, for example using *kafka* those parameters might be injected/extracted using the meta-data.
+
+1. A client process has a ``SpanContext`` instance and is about to make an **RPC** over a home-grown HTTP protocol
+2. That client process calls ``Tracer.Inject(...)``, passing the active ``SpanContext`` instance, a format identifier for a text map, and a text map **Carrier** as parameters
+3. **Inject** has populated the text map in the **Carrier**; the client application **encodes** that map within its homegrown HTTP protocol (e.g., as *headers*)
+4. The HTTP request happens and the data crosses *process* boundaries...
+5. Now in the server process, the application code **decodes** the text map from the homegrown HTTP protocol and uses it to initialize a text map **Carrier**
+6. The server process calls ``Tracer.Extract(...)``, passing in the desired operation name, a format identifier for a text map, and the Carrier from above
+7. In the absence of data corruption or other errors, the server now has a ``SpanContext`` instance that belongs to the **same** trace as the one in the client
 
 ## Example
 
@@ -36,11 +120,13 @@ At the highest level, a **trace** tells the **story** of a **transaction** or wo
 
     ```Groovy
     // https://mvnrepository.com/artifact/io.opentracing/opentracing-api
-    compile (group: 'io.opentracing', name: 'opentracing-api', version: '0.31.0')
+    compile('io.opentracing:opentracing-api:0.31.0')
     // https://github.com/opentracing-contrib/java-spring-jaeger
     compile('io.opentracing.contrib:opentracing-spring-jaeger-web-starter:0.2.1')
     // https://mvnrepository.com/artifact/io.zipkin.reporter2/zipkin-reporter
-    compile (group: 'io.zipkin.reporter2', name: 'zipkin-reporter', version: '2.7.7')
+    compile('io.zipkin.reporter2:zipkin-sender-okhttp3:2.7.8')
+    // https://github.com/opentracing-contrib/java-concurrent
+    compile('io.opentracing.contrib:opentracing-concurrent:0.1.0')
     ```
 
 1. Basically use the following snippet to use OpenTracing API and Jaeger implementation
@@ -48,7 +134,7 @@ At the highest level, a **trace** tells the **story** of a **transaction** or wo
     > If no settings are changed, spans will be reported to the UDP port *6831* of *localhost*. The simplest way to change this behavior is to set the following properties:
 
     ```java
-   @Bean
+    @Bean
     public Tracer jaegerTracer() {
         return new io.jaegertracing.Configuration("gateway-service" )
                 .withSampler(new SamplerConfiguration().withType(ConstSampler.TYPE).withParam(1))
@@ -72,6 +158,7 @@ At the highest level, a **trace** tells the **story** of a **transaction** or wo
 - Jaeger Dashboard: http:/10.0.0.10:16686
 
 - Gateway: localhost:8080
+  - Swagger UI: localhost:8080/swagger-ui.html
 - Server1: localhost:8081
 - Server1-1: localhost:8082
 - Server1-2: localhost:8083
@@ -108,7 +195,11 @@ service.name=Server-2
 - GET localhost:8080/server1/server1-1/server2/status
 - GET localhost:8080/server2/status
 
-Here are the result it can be obtained using Jaeger dashboard using OpenTracing from [this endpoint](http://localhost:8080/server1/server1-1/server2/status)
+- GET localhost:8080/customer
+- GET localhost:8080/order
+- GET localhost:8080/scan
+
+Here are the result it can be obtained using Jaeger dashboard using OpenTracing from [/server1/server1-1/server2/status](http://localhost:8080/server1/server1-1/server2/status)
 
 - Http Respose
 
@@ -140,6 +231,76 @@ Here are the result it can be obtained using Jaeger dashboard using OpenTracing 
     ![Jaeger DAG](images/jaeger-traces-01.png)
     ![Jaeger DAG](images/jaeger-tree-01.png)
     ![Jaeger DAG](images/jaeger-dag-01.png)
+
+- There is no **traceId** not **Span** reported outside the server side context
+
+    ![Jaeger DAG](images/http-headers-client.png)
+
+#### Sync/Async Workflow calls
+
+- Http Respose (GET localhost:8080/order)
+
+    ```txt
+    order: Order-0302 - customer: customer-02313
+    ```
+
+- Jaeger Tracing OpenTracing implementation
+
+    ![Jaeger DAG](images/jaeger-traces-04.png)
+    ![Jaeger DAG](images/jaeger-tree-04.png)
+
+> Note ``customer`` (**server1 -> server1-1 -> server2**) and ``order`` (**server1 -> server1-2**) are called in the same **sync** operation. This can be optimized by calling them on parallel using **Asynchronous** models like **reactive** paradigms with **non-blosking** operations.
+
+##### Adding **multi-tasking** support to OpenTracing
+
+- Http Respose (GET localhost:8080/orderAsync)
+
+    ```txt
+    order: Order-0302 - customer: customer-02313
+    ```
+
+- Following package is neccesary to bind SpanContext and Tracer to threads on multi-threading context.
+
+    ```Groovy
+    // https://github.com/opentracing-contrib/java-concurrent
+    compile('io.opentracing.contrib:opentracing-concurrent:0.1.0')
+    ```
+
+- Create a ``ExecutorService`` using the facade class ``TracedExecutorService`` provided by ``opentracing-concurrent``
+
+    ```java
+    import io.opentracing.contrib.concurrent.TracedExecutorService;
+
+    ExecutorService pool =  new TracedExecutorService(Executors.newFixedThreadPool(poolSize), GlobalTracer.get());
+    ```
+
+- Create the tasks using the current Pool. In this case the Tracer will be used for all the different threads and contexts.
+
+    ```java
+    @RequestMapping("/orderAsync")
+    public String orderAsync() throws ExecutionException, InterruptedException {
+
+        Future<ResponseEntity<String>> responseOrderAsync = pool.submit(() -> {
+            logger.info("Start Call to Server1-2 endpoint");
+            ResponseEntity<String> responseOrder = restTemplate.getForEntity("http://localhost:8083/order", String.class);
+            logger.info("End Call to Server1-2 endpoint");
+            return responseOrder;
+                });
+        Future<ResponseEntity<String>> responseCustomerAsync = pool.submit(() -> {
+            logger.info("Start Call to Server1-1 endpoint");
+            ResponseEntity<String> responseCustomer = restTemplate.getForEntity("http://localhost:8082/customer", String.class);
+            logger.info("End Call to Server1-1 endpoint");
+            return responseCustomer;
+        });
+
+        return String.format("order: %s - customer: %s",responseOrderAsync.get().getBody(),responseCustomerAsync.get().getBody());
+    }
+    ```
+
+- Verify and compare with previous approach both tasks have been launched in parallel.
+
+    ![Jaeger DAG](images/jaeger-traces-05.png)
+    ![Jaeger DAG](images/jaeger-tree-05.png)
 
 #### Happy/Failure Scenario
 
@@ -259,6 +420,43 @@ Here are the result it can be obtained using Jaeger dashboard using OpenTracing 
     ![Jaeger DAG](images/jaeger-tree-03.png)
     ![Jaeger DAG](images/jaeger-error-03.png)
 
+#### Custom Spans
+
+- Http Respose (GET localhost:8080/scan)
+
+    ```txt
+    Scan Finished
+    ```
+
+- Create custom Scans
+
+    ```java
+    @RequestMapping("/scan")
+    public String scan() throws InterruptedException {
+        Span checkServicesConnectedSpan = GlobalTracer.get()
+                .buildSpan("check-services-connected")
+                .asChildOf(GlobalTracer.get().activeSpan())
+                .start();
+        // Do something until finish the span to send
+        Thread.sleep(200);
+        checkServicesConnectedSpan.finish();
+
+        Span checkServicesRunningSpan = GlobalTracer.get()
+                .buildSpan("check-services-running")
+                .asChildOf(GlobalTracer.get().activeSpan())
+                .start();
+        // Do something until finish the span to send
+        Thread.sleep(200);
+        checkServicesRunningSpan.finish();
+        return "Scan Finished";
+    }
+    ```
+
+- Jaeger Tracing OpenTracing implementation
+
+    ![Jaeger DAG](images/jaeger-traces-06.png)
+    ![Jaeger DAG](images/jaeger-tree-06.png)
+
 ## References
 
 [Quiuck Start](http://opentracing.io/documentation/pages/quick-start)
@@ -266,3 +464,5 @@ Here are the result it can be obtained using Jaeger dashboard using OpenTracing 
 [OpenTracing API](https://github.com/opentracing)
 [OpenTracing API for JAVA](https://github.com/opentracing/opentracing-java)
 [Jaeger spring Client For Java](https://github.com/opentracing-contrib/java-spring-jaeger)
+
+[Sleuth - A custom Tracing implementation for Spring Cloud](https://cloud.spring.io/spring-cloud-sleuth/)
