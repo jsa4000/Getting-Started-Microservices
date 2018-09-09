@@ -26,6 +26,8 @@ repositories {
 
 dependencies {
 	compile('org.springframework.boot:spring-boot-starter-web')
+	compile('io.opentracing:opentracing-api:0.31.0')
+	compile('io.opentracing.contrib:opentracing-spring-jaeger-web-starter:0.2.1')
 	compileOnly('org.projectlombok:lombok')
 	testCompile('org.springframework.boot:spring-boot-starter-test')
 }

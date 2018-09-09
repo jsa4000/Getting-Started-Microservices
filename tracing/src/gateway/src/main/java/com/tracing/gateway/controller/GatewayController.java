@@ -31,11 +31,51 @@ public class GatewayController {
     }
 
     @RequestMapping("/server1/status")
-    public String server1() {
+    public String server1Status() {
         logger.info("Start Call to Server1 endpoint");
         ResponseEntity<String> response = restTemplate.getForEntity("http://localhost:8081/status", String.class);
         logger.info("End Call to Server1 endpoint");
-        return "Server1 Status: " + response.getBody();
+        return "Server Status: " + response.getBody();
+    }
+
+    @RequestMapping("/server1/server1-1/status")
+    public String server11Status() {
+        logger.info("Start Call to Server1 endpoint");
+        ResponseEntity<String> response = restTemplate.getForEntity("http://localhost:8081/server1-1/status", String.class);
+        logger.info("End Call to Server1 endpoint");
+        return "Server Status: " + response.getBody();
+    }
+
+    @RequestMapping("/server1/server1-2/status")
+    public String server12Status() {
+        logger.info("Start Call to Server1 endpoint");
+        ResponseEntity<String> response = restTemplate.getForEntity("http://localhost:8081/server1-2/status", String.class);
+        logger.info("End Call to Server1 endpoint");
+        return "Server Status: " + response.getBody();
+    }
+
+    @RequestMapping("/server1/server1-1/server2/status")
+    public String server2Status() {
+        logger.info("Start Call to Server1 endpoint");
+        ResponseEntity<String> response = restTemplate.getForEntity("http://localhost:8081/server1-1/server2/status", String.class);
+        logger.info("End Call to Server1 endpoint");
+        return "Server Status: " + response.getBody();
+    }
+
+    @RequestMapping("/server2/status")
+    public String server2DirectStatus() {
+        logger.info("Start Call to Server1 endpoint");
+        ResponseEntity<String> response = restTemplate.getForEntity("http://localhost:8084/status", String.class);
+        logger.info("End Call to Server1 endpoint");
+        return "Server Status: " + response.getBody();
+    }
+
+    @RequestMapping("/customer")
+    public String customer() {
+        logger.info("Start Call to Server1 endpoint");
+        ResponseEntity<String> response = restTemplate.getForEntity("http://localhost:8081/customer", String.class);
+        logger.info("End Call to Server1 endpoint");
+        return response.getBody();
     }
 
 }

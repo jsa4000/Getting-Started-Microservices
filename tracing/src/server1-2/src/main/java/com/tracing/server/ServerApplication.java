@@ -1,12 +1,12 @@
-package com.tracing.server12;
+package com.tracing.server;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class Server12Application {
+public class ServerApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(Server12Application.class, args);
+		SpringApplication.run(ServerApplication.class, args);
 	}
 }
