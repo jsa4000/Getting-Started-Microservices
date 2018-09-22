@@ -1,8 +1,6 @@
 package com.tracing.server.controller;
 
-import io.opentracing.Span;
-import io.opentracing.contrib.concurrent.TracedExecutorService;
-import io.opentracing.util.GlobalTracer;
+import com.tracing.tracingLib.helpers.TracingPool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +12,6 @@ import org.springframework.web.client.RestTemplate;
 
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 @RestController
@@ -25,14 +22,14 @@ public class ServerController {
 
     private final ExecutorService pool;
 
-    @Value( "${service.name}" )
+    @Value("${spring.application.name}")
     private String serviceName;
 
     @Autowired
     private RestTemplate restTemplate;
 
     public ServerController() {
-        this.pool =  new TracedExecutorService(Executors.newFixedThreadPool(poolSize), GlobalTracer.get());
+        this.pool = TracingPool.createPool(poolSize);
     }
 
     @RequestMapping("/status")
@@ -73,21 +70,20 @@ public class ServerController {
         return response.getBody();
     }
 
-    @RequestMapping("/scan")
-    public String scan() throws InterruptedException {
-        Span checkServicesConnectedSpan = GlobalTracer.get()
-                .buildSpan("check-services-connected")
-                .asChildOf(GlobalTracer.get().activeSpan())
-                .start();
-        Thread.sleep(200);
-        checkServicesConnectedSpan.finish();
+    public void sleep(Integer milliseconds)  {
+        try {
+            Thread.sleep(200);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
 
-        Span checkServicesRunningSpan = GlobalTracer.get()
-                .buildSpan("check-services-running")
-                .asChildOf(GlobalTracer.get().activeSpan())
-                .start();
-        Thread.sleep(200);
-        checkServicesRunningSpan.finish();
+    @RequestMapping("/scan")
+    public String scan() {
+
+        TracingPool.executeSpan("check-services-connected", () -> sleep(200) );
+        TracingPool.executeSpan("check-services-running", () -> sleep(200) );
+
         return "Scan Finished";
     }
 

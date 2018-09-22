@@ -14,7 +14,7 @@ public class ServerController {
 
     private final Logger logger = LoggerFactory.getLogger(ServerController.class);
 
-    @Value( "${service.name}" )
+    @Value("${spring.application.name}")
     private String serviceName;
 
     @Autowired
