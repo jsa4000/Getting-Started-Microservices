@@ -1,0 +1,4 @@
+# This file overrides the deeper settings on multi-project solution using gradle.
+# Do not use
+rootProject.name = 'gateway'
+include ':tracingLib'

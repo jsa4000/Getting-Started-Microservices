@@ -1,0 +1,46 @@
+version: '2'
+
+services:
+  # The zipkin process services the UI, and also exposes a POST endpoint that
+  # instrumentation can send trace data to. Scribe is disabled by default.
+  # No persistence storage by default. Check here https://github.com/openzipkin/docker-zipkin/blob/master/docker-compose.yml
+  zipkin:
+    image: openzipkin/zipkin
+    container_name: zipkin
+    # Environment settings are defined here https://github.com/openzipkin/zipkin/tree/1.19.0/zipkin-server#environment-variables
+    #environment:
+      # - STORAGE_TYPE=mysql
+      # Point the zipkin at the storage backend
+      # - MYSQL_HOST=mysql
+      # Uncomment to enable scribe
+      # - SCRIBE_ENABLED=true
+      # Uncomment to enable self-tracing
+      # - SELF_TRACING_ENABLED=true
+      # Uncomment to enable debug logging
+      # - JAVA_OPTS=-Dlogging.level.zipkin=DEBUG -Dlogging.level.zipkin2=DEBUG
+    ports:
+      # Port used for the Zipkin UI and HTTP Api
+      - 9412:9411
+      # Uncomment if you set SCRIBE_ENABLED=true
+      # - 9410:9410
+
+  # The jaeger process services the UI, and also exposes a POST endpoint that
+  # instrumentation can send trace data to.
+  jaeger:
+    # Jaeger all-in-one docker image.
+    # The full docker-compose can be found here https://github.com/jaegertracing/jaeger/blob/master/docker-compose/jaeger-docker-compose.yml
+    image: jaegertracing/all-in-one
+    container_name: jaeger
+    environment:
+      - COLLECTOR_ZIPKIN_HTTP_PORT=9411
+    ports:
+      - 5775:5775/udp
+      # Port used for the thrift connection
+      - 6831:6831/udp
+      - 6832:6832/udp
+      - 5778:5778
+      # Port used for the jaeger ui
+      - 16686:16686
+      - 14268:14268
+      # Port used for the jaeger HTTP Api
+      - 9411:9411

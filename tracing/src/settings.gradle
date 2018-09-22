@@ -3,3 +3,5 @@ include 'server1'
 include 'server1-1'
 include 'server1-2'
 include 'server2'
+include 'tracingLib'
+
