@@ -4,9 +4,11 @@ buildscript {
 	}
 	repositories {
 		mavenCentral()
+        maven { url "https://plugins.gradle.org/m2/" }
 	}
 	dependencies {
 		classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+        classpath "gradle.plugin.com.google.cloud.tools:jib-gradle-plugin:0.9.10"
 	}
 }
 
@@ -14,6 +16,7 @@ apply plugin: 'java'
 apply plugin: 'eclipse'
 apply plugin: 'org.springframework.boot'
 apply plugin: 'io.spring.dependency-management'
+apply plugin: 'com.google.cloud.tools.jib'
 
 group = 'com.tracing'
 version = '0.0.1-SNAPSHOT'
@@ -29,4 +32,21 @@ dependencies {
 	compile('io.springfox:springfox-swagger-ui:2.9.2')
 	compile project(':tracingLib')
 	testCompile('org.springframework.boot:spring-boot-starter-test')
+}
+
+// jibDockerBuild
+// jibExportDockerContext
+jib {
+	from {
+		image = 'openjdk:alpine'
+	}
+	to {
+		image = "gateway-service-image:${version}"
+	}
+	container {
+		jvmFlags = ['-Xms512m', '-Xdebug', '-Xmy:flag=jib-rules']
+		ports = ['8080']
+		labels = [app:'gateway-service',namespace:'development', version:version]
+		format = 'OCI'
+	}
 }
