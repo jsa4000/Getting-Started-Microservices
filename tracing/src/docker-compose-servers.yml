@@ -1,0 +1,18 @@
+version: '2'
+
+services:
+
+  gateway:
+    build: ./gateway/build/jib-docker-context
+    container_name: gateway
+    environment:
+    # Tracing Provider
+    - TRACING_PROVIDER=JAEGER
+    # Zipking connection
+    - TRACING_PROVIDER_ZIPKIN_URL=http://10.0.0.10:9412/api/v2/spans
+    # Jaeger connection
+    - TRACING_PROVIDER_JAEGER_HOST=10.0.0.10
+    - TRACING_PROVIDER_JAEGER_PORT=6831
+    ports:
+    # Port used for the Server
+    - 8080:8080

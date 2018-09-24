@@ -34,19 +34,40 @@ dependencies {
 	testCompile('org.springframework.boot:spring-boot-starter-test')
 }
 
+// Make the jib task depend on extract properties from Spring Properties file.
+tasks.jib.dependsOn("extractProperties")
+
+String port = '8083'
+String serviceName = 'spring-boot-app'
+
+task extractProperties() {
+    def props = new Properties()
+    file('src/main/resources/application.properties').withInputStream {
+        props.load(it)
+    }
+
+    port = props['server.port']
+    serviceName = props['spring.application.name']
+
+    println "serviceName: ${serviceName}"
+    println "port: ${port}"
+    println "version: ${version}"
+}
+
 // jibDockerBuild
 // jibExportDockerContext
 jib {
 	from {
-		image = 'openjdk:alpine'
+		image = 'openjdk:8-jre-alpine'
 	}
 	to {
-		image = "gateway-service-image:${version}"
+		image = "${serviceName}-image:${version}"
 	}
 	container {
-		jvmFlags = ['-Xms512m', '-Xdebug', '-Xmy:flag=jib-rules']
-		ports = ['8080']
-		labels = [app:'gateway-service',namespace:'development', version:version]
+		jvmFlags = ['-Xms512m']
+		ports = [port]
+		labels = [app:serviceName,namespace:'development', version:version]
 		format = 'OCI'
 	}
 }
+
