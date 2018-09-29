@@ -13,6 +13,96 @@ services:
     # Jaeger connection
     - TRACING_PROVIDER_JAEGER_HOST=10.0.0.10
     - TRACING_PROVIDER_JAEGER_PORT=6831
+    # Default Service Discovery
+    - SERVERS_GATEWAY=gateway:8080
+    - SERVERS.SERVER1=server-1:8081
+    - SERVERS.SERVER11=server-1-1:8082
+    - SERVERS.SERVER12=server-1-2:8083
+    - SERVERS.SERVER2=server-2:8084
     ports:
     # Port used for the Server
     - 8080:8080
+
+  server-1:
+    build: ./server1/build/jib-docker-context
+    container_name: server-1
+    environment:
+    # Tracing Provider
+    - TRACING_PROVIDER=JAEGER
+    # Zipking connection
+    - TRACING_PROVIDER_ZIPKIN_URL=http://10.0.0.10:9412/api/v2/spans
+    # Jaeger connection
+    - TRACING_PROVIDER_JAEGER_HOST=10.0.0.10
+    - TRACING_PROVIDER_JAEGER_PORT=6831
+    # Default Service Discovery
+    - SERVERS_GATEWAY=gateway:8080
+    - SERVERS.SERVER1=server-1:8081
+    - SERVERS.SERVER11=server-1-1:8082
+    - SERVERS.SERVER12=server-1-2:8083
+    - SERVERS.SERVER2=server-2:8084
+    ports:
+    # Port used for the Server
+    - 8081:8081
+
+  server-1-1:
+    build: ./server1-1/build/jib-docker-context
+    container_name: server-1-1
+    environment:
+    # Tracing Provider
+    - TRACING_PROVIDER=JAEGER
+    # Zipking connection
+    - TRACING_PROVIDER_ZIPKIN_URL=http://10.0.0.10:9412/api/v2/spans
+    # Jaeger connection
+    - TRACING_PROVIDER_JAEGER_HOST=10.0.0.10
+    - TRACING_PROVIDER_JAEGER_PORT=6831
+    # Default Service Discovery
+    - SERVERS_GATEWAY=gateway:8080
+    - SERVERS.SERVER1=server-1:8081
+    - SERVERS.SERVER11=server-1-1:8082
+    - SERVERS.SERVER12=server-1-2:8083
+    - SERVERS.SERVER2=server-2:8084
+    ports:
+    # Port used for the Server
+    - 8082:8082
+
+  server-1-2:
+    build: ./server1-2/build/jib-docker-context
+    container_name: server-1-2
+    environment:
+    # Tracing Provider
+    - TRACING_PROVIDER=JAEGER
+    # Zipking connection
+    - TRACING_PROVIDER_ZIPKIN_URL=http://10.0.0.10:9412/api/v2/spans
+    # Jaeger connection
+    - TRACING_PROVIDER_JAEGER_HOST=10.0.0.10
+    - TRACING_PROVIDER_JAEGER_PORT=6831
+    # Default Service Discovery
+    - SERVERS_GATEWAY=gateway:8080
+    - SERVERS.SERVER1=server-1:8081
+    - SERVERS.SERVER11=server-1-1:8082
+    - SERVERS.SERVER12=server-1-2:8083
+    - SERVERS.SERVER2=server-2:8084
+    ports:
+    # Port used for the Server
+    - 8083:8083
+
+  server-2:
+    build: ./server2/build/jib-docker-context
+    container_name: server-2
+    environment:
+    # Tracing Provider
+    - TRACING_PROVIDER=JAEGER
+    # Zipking connection
+    - TRACING_PROVIDER_ZIPKIN_URL=http://10.0.0.10:9412/api/v2/spans
+    # Jaeger connection
+    - TRACING_PROVIDER_JAEGER_HOST=10.0.0.10
+    - TRACING_PROVIDER_JAEGER_PORT=6831
+    # Default Service Discovery
+    - SERVERS_GATEWAY=gateway:8080
+    - SERVERS.SERVER1=server-1:8081
+    - SERVERS.SERVER11=server-1-1:8082
+    - SERVERS.SERVER12=server-1-2:8083
+    - SERVERS.SERVER2=server-2:8084
+    ports:
+    # Port used for the Server
+    - 8084:8084

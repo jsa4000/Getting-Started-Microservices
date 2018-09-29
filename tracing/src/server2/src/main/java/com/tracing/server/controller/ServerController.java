@@ -1,5 +1,6 @@
 package com.tracing.server.controller;
 
+import com.tracing.tracingLib.config.ServiceDiscovery;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +19,9 @@ public class ServerController {
 
     @Autowired
     private RestTemplate restTemplate;
+
+    @Autowired
+    private ServiceDiscovery serviceDiscovery;
 
     @RequestMapping("/status")
     public String status() {

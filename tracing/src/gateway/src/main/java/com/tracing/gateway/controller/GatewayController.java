@@ -1,5 +1,6 @@
 package com.tracing.gateway.controller;
 
+import com.tracing.tracingLib.config.ServiceDiscovery;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +19,9 @@ public class GatewayController {
     @Autowired
     private RestTemplate restTemplate;
 
+    @Autowired
+    private ServiceDiscovery serviceDiscovery;
+
     @GetMapping("/status")
     public String status() {
         logger.info(String.format("Server %s is UP",this.getClass().getSimpleName()));
@@ -27,7 +31,7 @@ public class GatewayController {
     @GetMapping("/status/chain")
     public String statusChain() {
         logger.info("Start Call to Status endpoint");
-        ResponseEntity<String> response = restTemplate.getForEntity("http://localhost:8080/status", String.class);
+        ResponseEntity<String> response = restTemplate.getForEntity("http://" + serviceDiscovery.getGatewayServerAddress() +"/status", String.class);
         logger.info("End Call to Status endpoint");
         return "Chaining + " + response.getBody();
     }
@@ -35,7 +39,7 @@ public class GatewayController {
     @GetMapping("/server1/status")
     public String server1Status() {
         logger.info("Start Call to Server1 endpoint");
-        ResponseEntity<String> response = restTemplate.getForEntity("http://localhost:8081/status", String.class);
+        ResponseEntity<String> response = restTemplate.getForEntity("http://" + serviceDiscovery.getServer1Address() +"/status", String.class);
         logger.info("End Call to Server1 endpoint");
         return "Server Status: " + response.getBody();
     }
@@ -43,7 +47,7 @@ public class GatewayController {
     @GetMapping("/server1/server1-1/status")
     public String server11Status() {
         logger.info("Start Call to Server1 endpoint");
-        ResponseEntity<String> response = restTemplate.getForEntity("http://localhost:8081/server1-1/status", String.class);
+        ResponseEntity<String> response = restTemplate.getForEntity("http://" + serviceDiscovery.getServer1Address() +"/server1-1/status", String.class);
         logger.info("End Call to Server1 endpoint");
         return "Server Status: " + response.getBody();
     }
@@ -51,7 +55,7 @@ public class GatewayController {
     @GetMapping("/server1/server1-2/status")
     public String server12Status() {
         logger.info("Start Call to Server1 endpoint");
-        ResponseEntity<String> response = restTemplate.getForEntity("http://localhost:8081/server1-2/status", String.class);
+        ResponseEntity<String> response = restTemplate.getForEntity("http://" + serviceDiscovery.getServer1Address() +"/server1-2/status", String.class);
         logger.info("End Call to Server1 endpoint");
         return "Server Status: " + response.getBody();
     }
@@ -59,7 +63,7 @@ public class GatewayController {
     @GetMapping("/server1/server1-1/server2/status")
     public String server2Status() {
         logger.info("Start Call to Server1 endpoint");
-        ResponseEntity<String> response = restTemplate.getForEntity("http://localhost:8081/server1-1/server2/status", String.class);
+        ResponseEntity<String> response = restTemplate.getForEntity("http://" + serviceDiscovery.getServer1Address() +"/server1-1/server2/status", String.class);
         logger.info("End Call to Server1 endpoint");
         return "Server Status: " + response.getBody();
     }
@@ -67,7 +71,7 @@ public class GatewayController {
     @GetMapping("/server2/status")
     public String server2DirectStatus() {
         logger.info("Start Call to Server1 endpoint");
-        ResponseEntity<String> response = restTemplate.getForEntity("http://localhost:8084/status", String.class);
+        ResponseEntity<String> response = restTemplate.getForEntity("http://" + serviceDiscovery.getServer2Address() +"/status", String.class);
         logger.info("End Call to Server1 endpoint");
         return "Server Status: " + response.getBody();
     }
@@ -75,7 +79,7 @@ public class GatewayController {
     @GetMapping("/customer")
     public String customer() {
         logger.info("Start Call to Server1 endpoint");
-        ResponseEntity<String> response = restTemplate.getForEntity("http://localhost:8081/customer", String.class);
+        ResponseEntity<String> response = restTemplate.getForEntity("http://" + serviceDiscovery.getServer1Address() +"/customer", String.class);
         logger.info("End Call to Server1 endpoint");
         return response.getBody();
     }
@@ -83,7 +87,7 @@ public class GatewayController {
     @GetMapping("/scan")
     public String scan() {
         logger.info("Start Call to Server1 endpoint");
-        ResponseEntity<String> response = restTemplate.getForEntity("http://localhost:8081/scan", String.class);
+        ResponseEntity<String> response = restTemplate.getForEntity("http://" + serviceDiscovery.getServer1Address() +"/scan", String.class);
         logger.info("End Call to Server1 endpoint");
         return response.getBody();
     }
@@ -91,7 +95,7 @@ public class GatewayController {
     @GetMapping("/order")
     public String order() {
         logger.info("Start Call to Server1 endpoint");
-        ResponseEntity<String> response = restTemplate.getForEntity("http://localhost:8081/order", String.class);
+        ResponseEntity<String> response = restTemplate.getForEntity("http://" + serviceDiscovery.getServer1Address() +"/order", String.class);
         logger.info("End Call to Server1 endpoint");
         return response.getBody();
     }
@@ -99,7 +103,7 @@ public class GatewayController {
     @GetMapping("/orderAsync")
     public String orderAsync() {
         logger.info("Start Call to Server1 endpoint");
-        ResponseEntity<String> response = restTemplate.getForEntity("http://localhost:8081/orderAsync", String.class);
+        ResponseEntity<String> response = restTemplate.getForEntity("http://" + serviceDiscovery.getServer1Address() +"/orderAsync", String.class);
         logger.info("End Call to Server1 endpoint");
         return response.getBody();
     }

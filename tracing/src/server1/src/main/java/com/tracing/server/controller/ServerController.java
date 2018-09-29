@@ -1,5 +1,6 @@
 package com.tracing.server.controller;
 
+import com.tracing.tracingLib.config.ServiceDiscovery;
 import com.tracing.tracingLib.helpers.TracingPool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,6 +29,9 @@ public class ServerController {
     @Autowired
     private RestTemplate restTemplate;
 
+    @Autowired
+    private ServiceDiscovery serviceDiscovery;
+
     public ServerController() {
         this.pool = TracingPool.createPool(poolSize);
     }
@@ -41,7 +45,7 @@ public class ServerController {
     @RequestMapping("/server1-1/status")
     public String server11Status() {
         logger.info("Start Call to Server1 endpoint");
-        ResponseEntity<String> response = restTemplate.getForEntity("http://localhost:8082/status", String.class);
+        ResponseEntity<String> response = restTemplate.getForEntity("http://" + serviceDiscovery.getServer11Address() +"/status", String.class);
         logger.info("End Call to Server1 endpoint");
         return "Server Status: " + response.getBody();
     }
@@ -49,7 +53,7 @@ public class ServerController {
     @RequestMapping("/server1-2/status")
     public String server12Status() {
         logger.info("Start Call to Server1 endpoint");
-        ResponseEntity<String> response = restTemplate.getForEntity("http://localhost:8083/status", String.class);
+        ResponseEntity<String> response = restTemplate.getForEntity("http://" + serviceDiscovery.getServer12Address() +"/status", String.class);
         logger.info("End Call to Server1 endpoint");
         return "Server Status: " + response.getBody();
     }
@@ -57,7 +61,7 @@ public class ServerController {
     @RequestMapping("/server1-1/server2/status")
     public String server2Status() {
         logger.info("Start Call to Server1 endpoint");
-        ResponseEntity<String> response = restTemplate.getForEntity("http://localhost:8082/server2/status", String.class);
+        ResponseEntity<String> response = restTemplate.getForEntity("http://" + serviceDiscovery.getServer11Address() +"/server2/status", String.class);
         logger.info("End Call to Server1 endpoint");
         return "Server Status: " + response.getBody();
     }
@@ -65,7 +69,7 @@ public class ServerController {
     @RequestMapping("/customer")
     public String customer() {
         logger.info("Start Call to Server1-1 endpoint");
-        ResponseEntity<String> response = restTemplate.getForEntity("http://localhost:8082/customer", String.class);
+        ResponseEntity<String> response = restTemplate.getForEntity("http://" + serviceDiscovery.getServer11Address() +"/customer", String.class);
         logger.info("End Call to Server1-1 endpoint");
         return response.getBody();
     }
@@ -91,11 +95,11 @@ public class ServerController {
     public String order() {
 
         logger.info("Start Call to Server1-2 endpoint");
-        ResponseEntity<String> responseOrder = restTemplate.getForEntity("http://localhost:8083/order", String.class);
+        ResponseEntity<String> responseOrder = restTemplate.getForEntity("http://" + serviceDiscovery.getServer12Address() +"/order", String.class);
         logger.info("End Call to Server1-2 endpoint");
 
         logger.info("Start Call to Server1-1 endpoint");
-        ResponseEntity<String> responseCustomer = restTemplate.getForEntity("http://localhost:8082/customer", String.class);
+        ResponseEntity<String> responseCustomer = restTemplate.getForEntity("http://" + serviceDiscovery.getServer11Address() +"/customer", String.class);
         logger.info("End Call to Server1-1 endpoint");
 
         return String.format("order: %s - customer: %s",responseOrder.getBody(),responseCustomer.getBody());
@@ -106,13 +110,13 @@ public class ServerController {
 
         Future<ResponseEntity<String>> responseOrderAsync = pool.submit(() -> {
             logger.info("Start Call to Server1-2 endpoint");
-            ResponseEntity<String> responseOrder = restTemplate.getForEntity("http://localhost:8083/order", String.class);
+            ResponseEntity<String> responseOrder = restTemplate.getForEntity("http://" + serviceDiscovery.getServer12Address() +"/order", String.class);
             logger.info("End Call to Server1-2 endpoint");
             return responseOrder;
                 });
         Future<ResponseEntity<String>> responseCustomerAsync = pool.submit(() -> {
             logger.info("Start Call to Server1-1 endpoint");
-            ResponseEntity<String> responseCustomer = restTemplate.getForEntity("http://localhost:8082/customer", String.class);
+            ResponseEntity<String> responseCustomer = restTemplate.getForEntity("http://" + serviceDiscovery.getServer11Address() +"/customer", String.class);
             logger.info("End Call to Server1-1 endpoint");
             return responseCustomer;
         });
