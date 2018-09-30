@@ -27,7 +27,11 @@ OpenTracing also offers a lingua franca for OSS **instrumentation** and **platfo
 
 At the highest level, a **trace** tells the **story** of a **transaction** or workflow as it propagates through a (potentially distributed) system. In OpenTracing, a trace is a **directed acyclic graph** (DAG) of **spans**: named, timed operations representing a contiguous segment of work in that trace.
 
+![TraceId and Span context](images/spans-traces.png)
+
 **SpanContext** refers to a *call* that has been exchanged between two services (service1 -> service2, DAG). This RPC call uses the same traceId, however the span must be unique with a timestamp and other metadata that can be appended into the span such as: parentId, tag, Event-type, etc..
+
+![TraceId and Span context](images/tracing1_0.png)
 
 **Tracer** interface that must be implemented by the different **providers** or user cases: java spring boot, rxJava, rabbitmq-client, kafka-client, etc..
 
@@ -496,6 +500,10 @@ Here are the result it can be obtained using Jaeger dashboard using OpenTracing 
     ![Jaeger DAG](images/jaeger-traces-06.png)
     ![Jaeger DAG](images/jaeger-tree-06.png)
 
+- Monitoring using ELK (traceId)
+
+    ![Tibana Tracing](images/kibana-tracing.png)
+
 ## What is next (**Service Mesh**)
 
 As the number and complexity of services increases, uniform observability across the data center becomes more critical. Service Mesh tracing and metrics instrumentation is designed to be aggregated, providing broad and granular insight into the health of all services. Service Meshes (**linkerd**, **istio**, etc..) make it the ideal data source for observability information, particularly in a polyglot environment. The main goal is to provide **Observability** over the entire system in a centralyzed way.
@@ -515,6 +523,8 @@ A **service mesh** manages service-level (i.e., Layer 7) communication. Service 
 - **Dynamic** routing, which can be used for different release and testing strategies such as canary routing, traffic shadowing, or blue/green deployments.
 - **Resilience**, which mitigate the impact of failures through strategies such as circuit breaking and rate limiting
 - **Observability**, which help improve response time by collecting metrics and adding context (e.g., tracing data) to service-to-service communication
+
+![Observability](images/observability-service-mesh.png)
 
 Service meshes add these features in a way that’s largely transparent to application developers. However, as we’ll see shortly, there are some nuances to this notion of transparency.
 

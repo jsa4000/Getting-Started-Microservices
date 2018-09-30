@@ -1,0 +1,44 @@
+version: '3'
+services:
+  app:
+    build: ./gateway/build/jib-docker-context
+    container_name: app
+    ports:
+    - 8080:8080
+    logging:
+      driver: "fluentd"
+      options:
+        fluentd-address: 10.0.0.10:24224
+        tag: server.gateway
+    depends_on: 
+    - fluentd  
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:6.2.4
+    environment:
+      discovery.type: single-node
+    ports:
+      - 9200:9200
+      - 9300:9300
+
+  fluentd:
+    build: ./fluentd
+    volumes:
+      - ./fluentd/conf:/fluentd/etc
+      # - ./logs:/logs
+    ports:
+      - 8090:8080
+      - 24224:24224
+      - 24224:24224/udp
+    healthcheck:
+        test: ["CMD", "curl", "-f", "http://fluentd:8090"]
+        interval: 30s
+        timeout: 10s
+        retries: 5
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:6.2.4
+    environment:
+      ELASTICSEARCH_URL: http://elasticsearch:9200
+    ports:
+      - 5601:5601
