@@ -22,6 +22,11 @@ services:
     ports:
     # Port used for the Server
     - 8080:8080
+    logging:
+      driver: "fluentd"
+      options:
+        fluentd-address: 10.0.0.10:24224
+        tag: server.gateway
 
   server-1:
     build: ./server1/build/jib-docker-context
@@ -43,6 +48,11 @@ services:
     ports:
     # Port used for the Server
     - 8081:8081
+    logging:
+      driver: "fluentd"
+      options:
+        fluentd-address: 10.0.0.10:24224
+        tag: server.server1
 
   server-1-1:
     build: ./server1-1/build/jib-docker-context
@@ -64,6 +74,11 @@ services:
     ports:
     # Port used for the Server
     - 8082:8082
+    logging:
+      driver: "fluentd"
+      options:
+        fluentd-address: 10.0.0.10:24224
+        tag: server.server11
 
   server-1-2:
     build: ./server1-2/build/jib-docker-context
@@ -85,6 +100,11 @@ services:
     ports:
     # Port used for the Server
     - 8083:8083
+    logging:
+      driver: "fluentd"
+      options:
+        fluentd-address: 10.0.0.10:24224
+        tag: server.server12
 
   server-2:
     build: ./server2/build/jib-docker-context
@@ -106,3 +126,8 @@ services:
     ports:
     # Port used for the Server
     - 8084:8084
+    logging:
+      driver: "fluentd"
+      options:
+        fluentd-address: 10.0.0.10:24224
+        tag: server.server2

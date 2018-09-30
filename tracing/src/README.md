@@ -63,19 +63,30 @@
 - Execute (detach mode) servers and tracers separetely
 
     sudo docker-compose -f docker-compose-tracers.yml up -d
+    sudo docker-compose -f docker-compose-loggers.yml up -d
     sudo docker-compose -f docker-compose-servers.yml up -d
 
 - Verify all image and container have been build and they are running
 
     sudo docker image list
     sudo docker stats
+	
+If getting some error during the bootstrapping use the following command previously (probably because no previous gracefully shutdown)
+
+	sudo docker-compose -f docker-compose-tracers.yml rm
 
 ### Shutdown
 
      sudo docker-compose -f docker-compose-servers.yml down --remove-orphans
-
-## Test
+	 
+## Tracing
 
 - [API GAteway](http://10.0.0.10:8080/swagger-ui.html)
 - [Jaeger Dashboard](http://10.0.0.10:16686)
 - [Zipkin Dashboard](http://10.0.0.10:9412)
+
+## Logging
+
+- [Kibana Dashboard](http://10.0.0.10:5601)
+
+s> Please go to http://localhost:5601/ with your browser. Then, you need to set up the index name pattern for Kibana. Please specify ``fluentd-*`` to ``Index name or pattern`` and press **Create** button. Then, go to **Discover** tab to seek for the logs. As you can see, logs are properly collected into Elasticsearch + Kibana, via Fluentd.

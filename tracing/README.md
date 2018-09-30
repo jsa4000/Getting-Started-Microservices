@@ -102,7 +102,7 @@ Similarly, given a Carrier, an injected trace may be **Extracted**, yielding a S
 6. The server process calls ``Tracer.Extract(...)``, passing in the desired operation name, a format identifier for a text map, and the Carrier from above
 7. In the absence of data corruption or other errors, the server now has a ``SpanContext`` instance that belongs to the **same** trace as the one in the client
 
-## Example
+## Implementation (fat-client)
 
 > For this example is going to be used Jaeger, however since we are working on OpenTracing it can be used any implementation that followos the standard OpenTracing API.
 
@@ -495,6 +495,28 @@ Here are the result it can be obtained using Jaeger dashboard using OpenTracing 
 
     ![Jaeger DAG](images/jaeger-traces-06.png)
     ![Jaeger DAG](images/jaeger-tree-06.png)
+
+## What is next (**Service Mesh**)
+
+As the number and complexity of services increases, uniform observability across the data center becomes more critical. Service Mesh tracing and metrics instrumentation is designed to be aggregated, providing broad and granular insight into the health of all services. Service Meshes (**linkerd**, **istio**, etc..) make it the ideal data source for observability information, particularly in a polyglot environment. The main goal is to provide **Observability** over the entire system in a centralyzed way.
+
+As requests pass through multiple services, identifying peformance bottlenecks becomes increasingly difficult using traditional debugging techniques. Distributed tracing provides a holistic view of requests transiting through multiple services, allowing for immediate identification of latency issues.
+
+With **Linkerd**, **istio** or any other service meshes proxies, distributed tracing comes for free. Simply configure the **proxy** to export tracing data to a backend trace aggregator, such as Zipkin. This will expose latency, retry, and failure information for each hop in a request.
+
+![Istio Service Mesh architecture](images/istio-1.png)
+
+### Service meshes
+
+When a service fails, there is an impact on its upstream and downstream services. The impact of a failed service can be greatly mitigated by properly managing the communication between services. This is where a service mesh comes in.
+
+A **service mesh** manages service-level (i.e., Layer 7) communication. Service meshes provide powerful primitives that can be used for all three failure management strategies. Service meshes implement:
+
+- **Dynamic** routing, which can be used for different release and testing strategies such as canary routing, traffic shadowing, or blue/green deployments.
+- **Resilience**, which mitigate the impact of failures through strategies such as circuit breaking and rate limiting
+- **Observability**, which help improve response time by collecting metrics and adding context (e.g., tracing data) to service-to-service communication
+
+Service meshes add these features in a way that’s largely transparent to application developers. However, as we’ll see shortly, there are some nuances to this notion of transparency.
 
 ## References
 
