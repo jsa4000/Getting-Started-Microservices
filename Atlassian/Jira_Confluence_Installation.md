@@ -1,9 +1,9 @@
 # jira And Confluence Installation
 
-
 ## 1. Creating Virtual Machine
 
 The idea is to create a Virtual Machine using Vagrant with the following packadges
+
 - Docker Engine (Docker Community Edition CE)
 - Docker compose v1.16.1
 	
@@ -22,7 +22,7 @@ The process to create a Virtual Machine using Vagrant with the previous requisit
 	
 2. Initialize VagrantFile using a default Vagrant box  from the Offical repository:
 
-	UbuntuMaster/ > vagrant init ubuntu/xenial64
+			UbuntuMaster/ > vagrant init ubuntu/xenial64
 	
 3. Now let's modify *VagrantFile* with the desired configuration
 
