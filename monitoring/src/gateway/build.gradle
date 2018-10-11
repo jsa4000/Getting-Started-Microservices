@@ -1,0 +1,73 @@
+buildscript {
+	ext {
+		springBootVersion = '2.0.4.RELEASE'
+	}
+	repositories {
+		mavenCentral()
+        maven { url "https://plugins.gradle.org/m2/" }
+	}
+	dependencies {
+		classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+        classpath "gradle.plugin.com.google.cloud.tools:jib-gradle-plugin:0.9.10"
+	}
+}
+
+apply plugin: 'java'
+apply plugin: 'eclipse'
+apply plugin: 'org.springframework.boot'
+apply plugin: 'io.spring.dependency-management'
+apply plugin: 'com.google.cloud.tools.jib'
+
+group = 'com.logging'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = 1.8
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	compile('org.springframework.boot:spring-boot-starter-web')
+	compile('org.springframework.boot:spring-boot-starter-actuator')
+	compile("io.micrometer:micrometer-registry-prometheus")
+	compile("io.micrometer:micrometer-registry-jmx")
+	compile("io.micrometer:micrometer-core")
+	compile('com.sun.jersey:jersey-json:1.9')
+	compile('org.projectlombok:lombok:1.18.2')
+	compile('io.springfox:springfox-swagger2:2.9.2')
+	compile('io.springfox:springfox-swagger-ui:2.9.2')
+	testCompile('org.springframework.boot:spring-boot-starter-test')
+}
+
+tasks.jib.dependsOn("extractProperties")
+
+String port = '8080'
+String serviceName = 'spring-boot-app'
+
+task extractProperties() {
+    def props = new Properties()
+    file('src/main/resources/application.properties').withInputStream {
+        props.load(it)
+    }
+
+    port = props['server.port']
+    serviceName = props['spring.application.name']
+
+    println "serviceName: ${serviceName}"
+    println "port: ${port}"
+    println "version: ${version}"
+}
+
+jib {
+	from {
+		image = 'openjdk:8-jre-alpine'
+	}
+	to {
+		image = "${serviceName}-image:${version}"
+	}
+	container {
+		ports = [port]
+		labels = [app:serviceName,namespace:'development', version:version]
+	}
+}
+
