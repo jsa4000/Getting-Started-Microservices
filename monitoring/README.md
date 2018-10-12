@@ -242,6 +242,127 @@ alerting:
 
 ### Exporters / Applications
 
+#### Spring Boot
+
+As from **Spring Boot v2.0**, **Micrometer** is the default metrics export engine. **Micrometer** is an application metrics *facade* that supports numerous monitoring systems. Atlas, Datadog, Prometheus, jmx, etc..
+
+When you add ``Spring Boot Actuator`` and ``micrometer`` as your dependencies, it *auto-configures* a composite ``MeterRegistry`` and adds a registry for each of the supported implementations that it finds on the classpath. 
+
+Having a dependency on ``micrometer-registry-{system}`` in your runtime classpath is enough for Spring Boot to configure the registry.
+
+```groovy
+  compile('org.springframework.boot:spring-boot-starter-actuator')
+  compile("io.micrometer:micrometer-registry-prometheus")
+  compile("io.micrometer:micrometer-registry-jmx")
+  compile("io.micrometer:micrometer-core")
+```
+
+It is also neccesary to tell ``Actuator`` the endpoints and fautures to activate depending on the environment.
+
+[Spring Boot Actuator: Production-ready features](https://docs.spring.io/spring-boot/docs/current/reference/html/production-ready-endpoints.html)
+
+The example bellow enable metrics via jmx, web and prometheus.
+
+```python
+# Change Port for management
+management.server.port=9500
+
+# Metrics related configurations
+management.endpoint.metrics.enabled=true
+management.endpoint.prometheus.enabled=true
+management.metrics.export.prometheus.enabled=true
+management.endpoints.web.exposure.include=*
+management.endpoints.jmx.exposure.include=*
+```
+
+All the endpoints exposed by actuator can be seen through the url http://localhost:9500/actuator
+
+However, in the case *Spring Boot 2*  or *auto-configuration* are not used, we need to explicity add the ``MeterRegistry`` implementations that are going to be used.
+
+```java
+CompositeMeterRegistry compositeRegistry = new CompositeMeterRegistry();
+SimpleMeterRegistry oneSimpleMeter = new SimpleMeterRegistry();
+AtlasMeterRegistry atlasMeterRegistry = new AtlasMeterRegistry(atlasConfig, Clock.SYSTEM);
+PrometheusMeterRegistry prometheusMeterRegistry = new PrometheusMeterRegistry(atlasConfig, Clock.SYSTEM);
+
+compositeRegistry.add(oneSimpleMeter);
+compositeRegistry.add(atlasMeterRegistry);
+compositeRegistry.add(prometheusMeterRegistry);
+```
+
+#### Meter - Instrumentation
+
+An identifier of a **Meter** consists of a **name** and **tags**. It is suggested that we should follow a naming convention that separates words with a dot, to help guarantee portability of metric names across multiple monitoring systems.
+
+> The prefix **name** used for the metrics is **important**. It must be start with the group used in the gradle project. i.e ``com.logging.*``
+
+```java
+MeterRegistry registry = Metrics.globalRegistry;
+
+Counter counter = registry.counter("page.visitors", "age", "20s");
+```
+
+Tags can be used for slicing the metric for reasoning about the values. In the code above, page.visitors is the name of the meter, with age=20s as its tag. In this case, the counter is meant to count the visitors to the page with age between 20 and 30.
+
+For a large system, we can append common tags to a registry, say the metrics are from a specific region:
+
+```java
+registry.config().commonTags("region", "ua-east");
+```
+
+##### Counter
+
+A **Counter** reports merely a count over a **specified** property of an application.
+
+It can be biuld a custom counter with the fluent builder or the helper method of any ``MetricRegistry``.
+
+> Counter can only be **incremented** monotonically by a fixed **positive** amount.
+
+```java
+Counter counter = Counter
+    .builder("com.logging.status.counter")
+    .description("Indicates the number of total requests performed for status")
+    .tags("dev", "performance")
+    .tag("type", "request")
+    .register(registry);
+
+counter.increment(1.0);
+```
+
+```python
+# HELP com_logging_status_counter_total Indicates instance status count of the object
+# TYPE com_logging_status_counter_total counter
+com_logging_status_counter_total{dev="performance",type="request",} 10.0
+```
+
+##### Timers
+
+##### Gauge
+
+##### Distribution, Binders, etc
+
+For further and more advance types go to the documentation [page](https://micrometer.io/docs).
+
+#### JMX
+
+Install Java VisualVM and MBeans to visualize the metrics.
+
+- **VisualVM**: VisualVM monitors and troubleshoots applications running on Java 1.4+ from many vendors using various technologies including jvmstat, JMX, Serviceability Agent (SA) and Attach API.
+- **MBeans Browser Plugin**: MBeans Browser plugin provides functionality similar to the MBeans Browser in JConsole: shows MBeans of an application, displays values, operations and notifications. In VisualVM the browser is further improved to deliver better usability and support for latest JMX features. 
+
+> **Open VisualVM -> Plugins -> Available Plugins -> VisuaVM-MBeans -> Install**
+
+![Grafana Sample dashboard](images/jmx-visualvm-plugin-mbean.png)
+
+To see the metrics (beans), just open **VisualVM** and attach to a JVM process.
+
+![Grafana Sample dashboard](images/jmx-visualvm-metrics.png)
+
+Links:
+
+- [Java VisualVM](https://visualvm.github.io/download.html)
+- [VisualVM Plugins](https://visualvm.github.io/plugins.html)
+
 ### Grafana Dashboard
 
 **Grafana** is a Graphical web-based application that is very suited for monitoring systems. 
@@ -307,4 +428,5 @@ In host file it must be added the following DNS name to resolve the address, whe
 
 ## References
 
+- [Quick guide to Micrometer](https://www.baeldung.com/micrometer)
 - [Monitoring Using Spring and Prometheus](https://dzone.com/articles/monitoring-using-spring-boot-2-prometheus-and-graf)
