@@ -3,6 +3,18 @@
 
 ## Introduction
 
+A **log** message is a system generated set of data when an **event** has happened to describe the event. In a log message is the log data. Log data are the details about the event such as a **resource** that was accessed, **who** accessed it, and the **time**. Each event in a system is going to have different sets of data in the message.
+
+Basically, there are *five* different general categories of logs: **informational**, **debug**, **warning**, **error**, or **alert**.
+
+- **informational** are typically “benign” events
+- **debug** are used during troubleshooting code or systems
+- **warning** are things like something may be missing but won’t directly impact the system
+- **error** are messages to convey a problem has occurred
+- **alert** are that something important has happened and are largely around security use cases.
+
+In essence, logs will tell the **story** for what happened in a system that got it to the issue you’re troubleshooting.
+
 As applications evolve to become ever more complex, having clear visibility of metric and event data to improve **monitoring**, **troubleshooting** and understanding is becoming even more crucial to ensure the performance of your app. Fortunately, there is an incredibly convenient and powerful vehicle to extract everything you need to know about your application: **Logs**.
 
 The usefulness of logs is frequently **underestimated** as they are often thought to be the tail of a hidden */var/log* file, lost in other endless files and inconvenient to use. But, thankfully there are methods to easily benefit from the hidden technical and business value of logs.
