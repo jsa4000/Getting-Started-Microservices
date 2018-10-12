@@ -12,6 +12,8 @@ Cloud infraestructures requires core components such as: VPC, Subnets, NET Gatew
 
 This is the basic structure of a Cloud Infraestrcuture (*Native Open Stack*)
 
+![OpenStack Architecture](images/marketecture-diagram.png)
+
 - **Compute**: OpenStack Compute service (nova) provides services to support the management of virtual machine instances at scale, instances that host multi-tiered applications, dev or test environments, “Big Data” crunching Hadoop clusters, or high-performance computing.
 - **Object Storage**: The OpenStack Object Storage service (swift) provides support for storing and retrieving arbitrary data in the cloud. The Object Storage service provides both a native API and an Amazon Web Services S3-compatible API. It is important to understand that object storage differs from traditional file system storage. Object storage is best used for static data such as media files (MP3s, images, or videos), virtual machine images, and backup files.
 - **Block Storage**: The OpenStack Block Storage service (cinder) provides persistent block storage for compute instances. The Block Storage service is responsible for managing the life-cycle of block devices, from the creation and attachment of volumes to instances, to their release.

@@ -54,8 +54,8 @@ Dashboards could be gotten from [Grafana website](https://grafana.com/dashboards
 - [Node Exporter Server Metrics](https://grafana.com/dashboards/405)
 
 
-http://10.0.0.10:9090
- http://10.0.0.10:3000
+http://dockerhost:9090
+ http://dockerhost:3000
  
 
 

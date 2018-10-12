@@ -510,8 +510,6 @@ Following commands must be set to provision the cluster:
 
       terraform apply -target=module.do-dev
 
-
-
 ### References
 
 - [OpenStack](https://www.terraform.io/docs/providers/openstack/)
