@@ -314,30 +314,136 @@ registry.config().commonTags("region", "ua-east");
 
 A **Counter** reports merely a count over a **specified** property of an application.
 
-It can be biuld a custom counter with the fluent builder or the helper method of any ``MetricRegistry``.
+A custom counter can be created with the fluent *builder* or the helper method of any ``MetricRegistry``.
 
 > Counter can only be **incremented** monotonically by a fixed **positive** amount.
 
 ```java
+MeterRegistry registry = Metrics.globalRegistry;
+registry.config().commonTags("service", "gateway-service");
 Counter counter = Counter
-    .builder("com.logging.status.counter")
-    .description("Indicates the number of total requests performed for status")
-    .tags("dev", "performance")
-    .tag("type", "request")
-    .register(registry);
+      .builder("com.logging.request")
+      .description("Indicates the number of total requests performed by uri")
+      .tag("verb", "get")
+      .tag("uri", "/status")
+      .register(registry);
 
 counter.increment(1.0);
 ```
 
 ```python
-# HELP com_logging_status_counter_total Indicates instance status count of the object
-# TYPE com_logging_status_counter_total counter
-com_logging_status_counter_total{dev="performance",type="request",} 10.0
+# HELP com_logging_request_total Indicates the number of total requests performed by uri
+# TYPE com_logging_request_total counter
+com_logging_request_total{service="gateway-service",uri="/status",verb="get",} 1.0
+com_logging_request_total{service="gateway-service",uri="/customer",verb="get",} 1.0
+com_logging_request_total{service="gateway-service",uri="/order",verb="get",} 14.0
 ```
 
 ##### Timers
 
+**Timers** are used to measure **latencies** or frequency of events in our system. I can be used to for timing requests, queries, algorithms, ets..
+
+A Timer will report at least the total time and events count of specific time series.
+
+```java
+Timer timer = registry.timer("app.event");
+
+// Record can be used a Consumer or Runnable operation to perform any operation.
+timer.record(() -> {
+    try {
+        TimeUnit.MILLISECONDS.sleep(1500);
+    } catch (InterruptedException ignored) { }
+});
+
+// Record can be used as a supplier to return a value when the operation ends
+Integer result = timer.record(() -> {
+    try {
+        Integer result = 1000;
+        TimeUnit.MILLISECONDS.sleep(1500);
+        return result;
+    } catch (InterruptedException ignored) {
+        return -1;
+    }
+});
+
+```
+
+To record a **long** time running events, it must be used ``LongTaskTimer``:
+
+```java
+LongTaskTimer longTaskTimer = LongTaskTimer
+  .builder("app.longevent")
+  .register(registry);
+
+long currentTaskId = longTaskTimer.start();
+try {
+    TimeUnit.SECONDS.sleep(2);
+} catch (InterruptedException ignored) { }
+long timeElapsed = longTaskTimer.stop(currentTaskId);
+```
+
+```python
+# HELP com_logging_request_timing_seconds Measure the latency per requests by uri
+# TYPE com_logging_request_timing_seconds summary
+com_logging_request_timing_seconds_count{service="gateway-service",uri="/status",verb="get",} 64.0
+com_logging_request_timing_seconds_sum{service="gateway-service",uri="/status",verb="get",} 8.195298504
+com_logging_request_timing_seconds_count{service="gateway-service",uri="/customer",verb="get",} 10.0
+com_logging_request_timing_seconds_sum{service="gateway-service",uri="/customer",verb="get",} 2.990166628
+com_logging_request_timing_seconds_count{service="gateway-service",uri="/order",verb="get",} 5.0
+com_logging_request_timing_seconds_sum{service="gateway-service",uri="/order",verb="get",} 0.349165557
+# HELP com_logging_request_timing_seconds_max Measure the latency per requests by uri
+# TYPE com_logging_request_timing_seconds_max gauge
+com_logging_request_timing_seconds_max{service="gateway-service",uri="/status",verb="get",} 0.24956057
+com_logging_request_timing_seconds_max{service="gateway-service",uri="/customer",verb="get",} 0.482516907
+com_logging_request_timing_seconds_max{service="gateway-service",uri="/order",verb="get",} 0.24467798
+```
+
 ##### Gauge
+
+Different to other meters, **Gauges** should only report data when observed over time.
+
+Gauges can be useful when monitoring stats of cache, queues, collections, etc.
+
+> **Gauge** can increment or decrement over time.
+
+Following an example to get the *size* of a ``list``:
+
+> This approach may **lock** the collection when performing the count, instead use atomic operators
+
+```java
+List<String> list = new ArrayList<>(4);
+
+Gauge gauge = Gauge
+  .builder("cache.size", list, List::size)
+  .register(registry);
+
+list.add("1");
+```
+
+This example use the atomic integer to perform concurrent calls when the metric is scrapped with no interlock between processes.
+
+```java
+AtomicInteger atomicInteger = new AtomicInteger(0);
+Gauge gauge = Gauge
+  .builder("com.logging.request.gauge", atomicInteger, AtomicInteger::get)
+  .description("Get the current request being currently processed per uri")
+  .tag("verb", "get")
+  .tag("uri", "/status")
+  .register(registry);
+
+atomicInteger.incrementAndGet();
+atomicInteger.incrementAndGet();
+atomicInteger.decrementAndGet();
+
+```
+
+```python
+# HELP com_logging_request_gauges Get the current request being currently processed per uris
+# TYPE com_logging_request_gauges gauge
+com_logging_request_gauges{service="gateway-service",uri="/status",verb="get",} 4.0
+com_logging_request_gauges{service="gateway-service",uri="/customer",verb="get",} 12.0
+com_logging_request_gauges{service="gateway-service",uri="/order",verb="get",} 1.0
+```
 
 ##### Distribution, Binders, etc
 
