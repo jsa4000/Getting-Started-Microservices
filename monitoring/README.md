@@ -449,6 +449,12 @@ com_logging_request_gauges{service="gateway-service",uri="/order",verb="get",} 1
 
 For further and more advance types go to the documentation [page](https://micrometer.io/docs).
 
+##### Gragana Dashboard
+
+Following the grafana dashboard built upons the metrics previously created using ``micrometer``, ``actuator`` and **Prometheus**.
+
+![Grafana Micrometer dashboard](images/micrometer-grafana-dashboard.png)
+
 #### JMX
 
 Install Java VisualVM and MBeans to visualize the metrics.
@@ -497,6 +503,14 @@ rate(jvm_memory_used_bytes{area="nonheap",id="Code Cache",}[5m])
 
 ![Grafana Sample dashboard](images/grafana-new-dashboard.png)
 
+Use ``{{service}}-{{verb}}{{uri}}`` to get the tags from Prometheus metrics.
+
+```txt
+com_logging_request_timing_seconds_max{service="gateway-service",uri="/status",verb="get",} 0.383573922
+```
+
+![Grafana Sample dashboard 02](images/grafana-new-dashboard-01.png)
+
 In the following example, the **panel** used is ``Singlestat``. For the **query**, it is ogint to be used the current one, so it is the last **scraped** value from Prometheus.
 
 ```txt
@@ -519,7 +533,6 @@ Following, imported [cadvisor grafana dashboard](https://grafana.com/dashboards/
 
 Following are some useful dashboards to start with:
 
-- [Node Exporter Single Server](https://grafana.com/dashboards/22)
 - [cadvisor grafana dashboard (Docker-monitoring)](https://grafana.com/dashboards/193)
 - [Node Exporter Server Metrics](https://grafana.com/dashboards/405)
 
@@ -531,6 +544,7 @@ In host file it must be added the following DNS name to resolve the address, whe
 
 - [Promethreus Dashboard](http://dockerhost:9090)
 - [Grafana Dashboard](http://dockerhost:3000)
+- [Application Metrics](http://dockerhost:9500/actuator/prometheus)
 
 ## References
 

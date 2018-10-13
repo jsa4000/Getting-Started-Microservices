@@ -50,6 +50,11 @@
         # Create Dockerfile using Jib
         gradle jibExportDockerContext
 
+- Created new task in gradle `buildAndGenerate`
+
+        # clean + build + jibExportDockerContext
+        gradle buildAndGenerate
+
 ### Create Docker images using Jib
 
     gradle jibDockerBuild
@@ -83,3 +88,15 @@ If getting some error during the bootstrapping use the following command previou
 - [Kibana Dashboard](http://10.0.0.10:5601)
 
 > Please go to http://localhost:5601/ with your browser. Then, you need to set up the index name pattern for Kibana. Please specify ``fluentd-*`` to ``Index name or pattern`` and press **Create** button. Then, go to **Discover** tab to seek for the logs. As you can see, logs are properly collected into Elasticsearch + Kibana, via Fluentd.
+
+## Code Review
+
+Use the following command to execute a Sonarqube server container to code review (detached mode)
+
+	docker run -d --name sonarqube -p 9000:9000 -p 9092:9092 sonarqube
+	
+Finally, access to the [url](http://dockerhost:9000) (admin/admin) and request the token. 
+
+	./gradlew sonarqube -Dsonar.host.url=http://dockerhost:9000 -Dsonar.login=cd6fe19ac903516c84b537ecab781e6f04951b9c
+
+	

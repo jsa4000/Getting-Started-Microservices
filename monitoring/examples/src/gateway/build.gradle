@@ -12,6 +12,10 @@ buildscript {
 	}
 }
 
+plugins {
+  id "org.sonarqube" version "2.6"
+}
+
 apply plugin: 'java'
 apply plugin: 'eclipse'
 apply plugin: 'org.springframework.boot'
@@ -71,3 +75,10 @@ jib {
 	}
 }
 
+task buildAndGenerate() {
+	dependsOn 'clean'
+	dependsOn 'build'
+    dependsOn 'jibExportDockerContext'
+	tasks.findByName('build').mustRunAfter 'clean'
+	tasks.findByName('jibExportDockerContext').mustRunAfter 'build'
+}
