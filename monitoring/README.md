@@ -290,7 +290,7 @@ compositeRegistry.add(atlasMeterRegistry);
 compositeRegistry.add(prometheusMeterRegistry);
 ```
 
-#### Meter - Instrumentation
+#### Metrics
 
 An identifier of a **Meter** consists of a **name** and **tags**. It is suggested that we should follow a naming convention that separates words with a dot, to help guarantee portability of metric names across multiple monitoring systems.
 
@@ -448,6 +448,39 @@ com_logging_request_gauges{service="gateway-service",uri="/order",verb="get",} 1
 ##### Distribution, Binders, etc
 
 For further and more advance types go to the documentation [page](https://micrometer.io/docs).
+
+##### Example
+
+In this example, it can be seen a method in which ``counter``, ``timer`` and ``gauge`` metrics are used. These metrics are created dering the **initialization** of the class, however they are modiefied when in every request.
+
+```java
+ @GetMapping("/customer")
+    @Produces(MediaType.APPLICATION_JSON)
+    public ResponseEntity<Customer> customer() {
+        // 1. Metric to count the total number of requests for this endpoint
+        requestCounters.get("get:/customer").increment(1.0);
+        // 2. Gauge metric for concurrent requests, while requests are being processed
+        currentRequestCounter.get("get:/customer").incrementAndGet();
+        // 3. Timer metric to measure the real-time the mediator takes to process the request
+        ResponseEntity<Customer> result = requestTimers.get("get:/customer").record(() -> {
+            try {
+                TimeUnit.MILLISECONDS.sleep(rand.nextInt(500));
+                final Customer customer = new Customer(1,"Javier", "Perez",35);
+                logger.info(String.format("Customer %s",customer.toString()));
+
+                return ResponseEntity.ok(customer);
+            }
+            catch(Exception ex)
+            {
+                requestErrorCounters.get("get:/customer").increment(1.0);
+                return new ResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+        });
+        // 2. Decrecrement gauge metric for concurrent requests, since current one has been finished
+        currentRequestCounter.get("get:/customer").decrementAndGet();
+        return result;
+    }
+```
 
 ##### Gragana Dashboard
 
