@@ -1,0 +1,17 @@
+spring:
+  application:
+    name: oauth-service
+  data.mongodb:
+    uri: mongodb://root:root@dockerhost:27017/admin
+    database: oauth
+
+server:
+  port: 8080
+
+management:
+  server:
+    port: 9500
+  endpoints:
+    web:
+      exposure:
+        include: health,metrics,beans,env

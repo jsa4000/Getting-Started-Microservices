@@ -2,16 +2,12 @@
 
 ## Introduction
 
-Following **security** concepts are essential to **login** into a system:
+First, following **security** concepts must be clarified:
 
 - **Authentication** means verifying that someone is indeed **who** they claim to be.
 - **Authorization** means deciding which **resources** a certain user should be able to access, and what they should be allowed to do with those resources. Usually, an application will require a little bit of both.
 
 ![Authentication and Authorization](images/aa.png)
-
-The idea that allows multiple applications to be **authorized** and **authenticated** using a centralized service, was called **single sign-on** (**SSO**). This allows any **user** to enter one username and password in order to access multiple applications. There are multiple solutions for implementing **SSO**. The three most common web security protocols are **OpenID**, **OAuth/2** and **SAML**. Implementations and libraries exist in multiple languages.
-
-![Google OAuth Service](images/google_oauth_login.jpg)
 
 ### OAuth/2
 
@@ -39,3 +35,11 @@ Differences between **OAuth** and **Oauth2**
 **OpenID 1.0/2.0** are **old** specifications for **authentication**. Those who made the specifications expected people to use OpenID for authentication. However, some people began to use **OAuth 2.0** for authentication (not for authorization) and OAuth authentication has prevailed rapidly. **OAuth2** is also the **basis** for OpenID Connect, which provides OpenID (**authentication**) on top of OAuth2 (**authorization**) for a more complete security solution.
 
 ![OpenID Connect](images/oidc-basic-flow.png)
+
+## References
+
+- [Spring Boot Security Oauth2 Jwt Auth ](https://www.devglan.com/spring-security/spring-boot-oauth2-jwt-example)
+- [Spring boot secutiry Jwt MySQL](https://www.callicoder.com/spring-boot-spring-security-jwt-mysql-react-app-part-2/)
+- [Spring Boot Security Jwt Authentication](https://www.devglan.com/spring-security/spring-boot-jwt-auth)
+- [Using JWT with Spring Security OAuth](https://www.baeldung.com/spring-security-oauth-jwt)
+- [Microservices authentication and authorization](https://medium.com/tech-tajawal/microservice-authentication-and-authorization-solutions-e0e5e74b248a)
