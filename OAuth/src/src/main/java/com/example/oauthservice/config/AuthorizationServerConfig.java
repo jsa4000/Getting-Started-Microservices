@@ -16,8 +16,9 @@ import org.springframework.security.oauth2.provider.token.store.JwtTokenStore;
 @EnableAuthorizationServer
 public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdapter {
 
-    static final String CLIEN_ID = "dev-client";
-    static final String CLIENT_SECRET = "$2a$04$e/c1/RfsWuThaWFCrcCuJeoyvwCV0URN/6Pn9ZFlrtIWaU/vj/BfG";
+    static final String SYMMETRIC_KEY = "as466gf";
+    static final String CLIENT_ID = "dev-client";
+    static final String CLIENT_SECRET = "$2a$10$oN.bs73UmQ8ExYefkNLtSerEvShWcWnwFGYwuefG6q4fJGoCE0tGa"; // "dev-secret"
     static final String GRANT_TYPE_PASSWORD = "password";
     static final String AUTHORIZATION_CODE = "authorization_code";
     static final String REFRESH_TOKEN = "refresh_token";
@@ -34,7 +35,7 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
     @Bean
     public JwtAccessTokenConverter accessTokenConverter() {
         JwtAccessTokenConverter converter = new JwtAccessTokenConverter();
-        converter.setSigningKey("as466gf");
+        converter.setSigningKey(SYMMETRIC_KEY);
         return converter;
     }
 
@@ -47,7 +48,7 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
     public void configure(ClientDetailsServiceConfigurer configure) throws Exception {
         configure
             .inMemory()
-            .withClient(CLIEN_ID)
+            .withClient(CLIENT_ID)
             .secret(CLIENT_SECRET)
             .authorizedGrantTypes(GRANT_TYPE_PASSWORD, AUTHORIZATION_CODE, REFRESH_TOKEN, IMPLICIT )
             .scopes(SCOPE_READ, SCOPE_WRITE, TRUST)

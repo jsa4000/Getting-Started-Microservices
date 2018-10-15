@@ -3,6 +3,7 @@ package com.example.oauthservice.controller;
 import com.example.oauthservice.model.User;
 import com.example.oauthservice.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,13 +17,21 @@ public class UserController {
     private UserService userService;
 
     @GetMapping("/")
-    public List listUsers(){
-        return userService.findAll();
+    public ResponseEntity<List> listUsers(){
+        return ResponseEntity.ok(userService.findAll());
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<User> getUser(@PathVariable(value = "id") String id){
+        User user = userService.findById(id);
+        if (user == null)
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+        return ResponseEntity.ok(user);
     }
 
     @PostMapping("/")
-    public User createUser(@RequestBody User user){
-        return userService.save(user);
+    public ResponseEntity<User> createUser(@RequestBody User user){
+        return ResponseEntity.ok(userService.save(user));
     }
 
     @DeleteMapping("/{id}")

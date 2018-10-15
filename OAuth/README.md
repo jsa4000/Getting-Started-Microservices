@@ -39,7 +39,8 @@ Differences between **OAuth** and **Oauth2**
 ## References
 
 - [Spring Boot Security Oauth2 Jwt Auth ](https://www.devglan.com/spring-security/spring-boot-oauth2-jwt-example)
-- [Spring boot secutiry Jwt MySQL](https://www.callicoder.com/spring-boot-spring-security-jwt-mysql-react-app-part-2/)
 - [Spring Boot Security Jwt Authentication](https://www.devglan.com/spring-security/spring-boot-jwt-auth)
 - [Using JWT with Spring Security OAuth](https://www.baeldung.com/spring-security-oauth-jwt)
 - [Microservices authentication and authorization](https://medium.com/tech-tajawal/microservice-authentication-and-authorization-solutions-e0e5e74b248a)
+- [BCrypt Hash Generator](https://www.browserling.com/tools/bcrypt)
+- [JSON Web Tokens Decode](https://jwt.io/)
