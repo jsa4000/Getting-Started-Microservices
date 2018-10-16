@@ -15,3 +15,13 @@ management:
     web:
       exposure:
         include: health,metrics,beans,env
+
+bootstrap:
+   enabled: true
+   save:
+     enabled: true
+     filepath: c:/file.json
+
+lombok:
+  anyConstructor:
+    suppressConstructorProperties: true

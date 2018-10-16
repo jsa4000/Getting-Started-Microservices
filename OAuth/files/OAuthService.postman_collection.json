@@ -9,19 +9,19 @@
 			"name": "Token",
 			"item": [
 				{
-					"name": "GetToken",
+					"name": "GetToken-Trusted",
 					"request": {
 						"auth": {
 							"type": "basic",
 							"basic": [
 								{
 									"key": "password",
-									"value": "dev-secret",
+									"value": "password",
 									"type": "string"
 								},
 								{
 									"key": "username",
-									"value": "dev-client",
+									"value": "trusted-client",
 									"type": "string"
 								}
 							]
@@ -30,7 +30,9 @@
 						"header": [
 							{
 								"key": "Content-Type",
-								"value": "application/x-www-form-urlencoded"
+								"name": "Content-Type",
+								"value": "application/x-www-form-urlencoded",
+								"type": "text"
 							}
 						],
 						"body": {
@@ -39,19 +41,16 @@
 								{
 									"key": "username",
 									"value": "root",
-									"sessionValue": "test",
 									"type": "text"
 								},
 								{
 									"key": "password",
 									"value": "password",
-									"sessionValue": "password",
 									"type": "text"
 								},
 								{
 									"key": "grant_type",
 									"value": "password",
-									"sessionValue": "passwrod",
 									"type": "text"
 								}
 							]
@@ -66,6 +65,182 @@
 							"path": [
 								"oauth",
 								"token"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetToken-Normal",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "password",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "normal-client",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/x-www-form-urlencoded"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "username",
+									"value": "root",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "password",
+									"type": "text"
+								},
+								{
+									"key": "grant_type",
+									"value": "password",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost:8080/oauth/token",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"oauth",
+								"token"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetToken-Basic",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "username",
+									"value": "basic-client",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "password",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/x-www-form-urlencoded"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "grant_type",
+									"value": "authorization_code",
+									"type": "text"
+								},
+								{
+									"key": "client_id",
+									"value": "basic-client",
+									"type": "text"
+								},
+								{
+									"key": "response_type",
+									"value": "code",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost:8080/oauth/token",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"oauth",
+								"token"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "CheckToken",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "username",
+									"value": "trusted-client",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "password",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/x-www-form-urlencoded",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOlsib2F1dGgyX2FwcGxpY2F0aW9uIl0sInVzZXJfbmFtZSI6InJvb3QiLCJzY29wZSI6WyJyZWFkIiwid3JpdGUiXSwiZXhwIjoxNTM5Njg0NjU1LCJhdXRob3JpdGllcyI6WyJST0xFX0FETUlOIl0sImp0aSI6ImIxNzRmODM5LTVjZTUtNDZjMy05ZjI4LWU5YTNhMGI3MTM3ZCIsImNsaWVudF9pZCI6Im5vcm1hbC1jbGllbnQifQ.twiyvE2k4zh6Uaf7eF-EW1yeliwrTDc_XoRUn2_Rhdc",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost:8080/oauth/check_token",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"oauth",
+								"check_token"
 							]
 						}
 					},
@@ -117,7 +292,7 @@
 							"variable": [
 								{
 									"key": "id",
-									"value": "5bc4579d8424be2870adaea8"
+									"value": "5bc5f1378424be1608d76b4d"
 								}
 							]
 						}
@@ -163,7 +338,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"username\" : \"test\",\r\n    \"password\" : \"$2a$10$S72w1YZ79LmH6xByZrmS0uhwoJJMlDr8cos4c2ubiByqHTM2jb5BG\",\r\n    \"email\" : \"test@email.com\"\r\n}"
+							"raw": "{\n    \"username\": \"test\",\n    \"password\": \"$2a$10$/lqPNEg9MsP6eDKVzcIcR.fcgTuRQaIsLz7qo8kp2TUS5kqmH29Ie\",\n    \"email\": \"test@email.com\",\n    \"roles\": [\n        \"5bc5f1378424be1608d76b4c\"\n    ]\n}"
 						},
 						"url": {
 							"raw": "http://localhost:8080/users/",
@@ -192,7 +367,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n\t\"id\": \"5bc4579d8424be2870adaea8\",\r\n    \"username\" : \"test\",\r\n    \"password\" : \"$2a$10$S72w1YZ79LmH6xByZrmS0uhwoJJMlDr8cos4c2ubiByqHTM2jb5BG\",\r\n    \"email\" : \"newTest@email.com\"\r\n}"
+							"raw": "{\n    \"id\": \"5bc5f1868424be1608d76b4e\",\n    \"username\": \"test\",\n    \"password\": \"$2a$10$/lqPNEg9MsP6eDKVzcIcR.fcgTuRQaIsLz7qo8kp2TUS5kqmH29Ie\",\n    \"email\": \"test@email.com\",\n    \"roles\": [\n        \"5bc5f1368424be1608d76b4b\",\n        \"5bc5f1378424be1608d76b4c\"\n    ]\n}"
 						},
 						"url": {
 							"raw": "http://localhost:8080/users/",
@@ -210,6 +385,144 @@
 					"response": []
 				}
 			]
+		},
+		{
+			"name": "Roles",
+			"item": [
+				{
+					"name": "GetRoles",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {},
+						"url": {
+							"raw": "http://localhost:8080/roles/",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"roles",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetRole",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {},
+						"url": {
+							"raw": "http://localhost:8080/roles/:id",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"roles",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "5bc5f1368424be1608d76b4b"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DeleteRole",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {},
+						"url": {
+							"raw": "http://localhost:8080/roles/:id",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"roles",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "5bc456e18424be2870adaea7"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "CreateRole",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\" : \"BASIC\"\r\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8080/roles/",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"roles",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "ModifyRole",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"id\": \"5bc5f2288424be1608d76b4f\",\n    \"name\": \"STANDARD\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8080/roles/",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"roles",
+								""
+							]
+						}
+					},
+					"response": []
+				}
+			]
 		}
 	],
 	"auth": {
@@ -217,7 +530,7 @@
 		"bearer": [
 			{
 				"key": "token",
-				"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE1Mzk1OTU4NTUsInVzZXJfbmFtZSI6InJvb3QiLCJhdXRob3JpdGllcyI6WyJST0xFX0FETUlOIl0sImp0aSI6ImUxNGFkNjcwLWI1M2EtNGZjZC1iOTllLWY3N2Y5MWIyOTNlOCIsImNsaWVudF9pZCI6ImRldi1jbGllbnQiLCJzY29wZSI6WyJyZWFkIiwid3JpdGUiLCJ0cnVzdCJdfQ.9K0_h4cPPjzmJ-YxQ5YTHfUd01HHDrG3AjsuzqUH13M",
+				"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOlsib2F1dGgyX2FwcGxpY2F0aW9uIl0sInVzZXJfbmFtZSI6InJvb3QiLCJzY29wZSI6WyJyZWFkIiwid3JpdGUiLCJ0cnVzdCJdLCJleHAiOjE1Mzk3MDI2MDgsImF1dGhvcml0aWVzIjpbIlJPTEVfQURNSU4iXSwianRpIjoiNjBmOTU3MWQtZTEyZC00ZTY5LTgxZDQtODIxNjVjOTg1ZTEzIiwiY2xpZW50X2lkIjoidHJ1c3RlZC1jbGllbnQifQ.u2DAA9CDwwIOWMmTHg9jd7qsrX56LBygGiYBjysK_to",
 				"type": "string"
 			}
 		]

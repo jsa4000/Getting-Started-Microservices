@@ -1,0 +1,24 @@
+{
+  "roles": [
+    {
+      "id": "5bc5ff238424be1e548be3dd",
+      "name": "ADMIN"
+    },
+    {
+      "id": "5bc5ff238424be1e548be3de",
+      "name": "USER"
+    }
+  ],
+  "users": [
+    {
+      "id": "5bc5ff268424be1e548be3df",
+      "username": "root",
+      "password": "$2a$10$RZ3aMVd2DmU.gGV2Z2rSx.lQCCIlGaRmrpT7X2ue9HDz6ZUfI5j.W",
+      "email": "root@email.com",
+      "roles": [
+        "5bc5ff238424be1e548be3dd",
+        "5bc5ff238424be1e548be3de"
+      ]
+    }
+  ]
+}

@@ -28,7 +28,7 @@ public class UserRepositoryIntTests {
     }
 
     @Test
-    public void createUser_CreateNormalUser_ShouldReturnOk() {
+    public void createUser_CreatedValidUser_ShouldReturnOk() {
         User expectedUser = getDefaultUser();
 
         repository.insert(expectedUser);
@@ -45,7 +45,7 @@ public class UserRepositoryIntTests {
     }
 
     @Test
-    public void createUser_UserCreatedWithSameName_ShouldReturnError() {
+    public void createUser_CreatedUsersWithSameUserName_ShouldReturnError() {
         User firstSameUser = repository.insert(getDefaultUser());
         assertTrue("First User cannot be null",firstSameUser != null);
 
@@ -59,7 +59,7 @@ public class UserRepositoryIntTests {
     }
 
     @Test
-    public void findByUserName_MultipleUsersCreatedWithName_ShouldReturnOk() {
+    public void findByUserName_CreatedValidUser_ShouldReturnOk() {
         User expectedUser = getDefaultUser();
 
         repository.insert(expectedUser);
@@ -75,8 +75,7 @@ public class UserRepositoryIntTests {
 
     @Test
     public void findByUserName_UserNotCreated_ShouldReturnNotFound() {
-        User userNotFound = new User();
-        userNotFound.setUsername("testUserUnknown");
+        User userNotFound = getUser("testUserUnknown","password","unknown@email.com");
 
         User usersFound = repository.findByUsername(userNotFound.getUsername());
 
@@ -84,10 +83,11 @@ public class UserRepositoryIntTests {
     }
 
     @Test
-    public void findByEmail_UserCreatedWithEmail_ShouldReturnOk() {
+    public void findByEmail_UsersCreatedWithSameEmail_ShouldReturnOk() {
         User expectedUser = getDefaultUser();
 
         repository.insert(expectedUser);
+        repository.insert(getUser("testUser2","testPass2", expectedUser.getEmail()));
 
         List<User> usersFound = repository.findByEmail(expectedUser.getEmail());
 
@@ -100,21 +100,19 @@ public class UserRepositoryIntTests {
 
     @Test
     public void findByEmail_UserNotCreated_ShouldReturnOk() {
-        User userNotFound = new User();
-        userNotFound.setUsername("testUserUnknown");
-        userNotFound.setEmail("testUserUnknown@email.com");
+        User userNotFound = getUser("testUserUnknown","password","unknown@email.com");
 
         List<User> usersFound = repository.findByEmail(userNotFound.getEmail());
 
         assertTrue("Users found must be zero",usersFound.size() == 0);
     }
 
-    private User getDefaultUser()
-    {
-        User user = new User();
-        user.setUsername("testUser");
-        user.setPassword("testPass");
-        user.setEmail("testUser@email.com");
+    private User getDefaultUser() {
+        return new User(null,"testUser","testPass","testUser@email.com", null );
+    }
+
+    private User getUser(String username, String password, String email) {
+        User user = new User(null, username, password, email, null);
         return user;
     }
 
