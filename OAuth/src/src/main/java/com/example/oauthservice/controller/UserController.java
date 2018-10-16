@@ -2,6 +2,7 @@ package com.example.oauthservice.controller;
 
 import com.example.oauthservice.model.User;
 import com.example.oauthservice.service.UserService;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +17,7 @@ public class UserController {
     @Autowired
     private UserService userService;
 
+    @ApiOperation(value = "Get a List of Users")
     @GetMapping("/")
     public ResponseEntity<List> listUsers(){
         return ResponseEntity.ok(userService.findAll());

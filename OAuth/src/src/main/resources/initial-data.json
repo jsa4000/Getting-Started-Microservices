@@ -19,6 +19,15 @@
         "5bc5ff238424be1e548be3dd",
         "5bc5ff238424be1e548be3de"
       ]
+    },
+    {
+      "id": "5bc5ff268424be1e548be3dg",
+      "username": "user",
+      "password": "$2a$10$RZ3aMVd2DmU.gGV2Z2rSx.lQCCIlGaRmrpT7X2ue9HDz6ZUfI5j.W",
+      "email": "user@email.com",
+      "roles": [
+        "5bc5ff238424be1e548be3de"
+      ]
     }
   ]
 }

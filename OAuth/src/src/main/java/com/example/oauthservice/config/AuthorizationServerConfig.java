@@ -84,7 +84,7 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
                 .resourceIds(RESOURCE_ID)
                 .authorities(AUTHORITIES_BASIC)
                 .secret(CLIENT_SECRET)
-                .authorizedGrantTypes(AUTHORIZATION_CODE, IMPLICIT )
+                .authorizedGrantTypes(GRANT_TYPE_PASSWORD, AUTHORIZATION_CODE, IMPLICIT )
                 //.autoApprove(true)
                 .scopes(SCOPE_READ)
                 .accessTokenValiditySeconds(ACCESS_TOKEN_VALIDITY_SECONDS)

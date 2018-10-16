@@ -56,21 +56,24 @@ public class BootstrapConfig {
     @Autowired
     public BCryptPasswordEncoder passwordEncoder;
 
-    @PostConstruct
+    //@PostConstruct
     public void init(){
         if (enabled) {
             logger.info("Bootstrapping Oauth Server...");
             Role adminRole = getRoleOrCreate("ADMIN");
             Role userRole = getRoleOrCreate("USER");
-            User user = getUserOrCreate("root","password", "root@email.com",
+            User userRoot = getUserOrCreate("root","password", "root@email.com",
                     Arrays.asList(adminRole,userRole));
+            User userNormal = getUserOrCreate("user","password", "user@email.com",
+                    Arrays.asList(userRole));
             if (saveEnabled){
-                saveToFile(saveFilePath,new FileData(Arrays.asList(adminRole,userRole),Arrays.asList(user)));
+                saveToFile(saveFilePath,
+                        new FileData(Arrays.asList(adminRole,userRole),Arrays.asList(userRoot,userNormal)));
             }
         }
     }
 
-    //@PostConstruct
+    @PostConstruct
     public void initFromFile(){
         if (enabled) {
             logger.info("Bootstrapping Oauth Server...");

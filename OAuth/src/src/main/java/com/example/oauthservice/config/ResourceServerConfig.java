@@ -23,11 +23,11 @@ public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
     @Override
     public void configure(HttpSecurity http) throws Exception {
         http
-            .anonymous().disable()
+            //.anonymous().disable() // Allows access to swagger or actuator if it is the same port
             .authorizeRequests()
                 .antMatchers("/users/**").access("hasRole('ADMIN')")
                 .antMatchers("/roles/**").hasAnyRole("USER", "ADMIN")
-                .antMatchers("/swagger*").permitAll()
+                //.antMatchers("/swagger*").permitAll()
             .and()
             .exceptionHandling()
                  .accessDeniedHandler(new OAuth2AccessDeniedHandler());

@@ -139,13 +139,13 @@
 							"type": "basic",
 							"basic": [
 								{
-									"key": "username",
-									"value": "basic-client",
+									"key": "password",
+									"value": "password",
 									"type": "string"
 								},
 								{
-									"key": "password",
-									"value": "password",
+									"key": "username",
+									"value": "basic-client",
 									"type": "string"
 								}
 							]
@@ -163,18 +163,18 @@
 							"mode": "urlencoded",
 							"urlencoded": [
 								{
+									"key": "username",
+									"value": "user",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "password",
+									"type": "text"
+								},
+								{
 									"key": "grant_type",
-									"value": "authorization_code",
-									"type": "text"
-								},
-								{
-									"key": "client_id",
-									"value": "basic-client",
-									"type": "text"
-								},
-								{
-									"key": "response_type",
-									"value": "code",
+									"value": "password",
 									"type": "text"
 								}
 							]
@@ -530,7 +530,7 @@
 		"bearer": [
 			{
 				"key": "token",
-				"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOlsib2F1dGgyX2FwcGxpY2F0aW9uIl0sInVzZXJfbmFtZSI6InJvb3QiLCJzY29wZSI6WyJyZWFkIiwid3JpdGUiLCJ0cnVzdCJdLCJleHAiOjE1Mzk3MDI2MDgsImF1dGhvcml0aWVzIjpbIlJPTEVfQURNSU4iXSwianRpIjoiNjBmOTU3MWQtZTEyZC00ZTY5LTgxZDQtODIxNjVjOTg1ZTEzIiwiY2xpZW50X2lkIjoidHJ1c3RlZC1jbGllbnQifQ.u2DAA9CDwwIOWMmTHg9jd7qsrX56LBygGiYBjysK_to",
+				"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOlsib2F1dGgyX2FwcGxpY2F0aW9uIl0sInVzZXJfbmFtZSI6InVzZXIiLCJzY29wZSI6WyJyZWFkIl0sImV4cCI6MTUzOTcxMzg2NCwiYXV0aG9yaXRpZXMiOlsiUk9MRV9VU0VSIl0sImp0aSI6IjMwMGFmNWY4LTAxZDEtNGVmNS05ZTM0LTVhZjQ4YjRmYzdiMiIsImNsaWVudF9pZCI6ImJhc2ljLWNsaWVudCJ9.y66XWt_c9xMSJ5fulIPU6a8xwU3LRlfqyBWQtZmOt1M",
 				"type": "string"
 			}
 		]
