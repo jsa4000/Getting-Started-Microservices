@@ -1,5 +1,6 @@
 package com.example.oauthservice.config;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableResourceServer;
@@ -11,11 +12,12 @@ import org.springframework.security.oauth2.provider.error.OAuth2AccessDeniedHand
 @EnableResourceServer
 public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
 
-    private static final String RESOURCE_ID = "resource_id";
+    @Value("${security.oauth2.resource.id:oauth2_application}")
+    private String resourceId;
 
     @Override
-    public void configure(ResourceServerSecurityConfigurer resources) {
-        resources.resourceId(RESOURCE_ID).stateless(false);
+    public void configure(ResourceServerSecurityConfigurer config) {
+        config.resourceId(resourceId);
     }
 
     @Override
@@ -23,9 +25,12 @@ public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
         http
             .anonymous().disable()
             .authorizeRequests()
-            .antMatchers("/users/**")
-            .access("hasRole('ADMIN')")
-            .and().exceptionHandling().accessDeniedHandler(new OAuth2AccessDeniedHandler());
+                .antMatchers("/users/**").access("hasRole('ADMIN')")
+                .antMatchers("/roles/**").hasAnyRole("USER", "ADMIN")
+                .antMatchers("/swagger*").permitAll()
+            .and()
+            .exceptionHandling()
+                 .accessDeniedHandler(new OAuth2AccessDeniedHandler());
     }
 
 }

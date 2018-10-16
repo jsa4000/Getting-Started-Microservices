@@ -38,9 +38,14 @@ Differences between **OAuth** and **Oauth2**
 
 ## References
 
-- [Spring Boot Security Oauth2 Jwt Auth ](https://www.devglan.com/spring-security/spring-boot-oauth2-jwt-example)
+- [Spring Boot Security Oauth2 Jwt Auth](https://www.devglan.com/spring-security/spring-boot-oauth2-jwt-example)
 - [Spring Boot Security Jwt Authentication](https://www.devglan.com/spring-security/spring-boot-jwt-auth)
 - [Using JWT with Spring Security OAuth](https://www.baeldung.com/spring-security-oauth-jwt)
-- [Microservices authentication and authorization](https://medium.com/tech-tajawal/microservice-authentication-and-authorization-solutions-e0e5e74b248a)
+- [Securing Spring boot Micro-services](https://g00glen00b.be/spring-boot-jwt/)
+- [JWT Authentication](https://medium.com/@xoor/jwt-authentication-service-44658409e12c)
+- [Micro-services authentication and authorization](https://medium.com/tech-tajawal/microservice-authentication-and-authorization-solutions-e0e5e74b248a)
 - [BCrypt Hash Generator](https://www.browserling.com/tools/bcrypt)
 - [JSON Web Tokens Decode](https://jwt.io/)
+
+- [Oauth2 Stateless Authentication with Spring and JWT Token](https://github.com/tinmegali/Oauth2-Stateless-Authentication-with-Spring-and-JWT-Token)
+- [](https://stackoverflow.com/questions/47744205/how-to-implement-token-verification-via-token-introspection-endpoint-in-spring-b)
