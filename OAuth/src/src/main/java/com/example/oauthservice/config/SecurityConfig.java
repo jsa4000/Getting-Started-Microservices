@@ -20,11 +20,12 @@ import org.springframework.web.filter.CorsFilter;
 
 @Configuration
 @EnableWebSecurity
+@SuppressWarnings("unchecked")
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Autowired
-    @Qualifier("userService")
+    @Qualifier("userDetailsService")
     private UserDetailsService userDetailsService;
 
     @Override

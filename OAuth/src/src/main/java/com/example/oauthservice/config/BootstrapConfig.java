@@ -11,8 +11,7 @@ import com.google.common.io.Resources;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
@@ -25,18 +24,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-class FileData {
-    private List<Role> roles;
-    private List<User> users;
-}
-
+@Slf4j
 @Configuration
 public class BootstrapConfig {
-
-    private final Logger logger = LoggerFactory.getLogger(BootstrapConfig.class);
 
     @Value("${bootstrap.enabled:false}")
     private boolean enabled;
@@ -59,7 +49,7 @@ public class BootstrapConfig {
     //@PostConstruct
     public void init(){
         if (enabled) {
-            logger.info("Bootstrapping Oauth Server...");
+            log.info("Bootstrapping Oauth Server...");
             Role adminRole = getRoleOrCreate("ADMIN");
             Role userRole = getRoleOrCreate("USER");
             User userRoot = getUserOrCreate("root","password", "root@email.com",
@@ -76,7 +66,7 @@ public class BootstrapConfig {
     @PostConstruct
     public void initFromFile(){
         if (enabled) {
-            logger.info("Bootstrapping Oauth Server...");
+            log.info("Bootstrapping Oauth Server...");
             try {
                 URL url = Resources.getResource("initial-data.json");
                 String json = Resources
@@ -88,7 +78,7 @@ public class BootstrapConfig {
                 data.getRoles().stream().forEach(role -> createRole(role));
                 data.getUsers().stream().forEach(user -> createUser(user));
             } catch (Exception e) {
-                logger.error("Error parsing file for bootstrapping.", e);
+                log.error("Error parsing file for bootstrapping.", e);
             }
         }
     }
@@ -99,14 +89,14 @@ public class BootstrapConfig {
         try {
             mapper.writeValue(file, data);
         } catch (Exception e) {
-            logger.error("Error saving the file used for bootstrapping.", e);
+            log.error("Error saving the file used for bootstrapping.", e);
         }
     }
 
     private Role createRole(Role role){
         if (roleRepository.findByName(role.getName()) == null) {
             roleRepository.insert(role);
-            logger.info(String.format("%s role has been created.", role.getName()));
+            log.info(String.format("%s role has been created.", role.getName()));
         }
         return role;
     }
@@ -114,7 +104,7 @@ public class BootstrapConfig {
     private User createUser(User user) {
         if (userRepository.findByUsername(user.getUsername()) == null) {
             userRepository.insert(user);
-            logger.info(String.format("%s user has been created.", user.getUsername()));
+            log.info(String.format("%s user has been created.", user.getUsername()));
         }
         return user;
     }
@@ -128,4 +118,12 @@ public class BootstrapConfig {
         return createUser(new User(null,username,passwordEncoder.encode(password),email, resources,
                 roles.stream().map(x -> x.getId()).collect(Collectors.toList())));
     }
+}
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+class FileData {
+    private List<Role> roles;
+    private List<User> users;
 }

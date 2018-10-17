@@ -25,3 +25,12 @@ bootstrap:
 lombok:
   anyConstructor:
     suppressConstructorProperties: true
+
+caching:
+  specs:
+    roles:
+      timeout: 180
+      max: 500
+    users:
+      timeout: 60
+      max: 500

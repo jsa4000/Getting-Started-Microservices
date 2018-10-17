@@ -1,34 +1,38 @@
 package com.example.oauthservice.service;
 
-import com.example.oauthservice.model.Role;
 import com.example.oauthservice.model.User;
-import com.example.oauthservice.repository.RoleRepository;
 import com.example.oauthservice.repository.UserRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
-@Service(value = "userService")
-public class UserService implements UserDetailsService {
+@Slf4j
+@Service
+public class UserService {
 
     @Autowired
     private UserRepository userRepository;
 
-    @Autowired
-    private RoleRepository roleRepository;
+    @Cacheable("users")
+    public List<User> findAll() {
+        log.info("Refreshing findAll cache");
+        return userRepository.findAll();
+    }
 
-    public List<User> findAll() { return userRepository.findAll(); }
+    @Cacheable("users")
+    public User findById(String id) {
+        log.info("Refreshing findById {} cache", id);
+        return userRepository.findById(id).get();
+    }
 
-    public User findById(String id) { return userRepository.findById(id).get(); }
+    @Cacheable("users")
+    public User findByUsername(String name) {
+        log.info("Refreshing findByUsername {} cache", name);
+        return userRepository.findByUsername(name);
+    }
 
     public User save(User user){
         User exitingUser = userRepository.findByUsername(user.getUsername());
@@ -39,21 +43,4 @@ public class UserService implements UserDetailsService {
     }
 
     public void delete(String id){ userRepository.deleteById(id); }
-
-    @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = userRepository.findByUsername(username);
-        if (user == null){
-            throw new UsernameNotFoundException("Invalid username or password.");
-        }
-        return new org.springframework.security.core.userdetails.User(user.getUsername(),
-                                user.getPassword(), getAuthority(user));
-    }
-
-    private List<GrantedAuthority> getAuthority(User user) {
-        Map<String,Role> rolesMap = new HashMap<String,Role>();
-        roleRepository.findAll().stream().forEach(x-> rolesMap.put(x.getId(), x));
-        return user.getRoles().stream()
-                .map(x -> new SimpleGrantedAuthority("ROLE_" + rolesMap.get(x).getName())).collect(Collectors.toList());
-    }
 }
