@@ -108,11 +108,12 @@ public class UserRepositoryIntTests {
     }
 
     private User getDefaultUser() {
-        return new User(null,"testUser","testPass","testUser@email.com", null );
+        return new User(null,"testUser",
+                "testPass","testUser@email.com", null, null );
     }
 
     private User getUser(String username, String password, String email) {
-        User user = new User(null, username, password, email, null);
+        User user = new User(null, username, password, email, null, null);
         return user;
     }
 

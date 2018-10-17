@@ -1,5 +1,6 @@
 package com.example.oauthservice.config;
 
+import com.example.oauthservice.security.CustomTokenEnhancer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -9,16 +10,20 @@ import org.springframework.security.oauth2.config.annotation.web.configuration.A
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableAuthorizationServer;
 import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerEndpointsConfigurer;
 import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerSecurityConfigurer;
+import org.springframework.security.oauth2.provider.token.TokenEnhancer;
+import org.springframework.security.oauth2.provider.token.TokenEnhancerChain;
 import org.springframework.security.oauth2.provider.token.TokenStore;
 import org.springframework.security.oauth2.provider.token.store.JwtAccessTokenConverter;
 import org.springframework.security.oauth2.provider.token.store.JwtTokenStore;
+
+import java.util.Arrays;
 
 @Configuration
 @EnableAuthorizationServer
 public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdapter {
 
-    static final String RESOURCE_ID = "oauth2_application";
-    static final String SYMMETRIC_KEY = "as466gf";
+    public static final String RESOURCE_ID = "oauth2_application";
+    public static final String SYMMETRIC_KEY = "as466gf";
 
     static final String CLIENT_TRUSTED_ID = "trusted-client";
     static final String CLIENT_NORMAL_ID = "normal-client";
@@ -45,6 +50,14 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
     public JwtAccessTokenConverter accessTokenConverter() {
         JwtAccessTokenConverter converter = new JwtAccessTokenConverter();
         converter.setSigningKey(SYMMETRIC_KEY);
+
+        /*
+        // Add key-pair signing method instead symmetric. See 'resources/README.md'
+        KeyStoreKeyFactory keyStoreKeyFactory =
+                new KeyStoreKeyFactory(new ClassPathResource("sign-key.jks"), "password".toCharArray());
+        converter.setKeyPair(keyStoreKeyFactory.getKeyPair("sign-key"));
+         */
+
         return converter;
     }
 
@@ -52,6 +65,9 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
     public TokenStore tokenStore() {
         return new JwtTokenStore(accessTokenConverter());
     }
+
+    @Bean
+    public TokenEnhancer tokenEnhancer() {return new CustomTokenEnhancer(); }
 
     @Override
     public void configure(AuthorizationServerSecurityConfigurer oauthServer) throws Exception {
@@ -93,9 +109,13 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
 
     @Override
     public void configure(AuthorizationServerEndpointsConfigurer endpoints) throws Exception {
+        TokenEnhancerChain tokenEnhancerChain = new TokenEnhancerChain();
+        tokenEnhancerChain.setTokenEnhancers(
+                Arrays.asList(tokenEnhancer(), accessTokenConverter()));
+
         endpoints
             .tokenStore(tokenStore())
             .authenticationManager(authenticationManager)
-            .accessTokenConverter(accessTokenConverter());
+            .tokenEnhancer(tokenEnhancerChain);
     }
 }

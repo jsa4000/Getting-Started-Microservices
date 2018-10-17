@@ -63,9 +63,9 @@ public class BootstrapConfig {
             Role adminRole = getRoleOrCreate("ADMIN");
             Role userRole = getRoleOrCreate("USER");
             User userRoot = getUserOrCreate("root","password", "root@email.com",
-                    Arrays.asList(adminRole,userRole));
+                    Arrays.asList("/*"), Arrays.asList(adminRole,userRole));
             User userNormal = getUserOrCreate("user","password", "user@email.com",
-                    Arrays.asList(userRole));
+                    Arrays.asList("/users/*","/roles/*"), Arrays.asList(userRole));
             if (saveEnabled){
                 saveToFile(saveFilePath,
                         new FileData(Arrays.asList(adminRole,userRole),Arrays.asList(userRoot,userNormal)));
@@ -123,8 +123,9 @@ public class BootstrapConfig {
         return createRole(new Role(null,name));
     }
 
-    private User getUserOrCreate(String username, String password, String email, List<Role> roles){
-        return createUser(new User(null,username,passwordEncoder.encode(password),email,
+    private User getUserOrCreate(String username, String password, String email,
+                                 List<String> resources, List<Role> roles){
+        return createUser(new User(null,username,passwordEncoder.encode(password),email, resources,
                 roles.stream().map(x -> x.getId()).collect(Collectors.toList())));
     }
 }

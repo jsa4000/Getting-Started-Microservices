@@ -20,5 +20,6 @@ public class User {
     private String username;
     private String password;
     private String email;
+    private List<String> resources;
     private List<String> roles;
 }
