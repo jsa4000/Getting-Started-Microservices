@@ -258,18 +258,50 @@ playbook.yml
 
 To execute a playbook use the following command
 
-    ansible-playbook -i /ansible/inventory playbook.yml
+    ansible-playbook -i /ansible/inventory playbook_tasks.yml
 
 ### Use Ansible roles
 
-TBD
+Ansible allows to create roles. Roles may have specific configuration by default.
+
+In order to execute ``roles`` instead of task, ansible provides the keyword roles, that executes the playbooks within the folders for each role
+
+```yaml
+---
+- hosts: loadbalancer
+  remote_user: vagrant
+  become: yes
+  roles:
+  - update
+  - loadbalancer
+
+- hosts: node
+  remote_user: vagrant
+  become: yes
+  roles:
+  - update
+  - nginx
+```
+
+Ansible will execute the following folder/playbooks for the hosts ``loadbalancer``:
+
+- /roles/update/defaults/main.yml
+- /roles/update/tasks/main.yml
+- /roles/update/handlers/main.yml       // it is needed only if there is any notify event on previous playbooks.
+- /roles/loadbalancer/defaults/main.yml
+- /roles/loadbalancer/tasks/main.yml
+- /roles/loadbalancer/handlers/main.yml
+
+> It can be mixed **tasks** and **roles** in playbooks
+
+To execute a playbook use the following command
+
+    ansible-playbook -i /ansible/inventory playbook_roles.yml
 
 ### Use Ansible as Vagrant provisioner
 
 The Vagrant Ansible Local provisioner allows you to provision the guest using Ansible playbooks by executing ansible-playbook directly on the guest machine.
 Basically, Ansible engine is used instead of using *shell* provisioning. e.j. using scripts to define the task or actions to perform.
-
-Vagrantfile
 
 ```ruby
 Vagrant.configure("2") do |config|
