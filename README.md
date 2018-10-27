@@ -1,4 +1,4 @@
-# Getting-Started-Microservices
+# Getting Started Microservices
 
 All About Micro Services and Architecture
 
@@ -16,7 +16,7 @@ The **twelve-factor** app is a methodology for building SaaS apps that:
 
 The **twelve-factor** methodology can be applied to apps written in any programming language, and which use any combination of backing services (database, queue, memory cache, etc).
 
-![12-factor-app](images/12-factor-app.png)
+![12-factor-app](files/images/12-factor-app.png)
 
 ## The Twelve Factors
 
