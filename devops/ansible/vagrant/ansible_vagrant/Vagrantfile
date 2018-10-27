@@ -26,6 +26,7 @@ Vagrant.configure("2") do |config|
 		lbconfig.vm.provider "virtualbox" do |vb|
 			vb.memory = 256
 		end
+		lbconfig.vm.provision :shell, path: "provision/enable_auth.sh"
 	end
  
  	# Create Web Servers Nodes
@@ -38,6 +39,7 @@ Vagrant.configure("2") do |config|
 			nconfig.vm.provider "virtualbox" do |vb|
 				vb.memory = 256
 			end
+			nconfig.vm.provision :shell, path: "provision/enable_auth.sh"
 		end
 	end
 end

@@ -35,37 +35,30 @@ SSH keys are used to establish connection between the servers. In this case, the
 
         vagrant ssh ansible
 
-- Create a public and private ssh key.
+- Create a public and private ssh keys using ``ssh-keygen``. *Press enter until complete*.
 
-        ssh-keygen -t rsa
+            ssh-keygen -t rsa -b 4096
 
 > Two new files (private and public) have been created. Also creates a file called authorized_keys and known_hosts
 
-- Add each host to the known_hosts:
+- copy the public-key to the desired Servers ``ssh-copy-id <user>@<host>``
 
-        ssh-keygen -f ".ssh/known_hosts" -R <host>
+        ssh-copy-id vagrant@10.0.0.11
+        ssh-copy-id vagrant@10.0.0.21
+        ssh-copy-id vagrant@10.0.0.22
 
-- To set up SSH agent to avoid retyping passwords, use the following commands:
+> **Password** for vagrant images is ``vagrant``
 
-        ssh-agent bash
-        ssh-add ~/.ssh/id_rsa or $ ssh-add ~/.ssh/<privatekey>
+- Try to connect to the servers using ``ssh <user>@<host>`` or ``ssh -i rsa_key.pub <user>@<host>``
 
-- copy the public-key to the desired Servers
-
-        ssh-copy-id <user>@<host>
-        ssh-copy-id -i y.pub vagrant@10.0.0.22
-
-- Try to connect to the servers
-
-        ssh <user>@<host>
-        ssh -i key.pub <user>@<host>
+        ssh vagrant@10.0.0.11
 
 > Be sure the seconds command is not needed so it works in Ansible
 
 - Finally, test if Ansible connect to the host in inventory using ssh.
 
-        ansible -i /ansible/inventory loadbalancer -m ping
-        ansible -i /ansible/inventory all -m ping
+        ansible -i /ansible/hosts loadbalancer -m ping
+        ansible -i /ansible/hosts all -m ping
 
 ### Create Ansible with multiple-nodes using Vagrant
 
@@ -102,6 +95,7 @@ This section will provide the scripts necessary to deploy some virtual machine a
                 lbconfig.vm.provider "virtualbox" do |vb|
                     vb.memory = 256
                 end
+                lbconfig.vm.provision :shell, path: "provision/enable_auth.sh"
             end
 
             # Create Web Servers Nodes
@@ -114,6 +108,7 @@ This section will provide the scripts necessary to deploy some virtual machine a
                     nconfig.vm.provider "virtualbox" do |vb|
                         vb.memory = 256
                     end
+                    nconfig.vm.provision :shell, path: "provision/enable_auth.sh"
                 end
             end
         end
