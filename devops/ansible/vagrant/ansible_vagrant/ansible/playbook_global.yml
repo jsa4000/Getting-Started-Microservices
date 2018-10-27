@@ -1,0 +1,25 @@
+---
+- hosts: all
+  become: yes
+  tasks:
+  - name: Run apt-get update
+    apt: update_cache=yes
+
+  - name: Update all packages to the latest version
+    apt: upgrade=dist
+
+---
+- hosts: all
+  sudo: true
+  vars:
+     packages: [ 'vim', 'git', 'curl' ]
+  tasks:
+  - name: Install Package
+    apt: name={{ item }} state=latest
+    with_items: packages
+    
+---
+- hosts: all
+  tasks:
+     - name: Install httpd Package
+       apt: name=httpd state=latest

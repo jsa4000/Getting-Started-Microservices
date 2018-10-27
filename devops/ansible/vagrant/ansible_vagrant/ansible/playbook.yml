@@ -1,0 +1,46 @@
+---
+- hosts: loadbalancer
+  remote_user: vagrant
+  become: yes
+  tasks:
+  - name: Run apt-get update
+    apt: update_cache=yes
+
+  - name: Update all packages to the latest version
+    apt: upgrade=dist
+
+  - name: Install nginx
+    apt: name=nginx state=latest update_cache=true
+    notify:
+    - start nginx
+
+  - name: Deactivate the default nginx site
+    file: path=/etc/nginx/sites-enabled/default state=absent
+
+  - name: Copy the nginx configuration file
+    copy: src=/ansible/nginx/default dest=/etc/nginx/sites-enabled/default
+
+  handlers:
+  - name: start nginx
+    service: name=nginx state=started
+
+- hosts: node
+  remote_user: vagrant
+  become: yes
+  tasks:
+  - name: Run apt-get update
+    apt: update_cache=yes
+
+  - name: Update all packages to the latest version
+    apt: upgrade=dist
+
+  - name: Install nginx
+    apt: name=nginx state=latest update_cache=true
+    notify:
+    - start nginx
+
+  handlers:
+  - name: start nginx
+    service: name=nginx state=started
+
+
