@@ -26,6 +26,7 @@ Vagrant.configure("2") do |config|
 		lbconfig.vm.provider "virtualbox" do |vb|
 			vb.memory = 256
 		end
+		lbconfig.vm.provision :shell, path: "provision/python_install.sh"
 		lbconfig.vm.provision :shell, path: "provision/enable_auth.sh"
 	end
  
@@ -39,6 +40,7 @@ Vagrant.configure("2") do |config|
 			nconfig.vm.provider "virtualbox" do |vb|
 				vb.memory = 256
 			end
+			nconfig.vm.provision :shell, path: "provision/python_install.sh"
 			nconfig.vm.provision :shell, path: "provision/enable_auth.sh"
 		end
 	end

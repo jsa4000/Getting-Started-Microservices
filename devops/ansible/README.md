@@ -25,11 +25,13 @@ The installation of Ansible is very straight-forward. The commands are the follo
     sudo apt-get update
     sudo apt-get install ansible
 
+> Check there are **no** dependencies **issues** depending on linux distributions. i.e. Check this [link](https://www.josharcher.uk/code/ansible-python-connection-failure-ubuntu-server-1604/) for Ubuntu 16.04 reference.
+
 ### Configuring SSH with Ansible
 
 Ansible needs to be able to connect to the servers via ssh that are included inside the inventory.
 
-SSH keys are used to establish connection between the servers. In this case, the public key generated is copied/added into the servers that are going to be previsioned.
+SSH keys are used to establish connection between the servers. In this case, the public key generated is copied/added into the servers that are going to be provisioned.
 
 - Connect to the control where ansible is installed
 
@@ -37,7 +39,7 @@ SSH keys are used to establish connection between the servers. In this case, the
 
 - Create a public and private ssh keys using ``ssh-keygen``. *Press enter until complete*.
 
-            ssh-keygen -t rsa -b 4096
+        ssh-keygen -t rsa -b 4096
 
 > Two new files (private and public) have been created. Also creates a file called authorized_keys and known_hosts
 
@@ -95,6 +97,7 @@ This section will provide the scripts necessary to deploy some virtual machine a
                 lbconfig.vm.provider "virtualbox" do |vb|
                     vb.memory = 256
                 end
+                lbconfig.vm.provision :shell, path: "provision/python_install.sh"
                 lbconfig.vm.provision :shell, path: "provision/enable_auth.sh"
             end
 
@@ -108,6 +111,7 @@ This section will provide the scripts necessary to deploy some virtual machine a
                     nconfig.vm.provider "virtualbox" do |vb|
                         vb.memory = 256
                     end
+                    nconfig.vm.provision :shell, path: "provision/python_install.sh"
                     nconfig.vm.provision :shell, path: "provision/enable_auth.sh"
                 end
             end
@@ -141,7 +145,7 @@ This methods will require to configure ssh in the control machine server to conn
 
 In order to do this it would be needed to create ssh keys and share between the different servers.
 
-inventory
+hosts
 
 ```txt
 [loadbalanacer]
@@ -157,7 +161,7 @@ db-[a:f].example.com
 
 > It also could be used **patterns** to define hosts ``db-[a:f].example.com``
 
-inventory.yml
+hosts.yml
 
 ```yaml
 all:
@@ -175,13 +179,13 @@ all:
         three.example.com:
 ```
 
-The other way is to create another plain-text/yml file specifying the hosts with user/password for ssh.
+The other way is to create another ``plain-text/yml`` file specifying the hosts with user/password for ssh.
 
 Using this methods is not required to create ssh keys since the user and password will be used for the connection.
 
 However it's necessary to connect to remote computer almost one time to accept the ssh connection.
 
-inventory
+hosts
 
 ```txt
 [loadbalanacer]
