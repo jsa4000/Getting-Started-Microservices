@@ -27,41 +27,6 @@ The installation of Ansible is very straight-forward. The commands are the follo
 
 > Check there are **no** dependencies **issues** depending on linux distributions. i.e. Check this [link](https://www.josharcher.uk/code/ansible-python-connection-failure-ubuntu-server-1604/) for Ubuntu 16.04 reference.
 
-### Configuring SSH with Ansible
-
-Ansible needs to be able to connect to the servers via ssh that are included inside the inventory.
-
-SSH keys are used to establish connection between the servers. In this case, the public key generated is copied/added into the servers that are going to be provisioned.
-
-- Connect to the control where ansible is installed
-
-        vagrant ssh ansible
-
-- Create a public and private ssh keys using ``ssh-keygen``. *Press enter until complete*.
-
-        ssh-keygen -t rsa -b 4096
-
-> Two new files (private and public) have been created. Also creates a file called authorized_keys and known_hosts
-
-- copy the public-key to the desired Servers ``ssh-copy-id <user>@<host>``
-
-        ssh-copy-id vagrant@10.0.0.11
-        ssh-copy-id vagrant@10.0.0.21
-        ssh-copy-id vagrant@10.0.0.22
-
-> **Password** for vagrant images is ``vagrant``
-
-- Try to connect to the servers using ``ssh <user>@<host>`` or ``ssh -i rsa_key.pub <user>@<host>``
-
-        ssh vagrant@10.0.0.11
-
-> Be sure the seconds command is not needed so it works in Ansible
-
-- Finally, test if Ansible connect to the host in inventory using ssh.
-
-        ansible -i /ansible/hosts loadbalancer -m ping
-        ansible -i /ansible/hosts all -m ping
-
 ### Create Ansible with multiple-nodes using Vagrant
 
 This section will provide the scripts necessary to deploy some virtual machine and a Control manager using Ansible.
@@ -135,6 +100,41 @@ In this case it's not necessary to create or install any other provisioning sinc
 
 For using Ansible it's necessary to create configuration whit the definition of the Machines that wil l be managed.
 
+### Configuring SSH with Ansible
+
+Ansible needs to be able to connect to the servers via ssh that are included inside the inventory.
+
+SSH keys are used to establish connection between the servers. In this case, the public key generated is copied/added into the servers that are going to be provisioned.
+
+- Connect to the control where ansible is installed
+
+        vagrant ssh ansible
+
+- Create a public and private ssh keys using ``ssh-keygen``. *Press enter until complete*.
+
+        ssh-keygen -t rsa -b 4096
+
+> Two new files (private and public) have been created. Also creates a file called authorized_keys and known_hosts
+
+- copy the public-key to the desired Servers ``ssh-copy-id <user>@<host>``
+
+        ssh-copy-id vagrant@10.0.0.11
+        ssh-copy-id vagrant@10.0.0.21
+        ssh-copy-id vagrant@10.0.0.22
+
+> **Password** for vagrant images is ``vagrant``
+
+- Try to connect to the servers using ``ssh <user>@<host>`` or ``ssh -i rsa_key.pub <user>@<host>``
+
+        ssh vagrant@10.0.0.11
+
+> Be sure the seconds command is not needed so it works in Ansible
+
+- Finally, test if Ansible connect to the host in inventory using ssh.
+
+        ansible -i /ansible/hosts loadbalancer -m ping
+        ansible -i /ansible/hosts all -m ping
+
 ### Create Ansible Inventory (hosts)
 
 In order to create the inventory it could be used two methods.
@@ -179,7 +179,7 @@ all:
         three.example.com:
 ```
 
-The other way is to create another ``plain-text/yml`` file specifying the hosts with user/password for ssh.
+The other way is to create another ``plain-text/yml`` file specifying the hosts with **user/password** for ssh.
 
 Using this methods is not required to create ssh keys since the user and password will be used for the connection.
 
@@ -203,10 +203,42 @@ hosts
 
 ### Create Ansible playbook
 
-the way Ansible define the Tasks por provisions to perform is using *playbooks*.
-A playbook is an yml file which a sequence of task are defined. The task will be performed in the host selected.
+The way Ansible define the Tasks, Roles, etc for the provisions to perform is using **playbooks**.
 
-playbook.yml
+A *playbook* is an ``yml`` file which a sequence of *commands* are defined: tasks, roles, handlers, etc... 
+
+Those *commands* will be performed in the *host(s)* selected.
+
+playbook_global_.yml
+
+```yaml
+---
+- name: Installing common packages and updates
+  hosts: node
+  remote_user: vagrant
+  become: yes
+  tasks:
+  - name: Run apt-get update
+    apt: update_cache=yes
+
+  - name: Update all packages to the latest version
+    apt: upgrade=dist
+
+  - name: Install Standard Packages
+    apt:
+      pkg:
+        - vim
+        - git
+        - curl
+        - htop
+      state: present
+```
+
+To execute a playbook use the following command
+
+    ansible-playbook -i /ansible/hosts /ansible/playbook_global.yml
+
+playbook_tasks.yml
 
 ```yaml
 ---
@@ -257,7 +289,7 @@ playbook.yml
 
 To execute a playbook use the following command
 
-    ansible-playbook -i /ansible/inventory playbook_tasks.yml
+    ansible-playbook -i /ansible/hosts /ansible/playbook_tasks.yml
 
 ### Use Ansible roles
 
@@ -295,7 +327,7 @@ Ansible will execute the following folder/playbooks for the hosts ``loadbalancer
 
 To execute a playbook use the following command
 
-    ansible-playbook -i /ansible/inventory playbook_roles.yml
+    ansible-playbook -i /ansible/hosts /ansible/playbook_roles.yml
 
 ### Use Ansible as Vagrant provisioner
 
