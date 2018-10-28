@@ -48,7 +48,7 @@ This section will provide the scripts necessary to deploy some virtual machine a
                 aconfig.vm.network :private_network, ip: "10.0.0.10"
                 aconfig.vm.synced_folder "ansible", "/ansible", type: "nfs"
                 aconfig.vm.provider "virtualbox" do |vb|
-                    vb.memory = 256
+                    vb.memory = 1024
                 end
                 aconfig.vm.provision :shell, path: "provision/ansible_install.sh"
             end
@@ -60,7 +60,7 @@ This section will provide the scripts necessary to deploy some virtual machine a
                 lbconfig.vm.network :private_network, ip: "10.0.0.11"
                 lbconfig.vm.network "forwarded_port", guest: 80, host: 8080
                 lbconfig.vm.provider "virtualbox" do |vb|
-                    vb.memory = 256
+                    vb.memory = 1024
                 end
                 lbconfig.vm.provision :shell, path: "provision/python_install.sh"
                 lbconfig.vm.provision :shell, path: "provision/enable_auth.sh"
@@ -74,7 +74,7 @@ This section will provide the scripts necessary to deploy some virtual machine a
                     nconfig.vm.network :private_network, ip: "10.0.0.2#{i}"
                     nconfig.vm.network "forwarded_port", guest: 80, host: "808#{i}"
                     nconfig.vm.provider "virtualbox" do |vb|
-                        vb.memory = 256
+                        vb.memory = 1024
                     end
                     nconfig.vm.provision :shell, path: "provision/python_install.sh"
                     nconfig.vm.provision :shell, path: "provision/enable_auth.sh"
