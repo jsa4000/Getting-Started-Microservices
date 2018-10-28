@@ -329,6 +329,46 @@ To execute a playbook use the following command
 
     ansible-playbook -i /ansible/hosts /ansible/playbook_roles.yml
 
+### Creating Git Repository for Ansible
+
+All folders with roles, ansible playbooks, host file, readme files, etc.. mut be inside the same **git repository**.
+
+In order to create an **initial** repository use the following steps:
+
+- Create the initial repository on ``/ansible`` folder
+
+        cd /ansible
+        git init
+
+- Configure the default **user** to interact with git in order to perform the operations such as: commit, push, checkout, tag, etc..
+
+        git config --global user.name javier.santos
+        git config --global user.email javier.santos@email
+
+- Verify current global configuration
+
+        git config --global -l
+
+- Add all the initial files into the ``stagging`` area
+
+        git add .
+
+- Commit the changes into git
+
+        git commit -m "Initial Ansible Respository"
+
+The next steps is basically a loop as the two last steps. Just if there is only one person working.
+
+> The usual workflow is to create a **branch** with the change to do and finally **merge** that branch into master branch once it has been tested.
+
+- Finally the master tag is tagged with a version
+
+    git tag "v1.0.0"
+
+- To get all the tags created
+
+    git tag
+
 ### Use Ansible as Vagrant provisioner
 
 The Vagrant Ansible Local provisioner allows you to provision the guest using Ansible playbooks by executing ansible-playbook directly on the guest machine.
