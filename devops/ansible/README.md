@@ -291,6 +291,12 @@ To execute a playbook use the following command
 
     ansible-playbook -i /ansible/hosts /ansible/playbook_tasks.yml
 
+To test if the nginx **load balancer** and the **nodes** have been successfully installed and have started. check the following urls
+
+    http://10.0.0.11/
+    http://10.0.0.21/
+    http://10.0.0.22/
+
 ### Use Ansible roles
 
 Ansible allows to create roles. Roles may have specific configuration by default.
