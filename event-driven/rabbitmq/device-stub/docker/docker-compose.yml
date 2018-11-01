@@ -1,0 +1,49 @@
+version: '3.5'
+services:
+
+  devices-stubs-01:
+    image: devices-stub:latest
+    ports:
+     - "8080:8080"
+    environment:
+     - SPRING_APPLICATION_NAME=devices-stub-01
+     - DEVICES_PARAMETERS_COUNT=5
+     - SPRING_PROFILES_ACTIVE=local
+     - SERVER_PORT=8080
+     - SPRING_DATA_MONGODB_URI=mongodb://root:root@mongo:27017
+     - SPRING_RABBITMQ_ADDRESSES=tcp://rabbitmq:1883
+    networks:
+      - devices-mesh-network
+
+  devices-stubs-02:
+      image: devices-stub:latest
+      ports:
+       - "8081:8080"
+      environment:
+       - SPRING_APPLICATION_NAME=devices-stub-02
+       - DEVICES_PARAMETERS_COUNT=5
+       - SPRING_PROFILES_ACTIVE=local
+       - SERVER_PORT=8080
+       - SPRING_DATA_MONGODB_URI=mongodb://root:root@mongo:27017
+       - SPRING_RABBITMQ_ADDRESSES=tcp://rabbitmq:1883
+      networks:
+        - devices-mesh-network
+
+  devices-stubs-03:
+        image: devices-stub:latest
+        ports:
+         - "8082:8080"
+        environment:
+         - SPRING_APPLICATION_NAME=devices-stub-03
+         - DEVICES_PARAMETERS_COUNT=5
+         - SPRING_PROFILES_ACTIVE=local
+         - SERVER_PORT=8080
+         - SPRING_DATA_MONGODB_URI=mongodb://root:root@mongo:27017
+         - SPRING_RABBITMQ_ADDRESSES=tcp://rabbitmq:1883
+        networks:
+          - devices-mesh-network
+
+networks:
+  devices-mesh-network:
+    external:
+      name: devices-mesh-network

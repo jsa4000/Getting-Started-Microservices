@@ -1,0 +1,28 @@
+version: '3.5'
+services:
+
+  mongo:
+    image: mongo:4
+    hostname: mongodb
+    ports:
+     - "27017:27017/tcp"
+    environment:
+     - MONGO_INITDB_ROOT_USERNAME=root
+     - MONGO_INITDB_ROOT_PASSWORD=root
+    networks:
+     - devices-mesh-network
+
+  rabbitmq:
+    image: rabbitmq:3.7-management
+    volumes:
+      - ./rabbitmq_enabled_plugins:/etc/rabbitmq/enabled_plugins
+    ports:
+     - "15672:15672"
+     - "5672:5672"
+     - "1883:1883"
+    networks:
+     - devices-mesh-network
+
+networks:
+  devices-mesh-network:
+    name: devices-mesh-network

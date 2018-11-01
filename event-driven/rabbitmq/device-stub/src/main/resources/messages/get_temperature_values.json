@@ -1,0 +1,12 @@
+{
+  "messageID": "2DC24B21-D37F-4282-BF60-F938274A7681",
+  "sensorID": "9A6D9328-C504-47D8-990A-6635D6268B49",
+  "sensorName": "Temperature",
+  "measureType" : "numeric",
+  "measureAcquire" : "summary",
+  "measureUnit" : "degree Celsius",
+  "value" : ["28.0"],
+  "valueMax" : ["29.1"],
+  "valueMin" : ["27.5"],
+  "valueTime" : ["2014-08-20T14:33Z-2014-08-20T14:34Z"]
+}

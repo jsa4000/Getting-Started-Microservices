@@ -1,0 +1,11 @@
+{
+  "messageID": "9B89268D-9AEF-4EDD-A67B-7C8A01114270",
+  "sensorID": "49A0FD35-4913-4E83-BB07-7630E91B2CD6",
+  "sensorName": "Temperature Sensor",
+  "measureType" : "degrees",
+  "measureAcquire" : "sample",
+  "measureLabel" : [{"value":"0", "label":"Unlocked"}, {"value":"1", "label":"Locked"}],
+  "value" : ["1"],
+  "valuelocation" : ["4200.672,173.667,4780.3"],
+  "valueTime" : ["2014-08-20T14:32:57.126Z"]
+}

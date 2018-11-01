@@ -1,0 +1,138 @@
+buildscript {
+    ext {
+        springBootVersion = '1.5.15.RELEASE'
+        springCloudVersion = 'Edgware.SR4'
+    }
+    repositories {
+        mavenCentral()
+        maven { url "https://plugins.gradle.org/m2/" }
+    }
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+        classpath "gradle.plugin.com.palantir.gradle.gitversion:gradle-git-version:0.12.0-rc2"
+        classpath "io.spring.gradle:dependency-management-plugin:1.0.5.RELEASE"
+        classpath "org.yaml:snakeyaml:1.17"
+    }
+}
+
+group 'com.example.devices'
+version '1.0-SNAPSHOT'
+description = "Device Stub"
+
+apply plugin: "java"
+apply plugin: "application"
+apply plugin: "org.springframework.boot"
+apply plugin: "io.spring.dependency-management"
+apply plugin: "eclipse"
+apply plugin: "idea"
+apply plugin: "com.palantir.git-version"
+
+def versionDetails = versionDetails()
+
+mainClassName = 'com.example.devices.DevicesApplication'
+
+ext {
+    revision = versionDetails.gitHash
+}
+repositories {
+    mavenCentral()
+    maven { url "http://repo.spring.io/plugins-release/" }
+}
+
+dependencyManagement {
+    imports {
+        mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+    }
+}
+
+dependencies {
+
+    compile "org.springframework.boot:spring-boot-starter"
+    compile "org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.2.0"
+    compile "org.springframework:spring-web"
+    compile "org.apache.commons:commons-lang3:3.7"
+    compile "org.springframework.cloud:spring-cloud-starter-netflix-eureka-client"
+    compile "org.springframework.boot:spring-boot-starter-actuator"
+    compile 'org.mongodb:mongodb-driver-sync:3.8.1'
+    compile 'org.mindrot:jbcrypt:0.3m'
+    compile "commons-io:commons-io:2.6"
+    compile "io.springfox:springfox-swagger2:2.8.0"
+    compile "io.springfox:springfox-swagger-ui:2.8.0"
+
+    compileOnly 'org.projectlombok:lombok:1.18.2'
+}
+
+configurations {
+    implementation {
+        exclude group: 'org.slf4j', module: 'slf4j-log4j12'
+        exclude group: 'org.apache.logging.log4j', module: 'log4j-slf4j-impl'
+        exclude group: 'log4j', module: 'log4j'
+    }
+}
+
+processResources {
+    filesMatching('**/*.yml') {
+        expand(
+                revision: "${revision}",
+                project: project)
+    }
+}
+
+jar {
+    baseName = project.name
+    version = "$project.version"
+    manifest {
+        attributes("Implementation-Title":  "$project.name",
+                "Implementation-Version": "$project.version",
+                "Implementation-Vendor": "jsa400",
+                "Created-By": "Gradle " + project.gradle.gradleVersion,
+                "Build-Jdk": JavaVersion.current())
+    }
+}
+
+task expandDockerFile(type: Copy) {
+    from "Dockerfile"
+    into "${buildDir}"
+
+    expand(revision: "${revision}", project: project)
+}
+
+def buildDockerTask(profile, tag) {
+    def profileCap = profile.capitalize()
+    return tasks.create("buildDocker${profileCap}", Exec) {
+        commandLine "docker", "build", ".", "-f", "$buildDir/Dockerfile", "-t", "$project.name:${tag}"
+        dependsOn build
+        dependsOn expandDockerFile
+    }
+}
+
+buildDockerTask("local", "latest")
+
+bootRun {
+    environment SPRING_PROFILES_ACTIVE: environment.SPRING_PROFILES_ACTIVE ?: "local"
+}
+
+
+task checkVersionTag(type: Exec) {
+
+    onlyIf { versionDetails.branchName == 'master' }
+
+    doFirst {
+        ignoreExitValue true
+        standardOutput = new ByteArrayOutputStream()
+        commandLine "git", "describe", "--exact-match", "--tags", "--abbrev=0", "HEAD"
+    }
+
+    doLast {
+        def currentVersion = standardOutput.toString()
+        def semVersionPattern = /(?<mayor>\d+)\.(?<minor>\d+)\.(?<patch>\d+)/
+
+        if(execResult.exitValue == 0 && currentVersion =~ semVersionPattern) {
+            println "Building version " + standardOutput.toString()
+        } else if(execResult.exitValue == 128) {
+            ant.fail("No tag on latest commit. Push/Merge to master must be tagged with a valid semantic version.")
+        } else {
+            ant.fail("$currentVersion is not a valid semantic version. Push/Merge to master must be tagged with a valid semantic version.")
+        }
+    }
+}

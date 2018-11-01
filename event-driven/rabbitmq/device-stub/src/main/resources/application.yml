@@ -1,0 +1,58 @@
+spring:
+ application.name: devices-stub
+
+eureka:
+  client:
+    registerWithEureka: false
+    fetchRegistry: false
+
+logging:
+  pattern.console: '%date{ISO8601} %-5p  [%thread] [%logger.java] - %msg%n'
+  level:
+    root: WARN
+    com.example: DEBUG
+
+endpoints:
+  actuator:
+    enabled: true
+  enabled: true
+  health.enabled: true
+  info.enabled: true
+  trace.enabled: true
+  metrics.enabled: true
+  loggers.enabled: true
+  env.enabled: true
+
+devices:
+  environment: \${spring.profiles.active}
+  lastWillTopic: devices/disconnect
+  parameters:
+    partitionId: 0
+    count: 1
+  registry:
+    enabled: true
+  databases:
+      auth: db_auth_\${spring.profiles.active}
+      devices: db_devices_\${spring.profiles.active}
+      stub: db_stub_\${spring.profiles.active}
+
+---
+
+spring:
+ profiles: local
+ data:
+   mongodb.uri: mongodb://root:root@dockerhost:27017
+ rabbitmq:
+   username: guest
+   password: guest
+   addresses: tcp://dockerhost:1883
+
+devices:
+  parameters:
+    count: 10
+  databases:
+    auth: db_auth_local
+    devices: db_devices_local
+    stub: db_stub__local
+
+---
