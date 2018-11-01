@@ -1,0 +1,28 @@
+{
+  "subscribeTopics" : [ {
+    "name" : "devices/00:00:00:00:00:04/response/#",
+    "color" : "#B3E6E6"
+  }, {
+    "name" : "devices/disconnected",
+    "color" : "#B3CCFF"
+  }, {
+    "name" : "devices/00:00:00:00:00:11/response/#",
+    "color" : "#B3E6E6"
+  } ],
+  "publishTopics" : [ {
+    "name" : "devices/00:00:00:00:00:04/request/get/temperature"
+  }, {
+    "name" : "devices/00:00:00:00:00:04/response/#"
+  }, {
+    "name" : "devices/00:00:00:00:00:04/request/get/info"
+  }, {
+    "name" : "devices/disconnected"
+  }, {
+    "name" : "devices/00:00:00:00:00:11/response/#"
+  }, {
+    "name" : "devices/00:00:00:00:00:11/request/get/info"
+  }, {
+    "name" : "devices/00:00:00:00:00:11/request/get/temperature"
+  } ],
+  "clipboardMessages" : [ ]
+}

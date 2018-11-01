@@ -15,7 +15,8 @@ services:
   rabbitmq:
     image: rabbitmq:3.7-management
     volumes:
-      - ./rabbitmq_enabled_plugins:/etc/rabbitmq/enabled_plugins
+      - ./config/rabbitmq_enabled_plugins:/etc/rabbitmq/enabled_plugins
+      - ./config/rabbitmq_message_timestamp-3.7.x.ez:/usr/lib/rabbitmq/plugins/rabbitmq_message_timestamp-3.7.x.ez
     ports:
      - "15672:15672"
      - "5672:5672"

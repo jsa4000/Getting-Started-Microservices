@@ -61,7 +61,7 @@ public class MqttDevice {
         options.setKeepAliveInterval(15);
         options.setMaxInflight(65535);
         options.setCleanSession(true);
-        //options.setWill(topicLWT, String.format("Device Disconnected %s!", deviceId).getBytes(), 0, true);
+        options.setWill(topicLWT, String.format("Device Disconnected %s! (LWT)", deviceId).getBytes(), 0, true);
 
         String[] addresses = getEventsAddresses();
         options.setServerURIs(addresses);
@@ -123,7 +123,7 @@ public class MqttDevice {
         String topic = String.join("/", "devices", deviceId, "request", "#");
         try {
             mqttClient.subscribe(topic, 0, (topic1, message) -> {
-                //pool.execute( () -> {
+                pool.execute( () -> {
                     log.info("Handling message sent to device topic {}", topic1);
                     log.info("Message Received from Topic {}", message);
 
@@ -138,7 +138,7 @@ public class MqttDevice {
                     catch (Exception ex) {
                         log.error("Failed publishing response to device topic {}", topicResponse);
                     }
-               // } );
+                });
             }).setActionCallback(new IMqttActionListener() {
                 @Override
                 public void onSuccess(IMqttToken asyncActionToken) {

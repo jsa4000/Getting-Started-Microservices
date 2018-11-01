@@ -25,7 +25,7 @@ endpoints:
 
 devices:
   environment: \${spring.profiles.active}
-  lastWillTopic: devices/disconnect
+  lastWillTopic: devices/disconnected
   parameters:
     partitionId: 0
     count: 1
