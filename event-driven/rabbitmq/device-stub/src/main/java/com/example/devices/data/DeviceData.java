@@ -10,4 +10,7 @@ import lombok.NoArgsConstructor;
 public class DeviceData {
     private String deviceId;
     private String status;
+    private Long totalMessagesReceived;
+    private Long totalMessagesPublished;
+    private Long totalMessagesError;
 }

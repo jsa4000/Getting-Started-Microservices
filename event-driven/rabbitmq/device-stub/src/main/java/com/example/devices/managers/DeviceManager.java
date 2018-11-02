@@ -50,14 +50,23 @@ public class DeviceManager {
     public List<DeviceData> getAll() {
         List<DeviceData> result = new ArrayList<>();
         devices.values()
-                .forEach(device -> result.add(new DeviceData(device.getDeviceId(),String.valueOf(device.isConnected()))));
+                .forEach(device -> result.add(
+                        new DeviceData(device.getDeviceId(),
+                                String.valueOf(device.isConnected()),
+                                device.getTotalMessagesReceivedCount().get(),
+                                device.getTotalMessagesPublishedCount().get(),
+                                device.getTotalMessagesErrorCount().get())));
         return result;
     }
 
     public DeviceData getDeviceById(String id) {
         Optional<MqttDevice> mqttDevice = devices.values().stream().filter(x -> x.getDeviceId().equals(id)).findFirst();
         if (mqttDevice.isPresent()) {
-            return new DeviceData(mqttDevice.get().getDeviceId(),String.valueOf(mqttDevice.get().isConnected()));
+            return  new DeviceData(mqttDevice.get().getDeviceId(),
+                    String.valueOf(mqttDevice.get().isConnected()),
+                    mqttDevice.get().getTotalMessagesReceivedCount().get(),
+                    mqttDevice.get().getTotalMessagesPublishedCount().get(),
+                    mqttDevice.get().getTotalMessagesErrorCount().get());
         }
         return null;
     }

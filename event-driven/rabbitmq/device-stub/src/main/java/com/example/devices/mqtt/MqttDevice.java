@@ -1,6 +1,7 @@
 package com.example.devices.mqtt;
 
 import com.example.devices.mqtt.handlers.ResponseHandler;
+import com.example.devices.utils.SystemUtils;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -9,6 +10,7 @@ import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Stream;
 
 @Slf4j
@@ -29,17 +31,22 @@ public class MqttDevice {
     @Getter
     private String topicLWT;
 
+    @Getter
+    private AtomicLong totalMessagesReceivedCount = new AtomicLong();
+
+    @Getter
+    private AtomicLong totalMessagesPublishedCount = new AtomicLong();
+
+    @Getter
+    private AtomicLong totalMessagesErrorCount = new AtomicLong();
+
     private ResponseHandler responseHandler;
     private MqttAsyncClient mqttClient;
 
-    private ExecutorService pool =  Executors.newFixedThreadPool(getProcessors());
+    private ExecutorService pool =
+            Executors.newFixedThreadPool(SystemUtils.getAvailableProcessors(true));
 
     public boolean isConnected() { return mqttClient.isConnected(); }
-
-    private static int getProcessors() {
-        int result = Runtime.getRuntime().availableProcessors();
-        return result == 1 ? 1 : result;
-    }
 
     public MqttDevice(ResponseHandler responseHandler, String deviceId, String mqttAddresses,
                       String username, String password, String topicLWT ) {
@@ -69,28 +76,28 @@ public class MqttDevice {
 
         try {
             MqttAsyncClient mqttClient = new MqttAsyncClient(addresses[0], deviceId, new MemoryPersistence());
-            mqttClient.setCallback(new MqttCallback() {
+            mqttClient.setCallback(new MqttCallbackExtended() {
                 @Override
-                public void messageArrived(String topic, MqttMessage message) throws Exception {
-                    log.info("Message arrived to topic {}", topic);
-                }
+                public void messageArrived(String topic, MqttMessage message) {log.info("Message arrived to topic {}", topic); }
 
                 @Override
-                public void deliveryComplete(IMqttDeliveryToken token) {
-                    log.info("Message delivered");
-                }
+                public void deliveryComplete(IMqttDeliveryToken token) { log.info("Message delivered"); }
 
                 @Override
-                public void connectionLost(Throwable cause) {
-                    log.error("Connection to MQTT lost [{}]", cause);
+                public void connectionLost(Throwable cause) { log.error("Connection to MQTT lost: {}", cause); }
 
+                @Override
+                public void connectComplete(boolean reconnect, java.lang.String serverURI){
+                    if(reconnect) {
+                        log.info("Forcing Reconnection for device {}", deviceId);
+                        resgisterDevices(mqttClient, responseHandler, deviceId);
+                    }
                 }
             });
             connect(deviceId, mqttClient, options, responseHandler);
             return mqttClient;
         } catch(MqttException e) {
             log.error("MQTT Client Connect Failure, exiting... {}", e);
-            System.exit(1);
             return null;
         }
     }
@@ -110,52 +117,54 @@ public class MqttDevice {
                 @Override
                 public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
                     log.error("MQTT Client Connect Failure [{}] not retrying ...", exception);
-                    //connect(clientId, deviceId, client, options);
                 }
             });
             log.debug("Token from connection {}", iMqttToken);
         } catch(MqttException e) {
             log.error("MQTT Client Connect Failure, exiting...", e);
-            System.exit(1);
         }
     }
 
     private void resgisterDevices(MqttAsyncClient mqttClient, ResponseHandler responseHandler, String deviceId) {
         String topic = String.join("/", "devices", deviceId, "request", "#");
         try {
-            mqttClient.subscribe(topic, 0, (topic1, message) -> {
-                pool.execute( () -> {
-                    log.info("Handling message sent to device topic {}", topic1);
-                    log.info("Message Received from Topic {}", message);
+            mqttClient.subscribe(topic, 0,
+                    (topicToHandle, messageToHandle) -> {
+                        totalMessagesReceivedCount.incrementAndGet();
+                        pool.execute(() -> handleMessage(topicToHandle, messageToHandle));
+                    })
+                    .setActionCallback(new IMqttActionListener() {
+                        @Override
+                        public void onSuccess(IMqttToken asyncActionToken) {
+                            log.info("Client " + deviceId + " subscribed to topic " + topic);
+                        }
 
-                    String topicResponse = topic1.replace("request", "response");
-                    MqttMessage responseMessage = responseHandler.onMessage(topic1);
-                    responseMessage.setQos(0);
-
-                    try {
-                        log.info("Publishing response to device topic {}", topicResponse);
-                        mqttClient.publish(topicResponse, responseMessage);
-                    }
-                    catch (Exception ex) {
-                        log.error("Failed publishing response to device topic {}", topicResponse);
-                    }
-                });
-            }).setActionCallback(new IMqttActionListener() {
-                @Override
-                public void onSuccess(IMqttToken asyncActionToken) {
-                    log.info("Client " + deviceId + " subscribed to topic " + topic);
-                }
-
-                @Override
-                public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
-                    log.error("Failed subscribing to topic {} with client {}, exiting...", topic, deviceId);
-                    System.exit(1);
-                }
-            })
+                        @Override
+                        public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
+                            log.error("Failed subscribing to topic {} with client {}, exiting...", topic, deviceId);
+                        }
+                    })
             ;
         } catch (MqttException e) {
             log.error("Failed registering subscription to device topic {} with client {}, exiting...", topic, deviceId);
-            System.exit(1);
+        }
+    }
+
+    private void handleMessage(String topic, MqttMessage message) {
+        log.info("Handling message sent to device topic {}: {}", topic, message);
+
+        String topicResponse = topic.replace("request", "response");
+        MqttMessage responseMessage = responseHandler.onMessage(topic);
+        responseMessage.setQos(0);
+
+        try {
+            log.info("Publishing response to device topic {}", topicResponse);
+            mqttClient.publish(topicResponse, responseMessage);
+            totalMessagesPublishedCount.incrementAndGet();
+        }
+        catch (Exception ex) {
+            log.error("Failed publishing response to device topic {}", topicResponse);
+            totalMessagesErrorCount.incrementAndGet();
         }
     }
 
