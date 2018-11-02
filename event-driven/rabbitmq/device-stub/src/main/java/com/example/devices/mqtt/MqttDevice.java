@@ -60,6 +60,7 @@ public class MqttDevice {
         options.setConnectionTimeout(10);
         options.setKeepAliveInterval(15);
         options.setMaxInflight(65535);
+        options.setAutomaticReconnect(true);
         options.setCleanSession(true);
         options.setWill(topicLWT, String.format("Device Disconnected %s! (LWT)", deviceId).getBytes(), 0, true);
 
