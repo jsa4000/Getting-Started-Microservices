@@ -12,6 +12,7 @@ buildscript {
         classpath "gradle.plugin.com.palantir.gradle.gitversion:gradle-git-version:0.12.0-rc2"
         classpath "io.spring.gradle:dependency-management-plugin:1.0.5.RELEASE"
         classpath "org.yaml:snakeyaml:1.17"
+        classpath "gradle.plugin.com.google.cloud.tools:jib-gradle-plugin:0.9.10"
     }
 }
 
@@ -26,6 +27,7 @@ apply plugin: "io.spring.dependency-management"
 apply plugin: "eclipse"
 apply plugin: "idea"
 apply plugin: "com.palantir.git-version"
+apply plugin: 'com.google.cloud.tools.jib'
 
 def versionDetails = versionDetails()
 
@@ -42,6 +44,20 @@ repositories {
 dependencyManagement {
     imports {
         mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+    }
+}
+
+tasks.jib.dependsOn("build")
+
+jib {
+    from {
+        image = 'openjdk:8-jre-alpine'
+    }
+    to {
+        image = "${project.name}:latest"
+    }
+    container {
+        labels = [app: project.name, version:version]
     }
 }
 
@@ -89,24 +105,6 @@ jar {
                 "Build-Jdk": JavaVersion.current())
     }
 }
-
-task expandDockerFile(type: Copy) {
-    from "Dockerfile"
-    into "${buildDir}"
-
-    expand(revision: "${revision}", project: project)
-}
-
-def buildDockerTask(profile, tag) {
-    def profileCap = profile.capitalize()
-    return tasks.create("buildDocker${profileCap}", Exec) {
-        commandLine "docker", "build", ".", "-f", "$buildDir/Dockerfile", "-t", "$project.name:${tag}"
-        dependsOn build
-        dependsOn expandDockerFile
-    }
-}
-
-buildDockerTask("local", "latest")
 
 bootRun {
     environment SPRING_PROFILES_ACTIVE: environment.SPRING_PROFILES_ACTIVE ?: "local"
