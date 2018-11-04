@@ -262,7 +262,11 @@ Kafka Monitor can automatically create the monitor **topic** with the specified 
 
 > By default the port configured is 9000
 
-- Check ``kafka-manager`` dashboard using this [link](http://10.0.0.10:8081)
+- Go to ``kafka-manager`` dashboard using this [link](http://10.0.0.10:8081) and configure a cluster
+
+    ![kafka-manager-configuration](images/kafka-manager-configuration.png)
+
+- Following information about broker, topics, etc..
 
     ![kafka-manager-broker](images/kafka-manager-broker.png)
     ![kafka-manager-cluster](images/kafka-manager-cluster.png)
