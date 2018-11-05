@@ -1,5 +1,37 @@
 # Installing Additional Monitoring Tools
 
+## Initialization
+
+### Monitoring and Kafka Clusters
+
+- Run the following commands using `Kafka-Monitoring-Cluster`
+
+        # Start the virtual machine and connect to ir via ssh
+        vagrant up
+        vagrant ssh
+
+        # Start both Monitoring and Kafka cluster with all the needed components
+        sudo docker-compose -f /vagrant/deployments/docker-compose.yml
+        sudo docker-compose -f /vagrant/deployments/docker-compose-kafka-jmx-exporter.yml
+
+### Grafana Dashboard
+
+- Access to Grafana using this [link](http://10.0.0.10:3000) (admin/admin)
+
+- Add `Prometheus` data-source
+
+        Name: Prometheus
+        Type: Prometheus
+        URL: http://10.0.0.10:9090
+
+- Add Grafana **dashboards**:
+
+  - Node Exporter: *405*
+  - CAdvisor: *893*
+  - Kafka Exporter: *kafka_dashboard.json*
+
+  > Select **Prometheus** Source in all of them. Select customer **range period** of time and **refresh time**.
+
 ## ProducerPerformance
 
 This is a command line tool to test the performances of the kafka cluster.
@@ -123,10 +155,12 @@ Kafka Monitor can automatically create the monitor **topic** with the specified 
         # Add gradle binaries to global path (.bashrc)
         sudo nano /etc/profile
         export PATH=$PATH:/opt/gradle/gradle-4.10.2/bin
+
+        # Refresh the changes made
         source /etc/profile
 
         # Verify the installation
-        gradle version
+        gradle -version
 
 - Download ``Kafka-monitor`` from Git
 
