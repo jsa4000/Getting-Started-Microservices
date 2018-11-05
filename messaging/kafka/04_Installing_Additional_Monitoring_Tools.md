@@ -11,8 +11,8 @@
         vagrant ssh
 
         # Start both Monitoring and Kafka cluster with all the needed components
-        sudo docker-compose -f /vagrant/deployments/docker-compose.yml
-        sudo docker-compose -f /vagrant/deployments/docker-compose-kafka-jmx-exporter.yml
+        sudo docker-compose -f /vagrant/deployments/docker-compose.yml up
+        sudo docker-compose -f /vagrant/deployments/docker-compose-kafka-jmx-exporter.yml up
 
 ### Grafana Dashboard
 
