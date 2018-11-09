@@ -36,3 +36,4 @@ Two **topics** are going to be created on Kafka:
 ## Reference
 
 - [Several Event Types in the same topic](https://www.confluent.io/blog/put-several-event-types-kafka-topic/)
+- [Customer Header in Spring Kafka](https://memorynotfound.com/spring-kafka-adding-custom-header-kafka-message-example/)

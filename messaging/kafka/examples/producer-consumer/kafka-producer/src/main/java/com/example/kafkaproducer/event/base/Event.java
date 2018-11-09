@@ -2,7 +2,6 @@ package com.example.kafkaproducer.event.base;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 import lombok.ToString;
 
 import java.time.Instant;
@@ -12,21 +11,25 @@ import java.util.UUID;
 @NoArgsConstructor
 public class Event <T extends EventBase> {
 
-    @Getter @Setter
-    protected String id = UUID.randomUUID().toString();
-    @Getter @Setter
-    protected long timestamp = Instant.now().toEpochMilli();
-    @Getter @Setter
-    protected String version;
-    @Getter @Setter
-    protected String type;
-    @Getter @Setter
-    protected T payload;
+    private final String VERSION = "1.0.0";
 
-    public Event (T payload) {
-        this.payload = payload;
-        this.version = payload.version;
-        this.type = payload.type;
+    @Getter
+    protected String id = UUID.randomUUID().toString();
+    @Getter
+    protected long timestamp = Instant.now().toEpochMilli();
+    @Getter
+    protected String version;
+    @Getter
+    protected String messageType;
+    @Getter
+    protected String messageVersion;
+    @Getter
+    protected T message;
+
+    public Event (T message) {
+        this.message = message;
+        this.messageVersion = message.version;
+        this.messageType = message.type;
     }
 
 }

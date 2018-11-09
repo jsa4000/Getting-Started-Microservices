@@ -4,9 +4,11 @@ import com.example.kafkaproducer.event.base.EventBase;
 import com.example.kafkaproducer.event.enums.RoleEvent;
 import com.example.kafkaproducer.model.Role;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 @ToString
+@NoArgsConstructor
 public class RoleCreated extends EventBase {
 
     private final String VERSION = "1.0.0";

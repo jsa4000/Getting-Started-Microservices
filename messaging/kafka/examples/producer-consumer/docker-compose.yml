@@ -16,9 +16,11 @@ services:
     environment:
       KAFKA_JMX_OPTS: "-Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Djava.rmi.server.hostname=kafka -Dcom.sun.management.jmxremote.rmi.port=9992"
       JMX_PORT: 9992
-      KAFKA_ADVERTISED_HOST_NAME: kafka
+      #KAFKA_ADVERTISED_HOST_NAME: kafka
+      KAFKA_ADVERTISED_HOST_NAME: 192.168.99.100
       KAFKA_ADVERTISED_PORT: 9092
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      # KAFKA_CREATE_TOPICS: userManagement:2:1,roleManagement:2:1
 
   kafka-manager:
     image: hlebalbau/kafka-manager
@@ -37,7 +39,7 @@ services:
     - kafka
     - kafka-manager
     volumes:
-      - ./files/create-topics.sh:/create-topics.sh
+      - ./files/scripts/create-topics.sh:/create-topics.sh
     command: bash create-topics.sh  
 
   mongo:

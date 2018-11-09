@@ -3,14 +3,35 @@ spring:
     active: local
   application:
     name: kafka-producer
+  kafka:
+    acks: all
+    compression.type: gzip
+    enable.idempotence: true
+    batch.size: 16384
+    linger.ms: 500
+    max.in.flight.requests.per.connection: 1
+    retries: 1
 
 management:
   endpoints:
     web.exposure.include: health,beans,env
 
+application:
+  topic:
+    roles: roleManagement
+    users: userManagement
+
+logging:
+  level:
+    root: WARN
+    org.springframework.web: INFO
+    com.example: DEBUG
+
 ---
 spring:
   profiles: local
+  kafka:
+    bootstrap-servers: http://dockerhost:9092
 
 server:
   port: 8080
@@ -21,6 +42,8 @@ management:
 ---
 spring:
   profiles: docker
+  kafka:
+    bootstrap-servers: http://dockerhost:9092
 
 server:
   port: 8080
