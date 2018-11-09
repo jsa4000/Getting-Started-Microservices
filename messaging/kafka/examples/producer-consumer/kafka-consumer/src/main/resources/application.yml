@@ -1,0 +1,35 @@
+spring:
+  profiles:
+    active: local
+  application:
+    name: kafka-consumer
+  data.mongodb:
+    database: consumer-view
+
+management:
+  endpoints:
+    web.exposure.include: health,beans,env
+
+---
+spring:
+  profiles: local
+  data.mongodb:
+    uri: mongodb://root:root@dockerhost:27017/admin
+
+server:
+  port: 8081
+
+management:
+  server.port: 9501
+
+---
+spring:
+  profiles: docker
+  data.mongodb:
+    uri: mongodb://root:root@mongodb:27017/admin
+
+server:
+  port: 8080
+
+management:
+  server.port: 9500
