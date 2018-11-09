@@ -14,9 +14,31 @@ services:
     - "9092:9092"
     - "9992:9992"
     environment:
-      KAFKA_ADVERTISED_HOST_NAME: dockerhost
+      KAFKA_JMX_OPTS: "-Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Djava.rmi.server.hostname=kafka -Dcom.sun.management.jmxremote.rmi.port=9992"
+      JMX_PORT: 9992
+      KAFKA_ADVERTISED_HOST_NAME: kafka
       KAFKA_ADVERTISED_PORT: 9092
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+
+  kafka-manager:
+    image: hlebalbau/kafka-manager
+    depends_on:
+    - zookeeper
+    - kafka
+    ports:
+    - "9000:9000"
+    environment:
+      ZK_HOSTS: zookeeper:2181
+
+  kafka-topics:
+    image: wurstmeister/kafka:2.11-1.1.0
+    depends_on:
+    - zookeeper
+    - kafka
+    - kafka-manager
+    volumes:
+      - ./files/create-topics.sh:/create-topics.sh
+    command: bash create-topics.sh  
 
   mongo:
     image: mongo
@@ -24,7 +46,7 @@ services:
     - "27017:27017"
     environment:
       MONGO_INITDB_ROOT_USERNAME: root
-      MONGO_INITDB_ROOT_PASSWORD: root   
+      MONGO_INITDB_ROOT_PASSWORD: root     
       
   zipkin:
     image: openzipkin/zipkin
