@@ -1,22 +1,23 @@
 package com.example.kafkaproducer.event.role;
 
-import com.example.kafkaproducer.event.base.EventBase;
+import com.example.kafkaproducer.event.base.Message;
 import com.example.kafkaproducer.event.enums.RoleEvent;
 import com.example.kafkaproducer.model.Role;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 @ToString
-public class RoleModified extends EventBase {
+@NoArgsConstructor
+public class RoleModified extends Message {
 
-    private final String VERSION = "1.0.0";
+    private static final String VERSION = "1.0.0";
 
     @Getter
     private Role role;
 
     public RoleModified (Role role) {
+        super(role.getId(), VERSION, RoleEvent.MODIFIED.getName());
         this.role = role;
-        this.version = VERSION;
-        this.type = RoleEvent.MODIFIED.getName();
     }
 }

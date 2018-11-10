@@ -43,7 +43,7 @@ management:
 spring:
   profiles: docker
   kafka:
-    bootstrap-servers: http://dockerhost:9092
+    bootstrap-servers: http://kafka:9092
 
 server:
   port: 8080

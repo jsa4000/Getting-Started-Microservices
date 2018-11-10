@@ -5,14 +5,24 @@ spring:
     name: kafka-consumer
   data.mongodb:
     database: consumer-view
+  kafka:
+    offset-reset: latest
+    auto-commit: false
 
 management:
   endpoints:
     web.exposure.include: health,beans,env
 
+application:
+  topic:
+    roles: roleManagement
+    users: userManagement
+
 ---
 spring:
   profiles: local
+  kafka:
+    bootstrap-servers: http://dockerhost:9092
   data.mongodb:
     uri: mongodb://root:root@dockerhost:27017/admin
 
@@ -25,6 +35,8 @@ management:
 ---
 spring:
   profiles: docker
+  kafka:
+    bootstrap-servers: http://kafka:9092
   data.mongodb:
     uri: mongodb://root:root@mongodb:27017/admin
 

@@ -32,7 +32,7 @@ public class KafkaProducer {
         Message<String> message = MessageBuilder
                 .withPayload(payload)
                 .setHeader(KafkaHeaders.TOPIC, topic)
-                .setHeader(KafkaHeaders.MESSAGE_KEY, event.getId())
+                .setHeader(KafkaHeaders.MESSAGE_KEY, event.getKey())
                 .setHeader(KafkaHeaders.TIMESTAMP, event.getTimestamp())
                 .setHeader(HEADER_MESSAGE_VERSION, event.getVersion())
                 .setHeader(HEADER_ORIGIN_REALM, serviceName)
