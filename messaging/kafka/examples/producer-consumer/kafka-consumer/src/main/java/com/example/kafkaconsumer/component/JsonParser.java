@@ -2,6 +2,7 @@ package com.example.kafkaconsumer.component;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 
@@ -33,7 +34,17 @@ public class JsonParser {
             ObjectMapper mapper = new  ObjectMapper();
             JavaType javaType = mapper.getTypeFactory().constructParametricType(type, genericType);
             return mapper.readValue(json, javaType);
+        }
+        catch (Exception ex) {
+            log.error(ex.getMessage(),ex);
+        }
+        return null;
+    }
 
+    public static String getValue(String key, String json) {
+        try {
+            JsonNode parent = new ObjectMapper().readTree(json);
+            return parent.get(key).asText();
         }
         catch (Exception ex) {
             log.error(ex.getMessage(),ex);

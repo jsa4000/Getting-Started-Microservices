@@ -1,6 +1,8 @@
 package com.example.kafkaconsumer.controller;
 
+import com.example.kafkaconsumer.model.Fact;
 import com.example.kafkaconsumer.model.Role;
+import com.example.kafkaconsumer.service.FactService;
 import com.example.kafkaconsumer.service.RoleService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -11,26 +13,26 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@Api(tags="Roles", description = "Roles View.")
+@Api(tags="Facts", description = "Facts View.")
 @RestController
-@RequestMapping("/roles")
-public class RoleController {
+@RequestMapping("/facts")
+public class FactController {
 
     @Autowired
-    private RoleService roleService;
+    private FactService factService;
 
-    @ApiOperation(value = "Get a List of Roles")
+    @ApiOperation(value = "Get a List of Facts")
     @GetMapping("/")
-    public ResponseEntity<List> listRoles(){
-        return ResponseEntity.ok(roleService.findAll());
+    public ResponseEntity<List> listFacts(){
+        return ResponseEntity.ok(factService.findAll());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Role> getRole(@PathVariable(value = "id") String id){
-        Role role = roleService.findById(id);
-        if (role == null)
+    public ResponseEntity<Fact> getFact(@PathVariable(value = "id") String id){
+        Fact fact = factService.findById(id);
+        if (fact == null)
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
-        return ResponseEntity.ok(role);
+        return ResponseEntity.ok(fact);
     }
 
 }

@@ -16,7 +16,7 @@ import org.springframework.util.concurrent.ListenableFutureCallback;
 @Component
 public class KafkaProducer {
 
-    public static final String HEADER_MESSAGE_VERSION = "custom-message-version";
+    public static final String HEADER_EVENT_VERSION = "custom-event-version";
     public static final String HEADER_ORIGIN_REALM = "custom-origin-realm";
 
     @Value("${spring.application.name}")
@@ -34,7 +34,7 @@ public class KafkaProducer {
                 .setHeader(KafkaHeaders.TOPIC, topic)
                 .setHeader(KafkaHeaders.MESSAGE_KEY, event.getKey())
                 .setHeader(KafkaHeaders.TIMESTAMP, event.getTimestamp())
-                .setHeader(HEADER_MESSAGE_VERSION, event.getVersion())
+                .setHeader(HEADER_EVENT_VERSION, event.getVersion())
                 .setHeader(HEADER_ORIGIN_REALM, serviceName)
                 .build();
 

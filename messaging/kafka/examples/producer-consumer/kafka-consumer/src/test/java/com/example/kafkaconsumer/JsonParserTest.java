@@ -1,8 +1,9 @@
-package com.example.kafkaproducer.component;
+package com.example.kafkaconsumer;
 
-import com.example.kafkaproducer.event.base.Event;
-import com.example.kafkaproducer.event.role.RoleCreated;
-import com.example.kafkaproducer.model.Role;
+import com.example.kafkaconsumer.component.JsonParser;
+import com.example.kafkaconsumer.event.base.Event;
+import com.example.kafkaconsumer.event.role.RoleCreated;
+import com.example.kafkaconsumer.model.Role;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Test;
 
@@ -36,14 +37,15 @@ public class JsonParserTest {
         Role expectedRole = getDefaultRole();
         Event expectedEvent = new Event<>(new RoleCreated(expectedRole));
 
-        Event event = JsonParser.deserialize(JsonParser.serialize(expectedEvent),Event.class, RoleCreated.class);
+        Event<RoleCreated> event = JsonParser
+                .deserialize(JsonParser.serialize(expectedEvent),Event.class, RoleCreated.class);
 
         assertTrue(event.getId().equals(expectedEvent.getId()));
         assertTrue(event.getTimestamp() == expectedEvent.getTimestamp());
         assertTrue(event.getMessageType().equals(expectedEvent.getMessageType()));
         assertTrue(event.getMessageVersion().equals(expectedEvent.getMessageVersion()));
-        assertTrue(((RoleCreated) event.getMessage()).getRole().getId().equals(expectedRole.getId()));
-        assertTrue(((RoleCreated) event.getMessage()).getRole().getName().equals(expectedRole.getName()));
+        assertTrue(event.getMessage().getRole().getId().equals(expectedRole.getId()));
+        assertTrue(event.getMessage().getRole().getName().equals(expectedRole.getName()));
     }
 
     @Test

@@ -4,7 +4,7 @@ spring:
   application:
     name: kafka-consumer
   data.mongodb:
-    database: consumer-view
+    database: database
   kafka:
     offset-reset: latest
     auto-commit: false
@@ -17,6 +17,12 @@ application:
   topic:
     roles: roleManagement
     users: userManagement
+
+logging:
+  level:
+    root: WARN
+    org.springframework.web: INFO
+    com.example: DEBUG
 
 ---
 spring:

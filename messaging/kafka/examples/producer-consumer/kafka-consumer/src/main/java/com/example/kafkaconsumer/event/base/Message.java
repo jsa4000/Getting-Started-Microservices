@@ -1,4 +1,4 @@
-package com.example.kafkaproducer.event.base;
+package com.example.kafkaconsumer.event.base;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
