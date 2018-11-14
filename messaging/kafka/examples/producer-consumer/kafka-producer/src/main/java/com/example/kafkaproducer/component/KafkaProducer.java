@@ -1,9 +1,11 @@
 package com.example.kafkaproducer.component;
 
 import com.example.kafkaproducer.event.base.Event;
+import com.tracing.tracingLib.config.TracingConfiguration;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Import;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.KafkaHeaders;
 import org.springframework.kafka.support.SendResult;
@@ -14,6 +16,7 @@ import org.springframework.util.concurrent.ListenableFutureCallback;
 
 @Slf4j
 @Component
+@Import(TracingConfiguration.class)
 public class KafkaProducer {
 
     public static final String HEADER_EVENT_VERSION = "custom-event-version";

@@ -24,6 +24,9 @@ logging:
     org.springframework.web: INFO
     com.example: DEBUG
 
+tracing:
+  provider: JAEGER
+
 ---
 spring:
   profiles: local
@@ -38,6 +41,13 @@ server:
 management:
   server.port: 9501
 
+tracing:
+  provider:
+    zipkin.url: http://dockerhost:9412/api/v2/spans
+    jaeger:
+      host: dockerhost
+      port: 6831
+
 ---
 spring:
   profiles: docker
@@ -51,3 +61,10 @@ server:
 
 management:
   server.port: 9500
+
+tracing:
+  provider:
+    zipkin.url: http://zipkin:9412/api/v2/spans
+    jaeger:
+      host: jaeger
+      port: 6831
