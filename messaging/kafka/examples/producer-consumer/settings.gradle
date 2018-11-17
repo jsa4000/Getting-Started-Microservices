@@ -1,3 +1,4 @@
 include 'kafka-producer'
 include 'kafka-consumer'
 include 'tracingLib'
+include 'opentracing-kafka-spring'

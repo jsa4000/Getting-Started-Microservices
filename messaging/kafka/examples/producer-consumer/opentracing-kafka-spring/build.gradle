@@ -1,0 +1,21 @@
+buildscript {
+    ext {
+        springKafkaVersion = '2.2.0.RELEASE'
+    }
+}
+
+plugins {
+    id 'java'
+}
+
+group = 'io.opentracing.contrib'
+version = '0.0.15'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile("org.springframework.kafka:spring-kafka:${springKafkaVersion}")
+    compile('io.opentracing.contrib:opentracing-kafka-client:0.0.15')
+}

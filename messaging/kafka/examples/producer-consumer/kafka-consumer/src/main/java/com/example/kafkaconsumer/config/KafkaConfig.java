@@ -56,8 +56,7 @@ public class KafkaConfig {
 
     @Bean
     public ConsumerFactory<String, String> consumerFactory() {
-        //return new TracingConsumerFactory<>(new DefaultKafkaConsumerFactory<>(consumerConfigs()),tracer);
-        return new DefaultKafkaConsumerFactory<>(consumerConfigs());
+        return new TracingConsumerFactory<>(new DefaultKafkaConsumerFactory<>(consumerConfigs()),tracer);
     }
 
     @Bean
