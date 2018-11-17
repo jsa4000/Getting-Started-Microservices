@@ -17,11 +17,12 @@ import io.opentracing.Tracer;
 import io.opentracing.contrib.kafka.ClientSpanNameProvider;
 import io.opentracing.contrib.kafka.TracingKafkaProducer;
 import io.opentracing.util.GlobalTracer;
-import java.util.function.BiFunction;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.kafka.core.ProducerFactory;
+
+import java.util.function.BiFunction;
 
 public class TracingProducerFactory<K, V> implements ProducerFactory<K, V>, DisposableBean {
 

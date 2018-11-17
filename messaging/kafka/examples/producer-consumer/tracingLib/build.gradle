@@ -12,6 +12,7 @@ repositories {
 
 dependencies {
     compile('io.opentracing:opentracing-api:0.31.0')
+    compile('io.opentracing.contrib:opentracing-spring-cloud-starter:0.2.1')
     compile('io.opentracing.contrib:opentracing-concurrent:0.1.0')
     compile('io.opentracing.contrib:opentracing-spring-jaeger-web-starter:0.2.1')
     compile project(':opentracing-kafka-spring')

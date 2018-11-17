@@ -17,12 +17,13 @@ import io.opentracing.Tracer;
 import io.opentracing.contrib.kafka.ClientSpanNameProvider;
 import io.opentracing.contrib.kafka.TracingKafkaConsumer;
 import io.opentracing.util.GlobalTracer;
-import java.util.Map;
-import java.util.function.BiFunction;
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.common.serialization.Deserializer;
 import org.springframework.kafka.core.ConsumerFactory;
+
+import java.util.Map;
+import java.util.function.BiFunction;
 
 public class TracingConsumerFactory<K, V> implements ConsumerFactory<K, V> {
 

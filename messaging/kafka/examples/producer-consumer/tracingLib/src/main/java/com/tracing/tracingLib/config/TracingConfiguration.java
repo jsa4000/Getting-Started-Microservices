@@ -3,6 +3,7 @@ package com.tracing.tracingLib.config;
 import brave.Tracing;
 import brave.opentracing.BraveTracer;
 import brave.sampler.Sampler;
+import com.tracing.tracingLib.aspect.TraceKafkaSpan;
 import io.jaegertracing.Configuration.ReporterConfiguration;
 import io.jaegertracing.Configuration.SamplerConfiguration;
 import io.jaegertracing.Configuration.SenderConfiguration;
@@ -70,5 +71,10 @@ public class TracingConfiguration {
                 .build();
 
         return BraveTracer.create(braveTracer);
+    }
+
+    @Bean
+    public TraceKafkaSpan traceKafkaSpan() {
+        return new TraceKafkaSpan();
     }
 }

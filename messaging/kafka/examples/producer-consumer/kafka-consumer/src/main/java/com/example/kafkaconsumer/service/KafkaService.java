@@ -10,6 +10,7 @@ import com.example.kafkaconsumer.event.user.UserCreated;
 import com.example.kafkaconsumer.event.user.UserDeleted;
 import com.example.kafkaconsumer.event.user.UserModified;
 import com.example.kafkaconsumer.model.Fact;
+import com.tracing.tracingLib.annotation.TraceKafkaSpan;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -41,12 +42,12 @@ public class KafkaService {
     public static final String HEADER_EVENT_VERSION = "custom-event-version";
     public static final String HEADER_ORIGIN_REALM = "custom-origin-realm";
 
+    @TraceKafkaSpan
     @KafkaListener(topics = "${application.topic.roles}")
     public void onRoleEvent(@Payload String data,
                             @Header(KafkaHeaders.RECEIVED_TOPIC) String topic,
                             @Headers MessageHeaders messageHeaders,
                             Acknowledgment acknowledgment) {
-
         log.info("Message Received from topic {}: '{}'", topic, data);
         if (log.isDebugEnabled()) logHeaders(messageHeaders);
 
@@ -87,12 +88,12 @@ public class KafkaService {
         acknowledgment.acknowledge();
     }
 
+    @TraceKafkaSpan
     @KafkaListener(topics = "${application.topic.users}")
     public void onUserEvent(@Payload String data,
                             @Header(KafkaHeaders.RECEIVED_TOPIC) String topic,
                             @Headers MessageHeaders messageHeaders,
                             Acknowledgment acknowledgment) {
-
         log.info("Received from topic {}: '{}'", topic, data);
         if (log.isDebugEnabled()) logHeaders(messageHeaders);
 

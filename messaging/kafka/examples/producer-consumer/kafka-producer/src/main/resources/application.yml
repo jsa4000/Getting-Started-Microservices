@@ -28,7 +28,8 @@ logging:
     com.example: DEBUG
 
 tracing:
-  provider: JAEGER
+  #provider: JAEGER
+  provider: ZIPKIN
 
 ---
 spring:
