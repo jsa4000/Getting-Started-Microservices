@@ -1,0 +1,22 @@
+version: '2'
+
+services:
+  
+  consul:
+    image: bitnami/consul:latest
+    ports:
+    - 8500:8500
+  
+  mongo:
+    image: mongo
+    ports:
+    - 27017:27017
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: root     
+      
+  zipkin:
+    image: openzipkin/zipkin
+    container_name: zipkin
+    ports:
+    - 9412:9411

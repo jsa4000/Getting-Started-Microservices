@@ -1,0 +1,37 @@
+spring:
+  data.mongodb:
+    database: customer
+
+management:
+  endpoints:
+    web.exposure.include: health,beans,env
+
+logging:
+  level:
+    root: WARN
+    org.springframework.web: INFO
+    com.example: DEBUG
+
+---
+spring:
+  profiles: local
+  data.mongodb:
+    uri: mongodb://root:root@dockerhost:27017/admin
+
+server:
+  port: 8080
+
+management:
+  server.port: 9500
+
+---
+spring:
+  profiles: docker
+  data.mongodb:
+    uri: mongodb://root:root@mongodb:27017/admin
+
+server:
+  port: 8080
+
+management:
+  server.port: 9500

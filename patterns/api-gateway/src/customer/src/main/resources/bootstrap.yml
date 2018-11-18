@@ -1,0 +1,27 @@
+spring:
+  profiles:
+    active: local
+  application:
+    name: customer
+  cloud:
+    consul:
+      discovery:
+        instanceId: ${spring.application.name}${server.port}:${random.value}
+        healthCheckInterval: 20s
+
+---
+spring:
+  profiles: local
+  cloud:
+    consul:
+      host: dockerhost
+      port: 8500
+
+---
+spring:
+  profiles: docker
+  cloud:
+    consul:
+      host: consul
+      port: 8500
+
