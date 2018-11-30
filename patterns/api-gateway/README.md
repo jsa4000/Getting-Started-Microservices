@@ -2,7 +2,7 @@
 
 ## Introduction
 
-## Service Disconvery
+## Service Discovery
 
 There are multiple service discovery alternative such as: Eureka, etcd (kubernetes), Consul, Zookeeper, etc..
 

@@ -112,7 +112,7 @@ In order to get a kubectl on some other computer (e.g. laptop) to talk to your c
 
         curl -Lo minikube https://storage.googleapis.com/minikube/releases/v0.28.2/minikube-linux-amd64 && chmod +x minikube && sudo mv minikube /usr/local/bin/
 
-1. Start Minikube
+1. Start Minikube 
 
         # Basic command to start minikube cluster
         minikube start
@@ -121,7 +121,9 @@ In order to get a kubectl on some other computer (e.g. laptop) to talk to your c
         minikube start --vm-driver="virtualbox"
 
         # Specify VM capacity such as memory or CPUs
-        minikube start --disk-size 80g --cpus 3 --memory 8192
+        minikube start --vm-driver="virtualbox" --disk-size 80g --cpus 3 --memory 8192
+
+    > Use Poweshell in windows OS to start minikube
 
 1. Verify the installation
 
@@ -130,6 +132,10 @@ In order to get a kubectl on some other computer (e.g. laptop) to talk to your c
 
     minikube status
     kubectl.exe cluster-info
+
+1. Set minikube as same as the docker environment
+
+    minikube docker-env
 
 1. Start the dashboard
 
@@ -153,7 +159,7 @@ In order to get a kubectl on some other computer (e.g. laptop) to talk to your c
 
 1. Check the current pods installed.
 
-    kubetl get pods --all-namespaces
+    kubectl get pods --all-namespaces
 
 1. Delete Minikube
 
@@ -161,7 +167,7 @@ In order to get a kubectl on some other computer (e.g. laptop) to talk to your c
 
     > Delete Minikube is needed if variables are changed such as memory, cpus, etc. in order to be applied
 
-> Minikube doesn not work with **VirtualBox** since it has not implementet ``VT-X/AMD-v`` for virtualization.
+> Minikube doesn not work with **VirtualBox** since it does not implementet ``VT-X/AMD-v`` for virtualization.
 
 ## References
 
