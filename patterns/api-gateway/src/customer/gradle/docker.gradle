@@ -14,15 +14,15 @@ jib {
         image = 'openjdk:8-jre-alpine'
     }
     to {
-        image = 'consumer:latest'
+        image = "${rootProject.name}:latest"
     }
     container {
-        entrypoint = ['sh', '-c', 'chmod +x /entrypoint.sh && sync && /entrypoint.sh']
         ports = ['8080']
         environment = [
-            SPRING_OUTPUT_ANSI_ENABLED: 'ALWAYS',
-            JHIPSTER_SLEEP: '0'
+            SPRING_PROFILES_ACTIVE: 'docker',
+            SERVER_PORT: '8080'
         ]
+        labels = [app:rootProject.name,version:version]
         useCurrentTimestamp = true
     }
 }

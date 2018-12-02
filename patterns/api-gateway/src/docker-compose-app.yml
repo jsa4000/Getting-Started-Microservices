@@ -1,0 +1,17 @@
+version: '3.5'
+
+services:
+
+  customer:
+    image: customer:latest
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    ports:
+    - 8080:8080
+    networks:
+    - gateway-network
+
+networks:
+  gateway-network:
+    external:
+      name: gateway-network

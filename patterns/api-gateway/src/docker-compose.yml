@@ -1,4 +1,4 @@
-version: '2'
+version: '3.5'
 
 services:
   
@@ -6,23 +6,35 @@ services:
     image: bitnami/consul:latest
     ports:
     - 8500:8500
+    networks:
+    - gateway-network
 
-  mongo:
+  mongodb:
     image: mongo
     ports:
     - 27017:27017
     environment:
       MONGO_INITDB_ROOT_USERNAME: root
-      MONGO_INITDB_ROOT_PASSWORD: root     
+      MONGO_INITDB_ROOT_PASSWORD: root
+    networks:
+    - gateway-network
       
   zipkin:
     image: openzipkin/zipkin
     container_name: zipkin
     ports:
     - 9412:9411
+    networks:
+    - gateway-network
 
   sonar:
     image: sonarqube:7.1-alpine
     ports:
     - 9001:9000
     - 9092:9092
+    networks:
+    - gateway-network
+
+networks:
+  gateway-network:
+    name: gateway-network
