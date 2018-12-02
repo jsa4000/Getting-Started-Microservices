@@ -1,22 +1,13 @@
 package com.example.customer.service;
 
 import com.example.customer.model.Customer;
-import com.example.customer.repository.CustomerRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
 
-@Service
-public class CustomerService {
+public interface CustomerService {
+    Page<Customer> findAll(Pageable pageable);
 
-    @Autowired
-    private CustomerRepository repository;
+    Customer create(Customer customer);
 
-    public Page<Customer> findAll(Pageable pageable) { return repository.findAll(pageable); }
-
-    public Customer create(Customer customer) {return  repository.save(customer); }
-
-    public void delete(String id) {repository.deleteById(id);}
-
+    void delete(String id);
 }

@@ -6,7 +6,7 @@ services:
     image: bitnami/consul:latest
     ports:
     - 8500:8500
-  
+
   mongo:
     image: mongo
     ports:
@@ -20,3 +20,9 @@ services:
     container_name: zipkin
     ports:
     - 9412:9411
+
+  sonar:
+    image: sonarqube:7.1-alpine
+    ports:
+    - 9001:9000
+    - 9092:9092

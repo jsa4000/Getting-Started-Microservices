@@ -7,15 +7,17 @@ spring:
     consul:
       discovery:
         instanceId: ${spring.application.name}${server.port}:${random.value}
+        healthCheckPath: /actuator/health
         healthCheckInterval: 20s
 
 ---
 spring:
   profiles: local
   cloud:
+    discovery:
+      enabled: false
     consul:
-      host: dockerhost
-      port: 8500
+      enabled: false
 
 ---
 spring:
