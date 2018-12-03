@@ -27,14 +27,6 @@ services:
     networks:
     - gateway-network
 
-  sonar:
-    image: sonarqube:7.1-alpine
-    ports:
-    - 9001:9000
-    - 9092:9092
-    networks:
-    - gateway-network
-
 networks:
   gateway-network:
     name: gateway-network

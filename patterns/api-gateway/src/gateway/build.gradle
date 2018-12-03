@@ -11,6 +11,11 @@ buildscript {
 	}
 }
 
+plugins {
+	id "org.sonarqube" version "2.6.2"
+}
+
+
 apply plugin: 'java'
 apply plugin: 'eclipse'
 apply plugin: 'org.springframework.boot'
@@ -19,6 +24,9 @@ apply plugin: 'io.spring.dependency-management'
 group = 'com.example'
 version = '0.0.1-SNAPSHOT'
 sourceCompatibility = 1.8
+
+apply from: 'gradle/docker.gradle'
+apply from: 'gradle/sonar.gradle'
 
 repositories {
 	mavenCentral()

@@ -1,7 +1,3 @@
-spring:
-  data.mongodb:
-    database: customer
-
 management:
   endpoints:
     web.exposure.include: health,beans,env
@@ -15,23 +11,32 @@ logging:
 ---
 spring:
   profiles: local
-  data.mongodb:
-    uri: mongodb://root:root@localhost:27017/admin
-
-server:
-  port: 8081
-
-management:
-  server.port: 9501
-
----
-spring:
-  profiles: docker
-  data.mongodb:
-    uri: mongodb://root:root@mongodb:27017/admin
 
 server:
   port: 8080
 
 management:
   server.port: 9500
+
+zuul:
+  routes:
+    customer:
+      path: /customer/**
+      url: http://localhost:8081
+
+---
+spring:
+  profiles: docker
+
+
+server:
+  port: 8080
+
+management:
+  server.port: 9500
+
+zuul:
+  routes:
+    customer:
+      path: /customer/**
+      url: http://customer:8081

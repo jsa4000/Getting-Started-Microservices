@@ -1,0 +1,29 @@
+spring:
+  profiles:
+    active: local
+  application:
+    name: gateway
+  cloud:
+    consul:
+      discovery:
+        instanceId: ${spring.application.name}${server.port}:${random.value}
+        healthCheckPath: /actuator/health
+        healthCheckInterval: 20s
+
+---
+spring:
+  profiles: local
+  cloud:
+    discovery:
+      enabled: false
+    consul:
+      enabled: false
+
+---
+spring:
+  profiles: docker
+  cloud:
+    consul:
+      host: consul
+      port: 8500
+

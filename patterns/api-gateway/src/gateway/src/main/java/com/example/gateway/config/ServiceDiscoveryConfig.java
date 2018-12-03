@@ -1,7 +1,7 @@
-package com.example.customer.config;
+package com.example.gateway.config;
 
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 
 @EnableDiscoveryClient
-public class ServiceDiscovery {
+public class ServiceDiscoveryConfig {
 }
