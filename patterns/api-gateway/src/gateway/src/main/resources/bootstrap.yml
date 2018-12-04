@@ -4,6 +4,9 @@ spring:
   application:
     name: gateway
   cloud:
+    loadbalancer:
+      retry:
+        enabled: true
     consul:
       discovery:
         instanceId: ${spring.application.name}${server.port}:${random.value}

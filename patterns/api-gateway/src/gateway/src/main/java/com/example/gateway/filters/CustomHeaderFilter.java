@@ -1,38 +1,38 @@
 package com.example.gateway.filters;
 
 import com.netflix.zuul.ZuulFilter;
-import com.netflix.zuul.ZuulFilterResult;
 import com.netflix.zuul.context.RequestContext;
 import org.springframework.stereotype.Component;
 
-@Component
+import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.PRE_DECORATION_FILTER_ORDER;
+import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.PRE_TYPE;
+
+//@Component
 public class CustomHeaderFilter extends ZuulFilter {
 
-    public CustomHeaderFilter() {
-        super();
-    }
+    public final String GATEWAY_HEADER_KEY = "X-Gateway-Forwarded";
 
     @Override
     public Object run() {
         RequestContext ctx = RequestContext.getCurrentContext();
-        ctx.addZuulRequestHeader("X-Gateway-Forwarded", "true");
+        ctx.addZuulRequestHeader(GATEWAY_HEADER_KEY, "true");
         return null;
     }
 
     @Override
     public boolean shouldFilter() {
-        return true;
+        RequestContext ctx = RequestContext.getCurrentContext();
+        return !ctx.containsKey(GATEWAY_HEADER_KEY);
     }
 
     @Override
     public String filterType() {
-        return null;
+        return PRE_TYPE;
     }
 
     @Override
     public int filterOrder() {
-        return 0;
+        return PRE_DECORATION_FILTER_ORDER - 1;
     }
-
 
 }

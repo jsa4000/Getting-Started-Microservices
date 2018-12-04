@@ -8,6 +8,29 @@ logging:
     org.springframework.web: INFO
     com.example: DEBUG
 
+zuul:
+  routes:
+    customer:
+      serviceId: customer
+      path: /customer/**
+
+hystrix:
+  command:
+    customer:
+      execution:
+        isolation:
+          thread:
+            timeoutInMilliseconds: 20000
+
+customer:
+  ribbon:
+    MaxAutoRetries: 3
+    MaxAutoRetriesNextServer: 1
+    ConnectTimeout: 1000
+    ReadTimeout: 3000
+    MaxTotalHttpConnections: 500
+    MaxConnectionsPerHost: 100
+
 ---
 spring:
   profiles: local
@@ -21,7 +44,6 @@ management:
 zuul:
   routes:
     customer:
-      path: /customer/**
       url: http://localhost:8081
 
 ---
@@ -38,5 +60,4 @@ management:
 zuul:
   routes:
     customer:
-      path: /customer/**
       url: http://customer:8081
