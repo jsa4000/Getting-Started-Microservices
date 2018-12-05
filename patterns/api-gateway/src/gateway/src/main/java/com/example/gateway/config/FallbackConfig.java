@@ -9,13 +9,9 @@ import org.springframework.context.annotation.Configuration;
 public class FallbackConfig {
 
     @Bean
-    public CustomerFallbackProvider customerFallbackProvider() {
-        return new CustomerFallbackProvider();
-    }
+    public CustomerFallbackProvider customerFallbackProvider() {return new CustomerFallbackProvider(); }
 
     @Bean
-    public DefaultFallbackProvider defaultFallbackProvider() {
-        return new DefaultFallbackProvider();
-    }
+    public DefaultFallbackProvider defaultFallbackProvider() { return new DefaultFallbackProvider(); }
 
 }

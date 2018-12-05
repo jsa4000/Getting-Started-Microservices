@@ -1,53 +1,31 @@
 management:
   endpoints:
-    web.exposure.include: health,beans,env
+    web.exposure.include: health,beans,env,info
 
 logging:
   level:
     root: WARN
-    org.springframework.web: DEBUG
+    org.springframework.web: INFO
     com.example: DEBUG
-    com.netflix.loadbalancer.LoadBalancerContext: DEBUG
 
 zuul:
   ignoredServices: "*"
-  retryable: true
-  ribbon-isolation-strategy: thread
-  threadPool:
-      useSeparateThreadPools: true
+  prefix: /api
   routes:
     customer:
       retryable: true
       serviceId: customer
       path: /customer/**
+    customer-management:
+      retryable: true
+      serviceId: customer-management
+      path: /customer-management/**
 
-hystrix:
-  command:
-    default:
-      execution:
-        timeout:
-          enabled: true
-        isolation:
-          thread:
-            timeoutInMilliseconds: 20000
-    customer:
-      execution:
-        timeout:
-          enabled: true
-        isolation:
-          thread:
-            timeoutInMilliseconds: 60000
-
-customer:
-  ribbon:
-    enabled: true
-    NFLoadBalancerRuleClassName: com.netflix.loadbalancer.WeightedResponseTimeRule
-    MaxAutoRetries: 3
-    MaxAutoRetriesNextServer: 3
-    ConnectTimeout: 1000
-    ReadTimeout: 3000
-    MaxTotalHttpConnections: 500
-    MaxConnectionsPerHost: 100
+endpoints:
+  routes:
+    sensitive: false
+  trace:
+    sensitive: false
 
 ---
 spring:
@@ -56,13 +34,12 @@ spring:
 server:
   port: 8080
 
-management:
-  server.port: 9500
-
 zuul:
   routes:
     customer:
       url: http://localhost:8081
+    customer-management:
+      url: http://localhost:9501/actuator
 
 ---
 spring:
@@ -71,10 +48,9 @@ spring:
 server:
   port: 8080
 
-management:
-  server.port: 9500
-
 zuul:
   routes:
     customer:
-      url: http://customer:8080
+      #url: http://customer
+    customer-management:
+      #url: http://customer-management/actuator

@@ -4,7 +4,7 @@ spring:
 
 management:
   endpoints:
-    web.exposure.include: health,beans,env
+    web.exposure.include: health,beans,env,info
 
 logging:
   level:

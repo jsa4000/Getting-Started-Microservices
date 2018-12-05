@@ -15,7 +15,7 @@ public class CustomerFallbackProvider implements FallbackProvider {
 
     @Override
     public String getRoute() {
-        return "*";
+        return "customer";
     }
 
     @Override
