@@ -10,7 +10,7 @@ public class RestTemplateConfig {
 
     @Bean
     @LoadBalanced
-    RestTemplate loadBalancedRestTemplate() {
+    public RestTemplate loadBalancedRestTemplate() {
         return new RestTemplate();
     }
 }

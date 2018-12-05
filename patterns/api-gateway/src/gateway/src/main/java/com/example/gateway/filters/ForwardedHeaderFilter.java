@@ -4,18 +4,18 @@ import com.netflix.zuul.ZuulFilter;
 import com.netflix.zuul.context.RequestContext;
 import org.springframework.stereotype.Component;
 
-import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.PRE_DECORATION_FILTER_ORDER;
-import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.PRE_TYPE;
+import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.POST_TYPE;
+import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.SEND_RESPONSE_FILTER_ORDER;
 
-//@Component
-public class CustomHeaderFilter extends ZuulFilter {
+@Component
+public class ForwardedHeaderFilter extends ZuulFilter {
 
     public final String GATEWAY_HEADER_KEY = "X-Gateway-Forwarded";
 
     @Override
     public Object run() {
         RequestContext ctx = RequestContext.getCurrentContext();
-        ctx.addZuulRequestHeader(GATEWAY_HEADER_KEY, "true");
+        ctx.addZuulResponseHeader(GATEWAY_HEADER_KEY, ctx.getRouteHost().getAuthority());
         return null;
     }
 
@@ -27,12 +27,12 @@ public class CustomHeaderFilter extends ZuulFilter {
 
     @Override
     public String filterType() {
-        return PRE_TYPE;
+        return POST_TYPE;
     }
 
     @Override
     public int filterOrder() {
-        return PRE_DECORATION_FILTER_ORDER - 1;
+        return SEND_RESPONSE_FILTER_ORDER - 1;
     }
 
 }

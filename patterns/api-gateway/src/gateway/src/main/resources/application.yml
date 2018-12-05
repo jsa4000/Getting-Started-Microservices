@@ -5,27 +5,45 @@ management:
 logging:
   level:
     root: WARN
-    org.springframework.web: INFO
+    org.springframework.web: DEBUG
     com.example: DEBUG
+    com.netflix.loadbalancer.LoadBalancerContext: DEBUG
 
 zuul:
+  ignoredServices: "*"
+  retryable: true
+  ribbon-isolation-strategy: thread
+  threadPool:
+      useSeparateThreadPools: true
   routes:
     customer:
+      retryable: true
       serviceId: customer
       path: /customer/**
 
 hystrix:
   command:
-    customer:
+    default:
       execution:
+        timeout:
+          enabled: true
         isolation:
           thread:
             timeoutInMilliseconds: 20000
+    customer:
+      execution:
+        timeout:
+          enabled: true
+        isolation:
+          thread:
+            timeoutInMilliseconds: 60000
 
 customer:
   ribbon:
+    enabled: true
+    NFLoadBalancerRuleClassName: com.netflix.loadbalancer.WeightedResponseTimeRule
     MaxAutoRetries: 3
-    MaxAutoRetriesNextServer: 1
+    MaxAutoRetriesNextServer: 3
     ConnectTimeout: 1000
     ReadTimeout: 3000
     MaxTotalHttpConnections: 500
@@ -50,7 +68,6 @@ zuul:
 spring:
   profiles: docker
 
-
 server:
   port: 8080
 
@@ -60,4 +77,4 @@ management:
 zuul:
   routes:
     customer:
-      url: http://customer:8081
+      url: http://customer:8080

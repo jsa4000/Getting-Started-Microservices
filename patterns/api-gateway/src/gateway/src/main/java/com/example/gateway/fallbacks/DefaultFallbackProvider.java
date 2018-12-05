@@ -11,7 +11,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-public class CustomFallbackProvider implements FallbackProvider {
+public class DefaultFallbackProvider implements FallbackProvider {
 
     @Override
     public String getRoute() {
