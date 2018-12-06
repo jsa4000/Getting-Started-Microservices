@@ -45,6 +45,7 @@ dependencies {
 	implementation('org.springframework.cloud:spring-cloud-starter-sleuth')
     implementation('org.springframework.cloud:spring-cloud-starter-consul-all')
 	implementation('org.springframework.hateoas:spring-hateoas')
+	implementation('org.springframework.retry:spring-retry')
 	implementation("io.springfox:springfox-swagger2:${swaggerVersion}")
 	implementation("io.springfox:springfox-swagger-ui:${swaggerVersion}")
 	compileOnly('org.projectlombok:lombok')

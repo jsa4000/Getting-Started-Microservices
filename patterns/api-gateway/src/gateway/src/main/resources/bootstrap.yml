@@ -4,15 +4,13 @@ spring:
   application:
     name: gateway
   cloud:
-    loadbalancer:
-      retry:
-        enabled: true
     consul:
       discovery:
-        instanceId: ${spring.application.name}${server.port}:${random.value}
+        prefer-ip-address: true
+        service-name: ${spring.application.name}
+        instanceId: ${spring.application.name}-${random.value}
         healthCheckPath: /actuator/health
         healthCheckInterval: 20s
-
 ---
 spring:
   profiles: local
@@ -21,7 +19,6 @@ spring:
       enabled: false
     consul:
       enabled: false
-
 ---
 spring:
   profiles: docker

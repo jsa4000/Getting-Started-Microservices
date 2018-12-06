@@ -5,7 +5,7 @@ management:
 logging:
   level:
     root: WARN
-    org.springframework.web: INFO
+    org.springframework.web: DEBUG
     com.example: DEBUG
 
 zuul:
@@ -13,44 +13,31 @@ zuul:
   prefix: /api
   routes:
     customer:
-      retryable: true
       serviceId: customer
       path: /customer/**
-    customer-management:
-      retryable: true
-      serviceId: customer-management
-      path: /customer-management/**
+  ribbon:
+    customer:
+      enabled: true
 
-endpoints:
-  routes:
-    sensitive: false
-  trace:
-    sensitive: false
-
----
-spring:
-  profiles: local
+ribbon:
+  ConnectTimeout: 30000
+  ReadTimeout: 990000
+  maxAutoRetries: 2
+  MaxAutoRetriesNextServer: 2
 
 server:
   port: 8080
+---
+spring:
+  profiles: local
 
 zuul:
   routes:
     customer:
       url: http://localhost:8081
-    customer-management:
-      url: http://localhost:9501/actuator
-
 ---
 spring:
   profiles: docker
 
-server:
-  port: 8080
 
-zuul:
-  routes:
-    customer:
-      #url: http://customer
-    customer-management:
-      #url: http://customer-management/actuator
+

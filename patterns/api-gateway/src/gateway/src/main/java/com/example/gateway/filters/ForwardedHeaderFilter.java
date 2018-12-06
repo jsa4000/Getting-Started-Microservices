@@ -2,12 +2,10 @@ package com.example.gateway.filters;
 
 import com.netflix.zuul.ZuulFilter;
 import com.netflix.zuul.context.RequestContext;
-import org.springframework.stereotype.Component;
 
 import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.POST_TYPE;
 import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.SEND_RESPONSE_FILTER_ORDER;
 
-@Component
 public class ForwardedHeaderFilter extends ZuulFilter {
 
     public final String GATEWAY_HEADER_KEY = "X-Gateway-Forwarded";
