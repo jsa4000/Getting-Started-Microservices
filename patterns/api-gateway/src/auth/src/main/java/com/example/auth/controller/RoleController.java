@@ -1,6 +1,6 @@
 package com.example.auth.controller;
 
-import com.example.auth.exceptions.RoleNotFoundException;
+import com.example.auth.exception.RoleNotFoundException;
 import com.example.auth.model.Role;
 import com.example.auth.service.RoleService;
 import io.swagger.annotations.Api;

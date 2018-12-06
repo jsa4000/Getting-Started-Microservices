@@ -1,12 +1,12 @@
-package com.example.auth.exceptions;
+package com.example.customer.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 @ResponseStatus(HttpStatus.NOT_FOUND)
-public class RoleNotFoundException extends RuntimeException {
+public class CustomerNotFoundException extends RuntimeException {
 
-    public RoleNotFoundException(String message) {
+    public CustomerNotFoundException(String message) {
         super(message);
     }
 }

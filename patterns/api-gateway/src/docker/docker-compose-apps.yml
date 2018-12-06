@@ -11,7 +11,7 @@ services:
     networks:
     - gateway-network
 
-  customer-service-01:
+  customer-service:
     image: customer:latest
     environment:
       SPRING_PROFILES_ACTIVE: docker
@@ -20,8 +20,8 @@ services:
     networks:
     - gateway-network
 
-  customer-service-02:
-    image: customer:latest
+  catalog-service-02:
+    image: catalog:latest
     environment:
       SPRING_PROFILES_ACTIVE: docker
     ports:
@@ -29,8 +29,8 @@ services:
     networks:
     - gateway-network
 
-  customer-service-03:
-    image: customer:latest
+  auth-service:
+    image: auth:latest
     environment:
       SPRING_PROFILES_ACTIVE: docker
     ports:

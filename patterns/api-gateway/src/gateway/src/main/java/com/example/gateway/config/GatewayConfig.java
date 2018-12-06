@@ -1,7 +1,7 @@
 package com.example.gateway.config;
 
-import com.example.gateway.filters.DebugRoutingFilter;
-import com.example.gateway.filters.ForwardedHeaderFilter;
+import com.example.gateway.filter.DebugRoutingFilter;
+import com.example.gateway.filter.ForwardedHeaderFilter;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.cloud.netflix.zuul.EnableZuulProxy;
 import org.springframework.context.annotation.Bean;

@@ -1,6 +1,6 @@
 package com.example.customer.controller;
 
-import com.example.customer.exceptions.CustomerNotFoundException;
+import com.example.customer.exception.CustomerNotFoundException;
 import com.example.customer.model.Customer;
 import com.example.customer.service.CustomerService;
 import io.swagger.annotations.Api;

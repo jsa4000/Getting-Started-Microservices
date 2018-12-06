@@ -1,6 +1,6 @@
 package com.example.auth.controller;
 
-import com.example.auth.exceptions.UserNotFoundException;
+import com.example.auth.exception.UserNotFoundException;
 import com.example.auth.model.User;
 import com.example.auth.service.UserService;
 import io.swagger.annotations.Api;

@@ -29,10 +29,10 @@ public class SwaggerConfig {
 
     private ApiInfo apiInfo() {
         return new ApiInfoBuilder()
-                .title("Product API")
+                .title("Catalog API")
                 .version("1.0.0")
                 .license("(C) Copyright jsa4000")
-                .description("API functionality for Product Service.")
+                .description("API functionality for Catalog Service.")
                 .contact(new Contact("Javier Santos", "www.jsa400.com", "jsa4000@gmail.com"))
                 .build();
     }

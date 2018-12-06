@@ -1,7 +1,7 @@
 package com.example.gateway.config;
 
-import com.example.gateway.fallbacks.CustomerFallbackProvider;
-import com.example.gateway.fallbacks.DefaultFallbackProvider;
+import com.example.gateway.fallback.CustomerFallbackProvider;
+import com.example.gateway.fallback.DefaultFallbackProvider;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 

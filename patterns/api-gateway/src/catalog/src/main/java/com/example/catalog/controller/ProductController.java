@@ -1,6 +1,6 @@
 package com.example.catalog.controller;
 
-import com.example.catalog.exceptions.ProductNotFoundException;
+import com.example.catalog.exception.ProductNotFoundException;
 import com.example.catalog.model.Product;
 import com.example.catalog.service.ProductService;
 import io.swagger.annotations.Api;

@@ -1,4 +1,4 @@
-package com.example.gateway.fallbacks;
+package com.example.gateway.fallback;
 
 import com.netflix.hystrix.exception.HystrixTimeoutException;
 import org.springframework.cloud.netflix.zuul.filters.route.FallbackProvider;
