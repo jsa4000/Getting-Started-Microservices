@@ -1,3 +1,8 @@
+spring:
+  sleuth:
+    sampler:
+      probability: 1
+
 management:
   endpoints:
     web.exposure.include: health,beans,env,info
@@ -5,19 +10,29 @@ management:
 logging:
   level:
     root: WARN
-    org.springframework.web: DEBUG
+    org.springframework.web: INFO
     com.example: DEBUG
+
+hystrix:
+  command:
+    default:
+      execution:
+        isolation:
+          thread:
+            timeoutInMilliseconds: 10000
 
 zuul:
   ignoredServices: "*"
   prefix: /api
+  host:
+    max-total-connections: 1000
+    max-per-route-connections: 100
+  semaphore:
+    max-semaphores: 500
   routes:
     customer:
       serviceId: customer
       path: /customer/**
-  ribbon:
-    customer:
-      enabled: true
 
 ribbon:
   ConnectTimeout: 30000
@@ -27,9 +42,15 @@ ribbon:
 
 server:
   port: 8080
+
 ---
 spring:
   profiles: local
+  zipkin:
+    enabled: false
+    locator:
+      discovery:
+        enabled: false
 
 zuul:
   routes:
@@ -38,6 +59,17 @@ zuul:
 ---
 spring:
   profiles: docker
+  zipkin:
+    base-url: http://zipkin:9411
+    enabled: true
+    locator:
+      discovery:
+        enabled: true
 
+server:
+  compression:
+    enabled: true
+    mime-types: text/html,text/xml,text/plain,text/css, application/javascript, application/json
+    min-response-size: 1024
 
 

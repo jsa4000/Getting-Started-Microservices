@@ -1,6 +1,9 @@
 spring:
   data.mongodb:
     database: customer
+  sleuth:
+    sampler:
+      probability: 1
 
 management:
   endpoints:
@@ -16,6 +19,11 @@ spring:
   profiles: local
   data.mongodb:
     uri: mongodb://root:root@dockerhost:27017/admin
+  zipkin:
+    enabled: false
+    locator:
+      discovery:
+        enabled: false
 
 server:
   port: 8081
@@ -24,6 +32,11 @@ spring:
   profiles: docker
   data.mongodb:
     uri: mongodb://root:root@mongodb:27017/admin
-
+  zipkin:
+    base-url: http://zipkin:9411
+    enabled: true
+    locator:
+      discovery:
+        enabled: true
 server:
   port: 8080

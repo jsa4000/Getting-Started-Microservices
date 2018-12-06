@@ -2,10 +2,12 @@ package com.example.gateway.filters;
 
 import com.netflix.zuul.ZuulFilter;
 import com.netflix.zuul.context.RequestContext;
+import lombok.extern.slf4j.Slf4j;
 
 import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.POST_TYPE;
 import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.SEND_RESPONSE_FILTER_ORDER;
 
+@Slf4j
 public class ForwardedHeaderFilter extends ZuulFilter {
 
     public final String GATEWAY_HEADER_KEY = "X-Gateway-Forwarded";
@@ -13,7 +15,11 @@ public class ForwardedHeaderFilter extends ZuulFilter {
     @Override
     public Object run() {
         RequestContext ctx = RequestContext.getCurrentContext();
-        ctx.addZuulResponseHeader(GATEWAY_HEADER_KEY, ctx.getRouteHost().getAuthority());
+        if (ctx.getRouteHost() != null) {
+            ctx.addZuulResponseHeader(GATEWAY_HEADER_KEY, ctx.getRouteHost().getAuthority());
+        } else {
+            ctx.addZuulResponseHeader(GATEWAY_HEADER_KEY, "service-discovery");
+        }
         return null;
     }
 

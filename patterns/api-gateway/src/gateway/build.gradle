@@ -33,7 +33,6 @@ repositories {
 	maven { url "https://repo.spring.io/milestone" }
 }
 
-
 ext {
 	springCloudVersion = 'Greenwich.M1'
 }
@@ -46,6 +45,7 @@ dependencies {
 	implementation('org.springframework.cloud:spring-cloud-starter-netflix-zuul')
 	implementation('org.springframework.cloud:spring-cloud-starter-sleuth')
     implementation('org.springframework.cloud:spring-cloud-starter-consul-all')
+    implementation('org.springframework.cloud:spring-cloud-starter-zipkin')
 	implementation('org.springframework.retry:spring-retry')
 	compileOnly('org.projectlombok:lombok')
 	testImplementation('org.springframework.boot:spring-boot-starter-test')

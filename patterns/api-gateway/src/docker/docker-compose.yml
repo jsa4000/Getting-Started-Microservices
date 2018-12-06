@@ -23,7 +23,7 @@ services:
     image: openzipkin/zipkin
     container_name: zipkin
     ports:
-    - 9412:9411
+    - 9411:9411
     networks:
     - gateway-network
 
