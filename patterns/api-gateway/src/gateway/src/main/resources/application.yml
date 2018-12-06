@@ -33,6 +33,12 @@ zuul:
     customer:
       serviceId: customer
       path: /customer/**
+    catalog:
+      serviceId: catalog
+      path: /catalog/**
+    auth:
+      serviceId: auth
+      path: /auth/**
 
 ribbon:
   ConnectTimeout: 30000
@@ -56,6 +62,10 @@ zuul:
   routes:
     customer:
       url: http://localhost:8081
+    catalog:
+      url: http://localhost:8082
+    auth:
+      url: http://localhost:8083
 ---
 spring:
   profiles: docker

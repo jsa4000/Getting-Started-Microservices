@@ -1,4 +1,4 @@
-package com.example.customer.model;
+package com.example.catalog.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -8,14 +8,15 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-@Document("customers")
+@Document("products")
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
-public class Customer {
+public class Product {
     @Id @Getter private String id;
-    @Indexed @Getter private String firstName;
-    @Indexed @Getter private String lastName;
-    @Getter private String email;
-    @Getter private Address address;
+    @Indexed @Getter private String name;
+    @Getter private String description;
+    @Getter private String model;
+    @Getter private String brand;
+    @Getter private String imageUrl;
 }

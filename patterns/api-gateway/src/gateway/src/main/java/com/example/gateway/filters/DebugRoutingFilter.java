@@ -14,9 +14,9 @@ public class DebugRoutingFilter extends ZuulFilter {
     public Object run() {
         RequestContext ctx = RequestContext.getCurrentContext();
         if (ctx.getRouteHost() != null) {
-            log.info("Routing request from origin: {}", ctx.getRouteHost().getAuthority());
+            log.debug("Routing request from origin: {}", ctx.getRouteHost().getAuthority());
         } else {
-            log.info("There is no default routing. Using service discovery.");
+            log.debug("There is no default routing. Using service discovery.");
         }
         return null;
     }

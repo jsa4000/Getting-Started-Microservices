@@ -9,18 +9,33 @@ http://localhost:8080/actuator/health
 
 - Test local services (not exposed outside the VPC or network)
 
+  - Customer
+
         http://localhost:8081/swagger-ui.html
-        http://localhost:9501/actuator/health
+        http://localhost:8081/actuator/health
+     
+  - Product   
+    
+        http://localhost:8082/swagger-ui.html
+        http://localhost:8082/actuator/health
+    
+  - Auth  
+    
+        http://localhost:8083/swagger-ui.html
+        http://localhost:8083/actuator/health
 
+- Test **API Gateway** **routes** to previous services
 
-- Test current route to the micro-service
+        http://localhost:8080/api/customer/swagger-ui.html
+        http://localhost:8080/api/product/swagger-ui.html
+        http://localhost:8080/api/auth/swagger-ui.html
+        http://localhost:8080/api/order/swagger-ui.html
 
-        http://dockerhost:8080/api/customer/swagger-ui.html
-
-- Test Load Balance between instances
+- Test **Load Balance** between instances
         
         http://dockerhost:8080/api/customer/actuator/info
 
+- Create ``Customers``
 
 ```json
 {
