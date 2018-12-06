@@ -11,7 +11,7 @@ services:
     networks:
     - gateway-network
 
-  customer1:
+  customer-service-01:
     image: customer:latest
     environment:
       SPRING_PROFILES_ACTIVE: docker
@@ -20,7 +20,7 @@ services:
     networks:
     - gateway-network
 
-  customer2:
+  customer-service-02:
     image: customer:latest
     environment:
       SPRING_PROFILES_ACTIVE: docker
@@ -29,7 +29,7 @@ services:
     networks:
     - gateway-network
 
-  customer3:
+  customer-service-03:
     image: customer:latest
     environment:
       SPRING_PROFILES_ACTIVE: docker

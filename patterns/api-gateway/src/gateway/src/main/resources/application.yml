@@ -42,7 +42,7 @@ ribbon:
 
 server:
   port: 8080
-
+  error.whitelabel.enabled: false
 ---
 spring:
   profiles: local

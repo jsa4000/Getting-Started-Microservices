@@ -1,5 +1,6 @@
 package com.example.customer.controller;
 
+import com.example.customer.exceptions.CustomerNotFoundException;
 import com.example.customer.model.Customer;
 import com.example.customer.service.CustomerService;
 import io.swagger.annotations.Api;
@@ -15,6 +16,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Optional;
+
 @Api(tags="Customers", description = "Customers View.")
 @Controller
 @RequestMapping("/customers")
@@ -22,11 +25,21 @@ public class CustomerController {
 
     @Autowired private CustomerService service;
 
-    @ApiOperation(value = "Get a List of all customers")
+    @ApiOperation(value = "Get a pageable list of customers")
     @GetMapping("/")
     ResponseEntity<PagedResources<Customer>> getCustomers(Pageable pageable, PagedResourcesAssembler assembler) {
         Page<Customer> customers = service.findAll(pageable);
         return new ResponseEntity<>(assembler.toResource(customers), HttpStatus.OK);
+    }
+
+    @ApiOperation(value = "Get a customer by Id")
+    @GetMapping("/{id}")
+    ResponseEntity<Customer> getCustomerById(@PathVariable String id) {
+        Optional<Customer> customer =  service.getCustomerById(id);
+        if (customer.isPresent())
+            return new ResponseEntity<>(customer.get(), HttpStatus.OK);
+        else
+           throw new CustomerNotFoundException("Resource not found in the database");
     }
 
     @ApiOperation(value = "Create a new customer")
