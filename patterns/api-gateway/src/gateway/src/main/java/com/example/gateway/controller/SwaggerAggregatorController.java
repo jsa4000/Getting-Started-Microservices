@@ -24,6 +24,13 @@ public class SwaggerAggregatorController implements SwaggerResourcesProvider {
             swaggerResource.setSwaggerVersion("2.0");
             return swaggerResource;
         }).collect(Collectors.toList());
+
+        SwaggerResource swaggerResource = new SwaggerResource();
+        swaggerResource.setName("gateway");
+        swaggerResource.setLocation("/v2/api-docs");
+        swaggerResource.setSwaggerVersion("2.0");
+        resources.add(swaggerResource);
+
         return resources;
     }
 }

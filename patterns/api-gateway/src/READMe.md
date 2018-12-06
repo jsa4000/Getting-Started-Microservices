@@ -34,6 +34,8 @@
         
         http://dockerhost:8080/api/customer/actuator/info
 
+oauth/token
+
 - Create ``Customers``
 
 ```json
