@@ -29,8 +29,8 @@ services:
     networks:
     - gateway-network
 
-  auth-service:
-    image: auth:latest
+  management-service:
+    image: management:latest
     environment:
       SPRING_PROFILES_ACTIVE: docker
     ports:

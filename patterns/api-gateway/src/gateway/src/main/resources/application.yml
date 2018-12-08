@@ -21,6 +21,23 @@ hystrix:
           thread:
             timeoutInMilliseconds: 10000
 
+security:
+  enabled: true
+  symmetricKey: as466gf
+  resourceId: oauth2_application
+  accessTokenValidity: 3600
+  refreshTokenValidity: 21600
+  authorities:
+    basic:
+      name: basic-client
+      secret: password
+    normal:
+      name: normal-client
+      secret: password
+    trusted:
+      name: trusted-client
+      secret: password
+
 zuul:
   ignoredServices: "*"
   prefix: /api
@@ -36,9 +53,9 @@ zuul:
     catalog:
       serviceId: catalog
       path: /catalog/**
-    auth:
-      serviceId: auth
-      path: /auth/**
+    management:
+      serviceId: management
+      path: /management/**
 
 ribbon:
   ConnectTimeout: 30000
@@ -64,7 +81,7 @@ zuul:
       url: http://localhost:8081
     catalog:
       url: http://localhost:8082
-    auth:
+    management:
       url: http://localhost:8083
 ---
 spring:

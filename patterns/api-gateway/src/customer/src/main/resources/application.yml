@@ -1,6 +1,6 @@
 spring:
   data.mongodb:
-    database: customer
+    database: ${spring.application.name}
   sleuth:
     sampler:
       probability: 1

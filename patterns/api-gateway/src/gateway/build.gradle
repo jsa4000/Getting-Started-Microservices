@@ -49,7 +49,6 @@ dependencies {
 	implementation('org.springframework.retry:spring-retry')
 	implementation('org.springframework.cloud:spring-cloud-starter-oauth2')
 	implementation('org.springframework.cloud:spring-cloud-starter-security')
-	//implementation('com.sun.jersey:jersey-json:1.9')
 	implementation('com.fasterxml.jackson.core:jackson-core:2.9.7')
 	implementation("io.springfox:springfox-swagger2:${swaggerVersion}")
 	implementation("io.springfox:springfox-swagger-ui:${swaggerVersion}")

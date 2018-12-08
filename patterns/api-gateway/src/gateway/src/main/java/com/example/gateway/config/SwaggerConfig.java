@@ -19,15 +19,11 @@ import java.util.List;
 @EnableSwagger2
 public class SwaggerConfig {
 
-    private final String CLIENT_ID = "clientId";
-    private final String CLIENT_SECRET = "secret";
-    private final String AUTH_SERVER = "http://server";
-
-    //@Bean
+    @Bean
     public UiConfiguration uiConfiguration() {
         return UiConfigurationBuilder.builder()
                 .deepLinking(true)
-                .docExpansion(DocExpansion.LIST)
+                .docExpansion(DocExpansion.NONE)
                 .operationsSorter(OperationsSorter.ALPHA)
                 .defaultModelRendering(ModelRendering.MODEL)
                 .build();
@@ -39,9 +35,11 @@ public class SwaggerConfig {
                 .select()
                 .apis(RequestHandlerSelectors.any())
                 .paths(PathSelectors.any())
+                .paths(PathSelectors.regex("(?!/error).+"))
+                .paths(PathSelectors.regex("(?!/actuator).+"))
                 .build()
                 .apiInfo(apiInfo())
-                .securitySchemes(Arrays.asList(securityScheme()))
+                .securitySchemes(Arrays.asList(securityApiKey(), securityOAuth()))
                 .securityContexts(Arrays.asList(securityContext()));
     }
 
@@ -57,33 +55,43 @@ public class SwaggerConfig {
 
     @Bean
     public SecurityConfiguration security() {
-        return SecurityConfigurationBuilder.builder().scopeSeparator(",")
+        return SecurityConfigurationBuilder.builder()
+                .scopeSeparator(",")
                 .additionalQueryStringParams(null)
-                .useBasicAuthenticationWithAccessCodeGrant(false).build();
+                .useBasicAuthenticationWithAccessCodeGrant(false)
+                .build();
     }
 
-    private SecurityScheme securityScheme() {
-        return new ApiKey("apiKey", "Authorization", "header");
+    private SecurityScheme securityApiKey() {
+        return new ApiKey("Bearer", "Authorization", "header");
+    }
+
+    private OAuth securityOAuth() {
+        GrantType creGrant = new ResourceOwnerPasswordCredentialsGrant("/oauth/token");
+        return new OAuth("OAuth", scopes(), Arrays.asList(creGrant));
     }
 
     private SecurityContext securityContext() {
-        return SecurityContext.builder().securityReferences(defaultAuth())
-                .forPaths(PathSelectors.any()).build();
+        return SecurityContext.builder()
+                .securityReferences(defaultAuth())
+                .forPaths(PathSelectors.any())
+                .build();
     }
 
     private List<SecurityReference> defaultAuth() {
-        AuthorizationScope authorizationScope = new AuthorizationScope(
-                "global", "accessEverything");
-        AuthorizationScope[] authorizationScopes = new AuthorizationScope[1];
-        authorizationScopes[0] = authorizationScope;
-        return Arrays.asList(new SecurityReference("apiKey", authorizationScopes));
+        AuthorizationScope[] authorizationScopes ={ globalScope() };
+        return Arrays.asList(new SecurityReference("Bearer", authorizationScopes));
     }
 
-    private AuthorizationScope[] scopes() {
-        AuthorizationScope[] scopes = {
+    private AuthorizationScope globalScope() {
+        return new AuthorizationScope("global", "accessEverything");
+    }
+
+    private List<AuthorizationScope> scopes() {
+        return Arrays.asList(
                 new AuthorizationScope("read", "for read operations"),
-                new AuthorizationScope("write", "for write operations")};
-        return scopes;
+                new AuthorizationScope("trust", "for trust operations"),
+                new AuthorizationScope("write", "for write operations"));
     }
 
 }

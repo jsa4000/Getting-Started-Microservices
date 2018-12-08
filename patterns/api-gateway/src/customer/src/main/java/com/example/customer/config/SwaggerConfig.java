@@ -30,7 +30,7 @@ public class SwaggerConfig {
                 .paths(PathSelectors.regex("(?!/actuator).+"))
                 .build()
                 .apiInfo(apiInfo())
-                .securitySchemes(Arrays.asList(securityScheme()))
+                .securitySchemes(Arrays.asList(securityApiKey()))
                 .securityContexts(Arrays.asList(securityContext()));
     }
 
@@ -46,33 +46,43 @@ public class SwaggerConfig {
 
     @Bean
     public SecurityConfiguration security() {
-        return SecurityConfigurationBuilder.builder().scopeSeparator(",")
+        return SecurityConfigurationBuilder.builder()
+                .scopeSeparator(",")
                 .additionalQueryStringParams(null)
-                .useBasicAuthenticationWithAccessCodeGrant(false).build();
+                .useBasicAuthenticationWithAccessCodeGrant(false)
+                .build();
     }
 
-    private SecurityScheme securityScheme() {
-        return new ApiKey("apiKey", "Authorization", "header");
+    private SecurityScheme securityApiKey() {
+        return new ApiKey("Bearer", "Authorization", "header");
+    }
+
+    private OAuth securityOAuth() {
+        GrantType creGrant = new ResourceOwnerPasswordCredentialsGrant("/oauth/token");
+        return new OAuth("OAuth", scopes(), Arrays.asList(creGrant));
     }
 
     private SecurityContext securityContext() {
-        return SecurityContext.builder().securityReferences(defaultAuth())
-                .forPaths(PathSelectors.any()).build();
+        return SecurityContext.builder()
+                .securityReferences(defaultAuth())
+                .forPaths(PathSelectors.any())
+                .build();
     }
 
     private List<SecurityReference> defaultAuth() {
-        AuthorizationScope authorizationScope = new AuthorizationScope(
-                "global", "accessEverything");
-        AuthorizationScope[] authorizationScopes = new AuthorizationScope[1];
-        authorizationScopes[0] = authorizationScope;
-        return Arrays.asList(new SecurityReference("apiKey", authorizationScopes));
+        AuthorizationScope[] authorizationScopes ={ globalScope() };
+        return Arrays.asList(new SecurityReference("Bearer", authorizationScopes));
     }
 
-    private AuthorizationScope[] scopes() {
-        AuthorizationScope[] scopes = {
+    private AuthorizationScope globalScope() {
+        return new AuthorizationScope("global", "accessEverything");
+    }
+
+    private List<AuthorizationScope> scopes() {
+        return Arrays.asList(
                 new AuthorizationScope("read", "for read operations"),
-                new AuthorizationScope("write", "for write operations")};
-        return scopes;
+                new AuthorizationScope("trust", "for trust operations"),
+                new AuthorizationScope("write", "for write operations"));
     }
 
 }

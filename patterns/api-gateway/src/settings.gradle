@@ -1,5 +1,5 @@
 include 'gateway'
 include 'order'
 include 'customer'
-include 'auth'
+include 'management'
 include 'catalog'

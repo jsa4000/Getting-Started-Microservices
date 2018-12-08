@@ -1,4 +1,4 @@
-package com.example.catalog.config;
+package com.example.management.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -36,10 +36,10 @@ public class SwaggerConfig {
 
     private ApiInfo apiInfo() {
         return new ApiInfoBuilder()
-                .title("Catalog API")
+                .title("Management API")
                 .version("1.0.0")
                 .license("(C) Copyright jsa4000")
-                .description("API functionality for Catalog Service.")
+                .description("API functionality for Management Service.")
                 .contact(new Contact("Javier Santos", "www.jsa400.com", "jsa4000@gmail.com"))
                 .build();
     }
@@ -84,5 +84,6 @@ public class SwaggerConfig {
                 new AuthorizationScope("trust", "for trust operations"),
                 new AuthorizationScope("write", "for write operations"));
     }
+
 }
 
