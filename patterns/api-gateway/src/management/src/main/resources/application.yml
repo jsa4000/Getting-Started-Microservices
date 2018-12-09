@@ -9,6 +9,11 @@ management:
   endpoints:
     web.exposure.include: health,beans,env,info
 
+bootstrap:
+  enabled: true
+  save:
+    enabled: false
+
 logging:
   level:
     root: WARN

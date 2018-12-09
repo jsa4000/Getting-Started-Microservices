@@ -1,0 +1,38 @@
+{
+  "roles": [
+    {
+      "id": "ADMIN",
+      "name": "ADMIN"
+    },
+    {
+      "id": "USER",
+      "name": "USER"
+    }
+  ],
+  "users": [
+    {
+      "username": "root",
+      "password": "$2a$10$RZ3aMVd2DmU.gGV2Z2rSx.lQCCIlGaRmrpT7X2ue9HDz6ZUfI5j.W",
+      "email": "root@email.com",
+      "resources": [
+        "/*"
+      ],
+      "roles": [
+        "ADMIN",
+        "USER"
+      ]
+    },
+    {
+      "username": "user",
+      "password": "$2a$10$RZ3aMVd2DmU.gGV2Z2rSx.lQCCIlGaRmrpT7X2ue9HDz6ZUfI5j.W",
+      "email": "user@email.com",
+      "resources": [
+        "/users/*",
+        "/roles/*"
+      ],
+      "roles": [
+        "USER"
+      ]
+    }
+  ]
+}
