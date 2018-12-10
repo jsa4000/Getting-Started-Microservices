@@ -22,14 +22,23 @@ public class UserController {
 
     @ApiOperation(value = "Get a List of Users")
     @GetMapping("/")
-    public ResponseEntity<List> listUsers(){
+    public ResponseEntity<List> getUsers(){
         return ResponseEntity.ok(userService.findAll());
     }
 
     @ApiOperation(value = "Get user by Id")
     @GetMapping("/{id}")
-    public ResponseEntity<User> getUser(@PathVariable(value = "id") String id){
+    public ResponseEntity<User> getUserById(@PathVariable(value = "id") String id){
         Optional<User> user = userService.findById(id);
+        if (!user.isPresent())
+            throw new UserNotFoundException("User not found");
+        return ResponseEntity.ok(user.get());
+    }
+
+    @ApiOperation(value = "Get user by Name")
+    @GetMapping("/name/{name}")
+    public ResponseEntity<User> getUserByName(@PathVariable(value = "name") String userName){
+        Optional<User> user = userService.findByName(userName);
         if (!user.isPresent())
             throw new UserNotFoundException("User not found");
         return ResponseEntity.ok(user.get());

@@ -1,4 +1,4 @@
-package com.example.gateway.client.dto;
+package com.example.gateway.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

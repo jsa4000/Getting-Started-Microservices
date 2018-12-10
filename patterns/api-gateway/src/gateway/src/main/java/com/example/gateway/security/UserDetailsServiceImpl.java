@@ -1,6 +1,6 @@
 package com.example.gateway.security;
 
-import com.example.gateway.client.dto.User;
+import com.example.gateway.model.User;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;

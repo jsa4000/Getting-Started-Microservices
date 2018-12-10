@@ -1,6 +1,6 @@
 package com.example.gateway.security;
 
-import com.example.gateway.client.dto.User;
+import com.example.gateway.model.User;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;

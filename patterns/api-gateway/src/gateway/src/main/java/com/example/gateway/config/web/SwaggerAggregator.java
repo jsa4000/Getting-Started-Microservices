@@ -1,4 +1,4 @@
-package com.example.gateway.config.bean;
+package com.example.gateway.config.web;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;

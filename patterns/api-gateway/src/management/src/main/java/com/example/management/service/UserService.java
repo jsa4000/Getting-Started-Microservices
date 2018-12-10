@@ -20,7 +20,7 @@ public class UserService {
 
     public Optional<User> findById(String id) { return userRepository.findById(id); }
 
-    public Optional<User> findByUsername(String name) { return userRepository.findByUsername(name); }
+    public Optional<User> findByName(String name) { return userRepository.findByUsername(name); }
 
     public User save(User user){
         Optional<User> exitingUser = userRepository.findByUsername(user.getUsername());

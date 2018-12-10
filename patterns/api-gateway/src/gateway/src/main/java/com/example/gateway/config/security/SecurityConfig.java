@@ -1,4 +1,4 @@
-package com.example.gateway.config;
+package com.example.gateway.config.security;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;

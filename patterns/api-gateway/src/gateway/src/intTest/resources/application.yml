@@ -87,7 +87,6 @@ zuul:
 management:
   ribbon:
     listOfServers: localhost:8083
-
 ---
 spring:
   profiles: docker
