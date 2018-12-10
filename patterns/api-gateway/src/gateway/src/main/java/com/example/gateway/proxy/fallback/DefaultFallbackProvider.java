@@ -1,4 +1,4 @@
-package com.example.gateway.action.fallback;
+package com.example.gateway.proxy.fallback;
 
 import com.netflix.hystrix.exception.HystrixTimeoutException;
 import org.springframework.cloud.netflix.zuul.filters.route.FallbackProvider;
@@ -11,11 +11,11 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-public class CustomerFallbackProvider implements FallbackProvider {
+public class DefaultFallbackProvider implements FallbackProvider {
 
     @Override
     public String getRoute() {
-        return "customer";
+        return "*";
     }
 
     @Override

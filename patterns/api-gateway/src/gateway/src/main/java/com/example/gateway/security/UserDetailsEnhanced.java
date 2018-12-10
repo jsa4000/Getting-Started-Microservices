@@ -18,7 +18,7 @@ public class UserDetailsEnhanced extends User implements UserDetails {
     private List<GrantedAuthority> authorities;
 
     public UserDetailsEnhanced(User user, List<GrantedAuthority> authorities) {
-        super(user.getId(),user.getUsername(),user.getPassword(),user.getEmail(),
+        super(user.getId(),user.getPassword(),user.getEmail(),
                 user.isActive(), user.getResources(),user.getRoles());
         this.authorities = authorities;
     }
@@ -27,6 +27,9 @@ public class UserDetailsEnhanced extends User implements UserDetails {
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return authorities;
     }
+
+    @Override
+    public String getUsername() { return this.getId(); }
 
     @Override
     public boolean isAccountNonExpired() {

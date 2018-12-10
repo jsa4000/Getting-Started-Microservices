@@ -40,7 +40,7 @@
 							"urlencoded": [
 								{
 									"key": "username",
-									"value": "admin",
+									"value": "user",
 									"type": "text"
 								},
 								{
@@ -56,10 +56,10 @@
 							]
 						},
 						"url": {
-							"raw": "http://localhost:8080/oauth/token",
+							"raw": "http://{{url}}:8080/oauth/token",
 							"protocol": "http",
 							"host": [
-								"localhost"
+								"{{url}}"
 							],
 							"port": "8080",
 							"path": [
@@ -102,7 +102,7 @@
 							"urlencoded": [
 								{
 									"key": "username",
-									"value": "root",
+									"value": "user",
 									"type": "text"
 								},
 								{
@@ -118,10 +118,10 @@
 							]
 						},
 						"url": {
-							"raw": "http://localhost:8080/oauth/token",
+							"raw": "http://{{url}}:8080/oauth/token",
 							"protocol": "http",
 							"host": [
-								"localhost"
+								"{{url}}"
 							],
 							"port": "8080",
 							"path": [
@@ -164,7 +164,7 @@
 							"urlencoded": [
 								{
 									"key": "username",
-									"value": "admin",
+									"value": "root",
 									"type": "text"
 								},
 								{
@@ -180,10 +180,10 @@
 							]
 						},
 						"url": {
-							"raw": "http://localhost:8080/oauth/token",
+							"raw": "http://{{url}}:8080/oauth/token",
 							"protocol": "http",
 							"host": [
-								"localhost"
+								"{{url}}"
 							],
 							"port": "8080",
 							"path": [
@@ -226,16 +226,16 @@
 							"urlencoded": [
 								{
 									"key": "token",
-									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOlsib2F1dGgyX2FwcGxpY2F0aW9uIl0sImN1c3RvbWl6ZWQiOiJ0cnVlIiwidXNlcl9uYW1lIjoiYWRtaW4iLCJzY29wZSI6WyJyZWFkIiwid3JpdGUiLCJ0cnVzdCJdLCJyZXNvdXJjZXMiOm51bGwsImV4cCI6MTU0NDI5NzUyNCwiYXV0aG9yaXRpZXMiOlsiUk9MRV9VU0VSIiwiUk9MRV9BRE1JTiJdLCJqdGkiOiIyZTlkMTVlYy02NTBmLTRmMzEtOTUxMi0xZTRlYTZmZGMwY2YiLCJjbGllbnRfaWQiOiJ0cnVzdGVkLWNsaWVudCJ9.Ec9TdnsOv2qyrZu8osgxv7qZX4IeUIV0s-4BDA6WO3k",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOlsib2F1dGgyX2FwcGxpY2F0aW9uIl0sImN1c3RvbWl6ZWQiOiJ0cnVlIiwidXNlcl9uYW1lIjoicm9vdCIsInNjb3BlIjpbInJlYWQiLCJ3cml0ZSIsInRydXN0Il0sInJlc291cmNlcyI6WyIvKiJdLCJleHAiOjE1NDQ0ODQ4NTYsImF1dGhvcml0aWVzIjpbIlJPTEVfQURNSU4iLCJST0xFX1VTRVIiXSwianRpIjoiZjM1NTBiMDUtMmVkYy00YmY3LThlNDAtMDNjOWFkMDNlNWVkIiwiY2xpZW50X2lkIjoidHJ1c3RlZC1jbGllbnQifQ.cT8BFH7peie8ednaw3CDs-H0MRLYy2_glAl_CMH6sno",
 									"type": "text"
 								}
 							]
 						},
 						"url": {
-							"raw": "http://localhost:8080/oauth/check_token",
+							"raw": "http://{{url}}:8080/oauth/check_token",
 							"protocol": "http",
 							"host": [
-								"localhost"
+								"{{url}}"
 							],
 							"port": "8080",
 							"path": [
@@ -264,10 +264,10 @@
 									"raw": ""
 								},
 								"url": {
-									"raw": "http://localhost:8080/api/management/roles/",
+									"raw": "http://{{url}}:8080/api/management/roles/",
 									"protocol": "http",
 									"host": [
-										"localhost"
+										"{{url}}"
 									],
 									"port": "8080",
 									"path": [
@@ -290,10 +290,10 @@
 									"raw": ""
 								},
 								"url": {
-									"raw": "http://localhost:8080/api/management/roles/:id",
+									"raw": "http://{{url}}:8080/api/management/roles/:id",
 									"protocol": "http",
 									"host": [
-										"localhost"
+										"{{url}}"
 									],
 									"port": "8080",
 									"path": [
@@ -319,10 +319,10 @@
 								"header": [],
 								"body": {},
 								"url": {
-									"raw": "http://localhost:8080/api/management/roles/:id",
+									"raw": "http://{{url}}:8080/api/management/roles/:id",
 									"protocol": "http",
 									"host": [
-										"localhost"
+										"{{url}}"
 									],
 									"port": "8080",
 									"path": [
@@ -356,10 +356,10 @@
 									"raw": "{\r\n    \"name\" : \"BASIC\"\r\n}"
 								},
 								"url": {
-									"raw": "http://localhost:8080/api/management/roles/",
+									"raw": "http://{{url}}:8080/api/management/roles/",
 									"protocol": "http",
 									"host": [
-										"localhost"
+										"{{url}}"
 									],
 									"port": "8080",
 									"path": [
@@ -387,10 +387,10 @@
 									"raw": "{\n    \"id\": \"5bc5f2288424be1608d76b4f\",\n    \"name\": \"STANDARD\"\n}"
 								},
 								"url": {
-									"raw": "http://localhost:8080/api/management/roles/",
+									"raw": "http://{{url}}:8080/api/management/roles/",
 									"protocol": "http",
 									"host": [
-										"localhost"
+										"{{url}}"
 									],
 									"port": "8080",
 									"path": [
@@ -419,10 +419,10 @@
 									"raw": ""
 								},
 								"url": {
-									"raw": "http://localhost:8080/api/management/users/",
+									"raw": "http://{{url}}:8080/api/management/users/",
 									"protocol": "http",
 									"host": [
-										"localhost"
+										"{{url}}"
 									],
 									"port": "8080",
 									"path": [
@@ -445,10 +445,10 @@
 									"raw": ""
 								},
 								"url": {
-									"raw": "http://localhost:8080/api/management/users/:id",
+									"raw": "http://{{url}}:8080/api/management/users/:id",
 									"protocol": "http",
 									"host": [
-										"localhost"
+										"{{url}}"
 									],
 									"port": "8080",
 									"path": [
@@ -474,10 +474,10 @@
 								"header": [],
 								"body": {},
 								"url": {
-									"raw": "http://localhost:8080/api/management/users/:id",
+									"raw": "http://{{url}}:8080/api/management/users/:id",
 									"protocol": "http",
 									"host": [
-										"localhost"
+										"{{url}}"
 									],
 									"port": "8080",
 									"path": [
@@ -511,10 +511,10 @@
 									"raw": "{\n    \"username\": \"test\",\n    \"password\": \"$2a$10$/lqPNEg9MsP6eDKVzcIcR.fcgTuRQaIsLz7qo8kp2TUS5kqmH29Ie\",\n    \"email\": \"test@email.com\",\n    \"roles\": [\n        \"5bc5f1378424be1608d76b4c\"\n    ]\n}"
 								},
 								"url": {
-									"raw": "http://localhost:8080/api/management/users/",
+									"raw": "http://{{url}}:8080/api/management/users/",
 									"protocol": "http",
 									"host": [
-										"localhost"
+										"{{url}}"
 									],
 									"port": "8080",
 									"path": [
@@ -542,10 +542,10 @@
 									"raw": "{\n    \"id\": \"5bc5f1868424be1608d76b4e\",\n    \"username\": \"test\",\n    \"password\": \"$2a$10$/lqPNEg9MsP6eDKVzcIcR.fcgTuRQaIsLz7qo8kp2TUS5kqmH29Ie\",\n    \"email\": \"test@email.com\",\n    \"roles\": [\n        \"5bc5f1368424be1608d76b4b\",\n        \"5bc5f1378424be1608d76b4c\"\n    ]\n}"
 								},
 								"url": {
-									"raw": "http://localhost:8080/api/management/users/",
+									"raw": "http://{{url}}:8080/api/management/users/",
 									"protocol": "http",
 									"host": [
-										"localhost"
+										"{{url}}"
 									],
 									"port": "8080",
 									"path": [
@@ -569,7 +569,7 @@
 		"bearer": [
 			{
 				"key": "token",
-				"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOlsib2F1dGgyX2FwcGxpY2F0aW9uIl0sImN1c3RvbWl6ZWQiOiJ0cnVlIiwidXNlcl9uYW1lIjoiYWRtaW4iLCJzY29wZSI6WyJyZWFkIiwid3JpdGUiLCJ0cnVzdCJdLCJyZXNvdXJjZXMiOm51bGwsImV4cCI6MTU0NDI5NzUyNCwiYXV0aG9yaXRpZXMiOlsiUk9MRV9VU0VSIiwiUk9MRV9BRE1JTiJdLCJqdGkiOiIyZTlkMTVlYy02NTBmLTRmMzEtOTUxMi0xZTRlYTZmZGMwY2YiLCJjbGllbnRfaWQiOiJ0cnVzdGVkLWNsaWVudCJ9.Ec9TdnsOv2qyrZu8osgxv7qZX4IeUIV0s-4BDA6WO3k",
+				"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOlsib2F1dGgyX2FwcGxpY2F0aW9uIl0sImN1c3RvbWl6ZWQiOiJ0cnVlIiwidXNlcl9uYW1lIjoicm9vdCIsInNjb3BlIjpbInJlYWQiLCJ3cml0ZSIsInRydXN0Il0sInJlc291cmNlcyI6WyIvKiJdLCJleHAiOjE1NDQ0ODQ4NTYsImF1dGhvcml0aWVzIjpbIlJPTEVfQURNSU4iLCJST0xFX1VTRVIiXSwianRpIjoiZjM1NTBiMDUtMmVkYy00YmY3LThlNDAtMDNjOWFkMDNlNWVkIiwiY2xpZW50X2lkIjoidHJ1c3RlZC1jbGllbnQifQ.cT8BFH7peie8ednaw3CDs-H0MRLYy2_glAl_CMH6sno",
 				"type": "string"
 			}
 		]

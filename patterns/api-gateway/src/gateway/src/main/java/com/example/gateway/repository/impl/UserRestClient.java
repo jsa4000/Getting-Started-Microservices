@@ -5,19 +5,21 @@ import com.example.gateway.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.Optional;
 
-public class UserManagementClient implements UserRepository {
+@Component
+public class UserRestClient implements UserRepository {
 
-    private final static String getUserByName_endpoint = "http://management/users/name/{name}";
+    private final static String getUserByName_endpoint = "http://management/users/{id}";
 
     @Autowired
     private RestTemplate client;
 
-    public Optional<User> getUserById(String username) {
-        ResponseEntity<User> response = client.getForEntity(getUserByName_endpoint,User.class, username);
+    public Optional<User> getUserById(String id) {
+        ResponseEntity<User> response = client.getForEntity(getUserByName_endpoint,User.class, id);
         if (response.getStatusCode() == HttpStatus.OK) {
             return Optional.of(response.getBody());
         }

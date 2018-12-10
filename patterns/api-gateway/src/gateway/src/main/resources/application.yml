@@ -19,7 +19,7 @@ hystrix:
       execution:
         isolation:
           thread:
-            timeoutInMilliseconds: 10000
+            timeoutInMilliseconds: 30000
 
 security:
   enabled: true
@@ -58,8 +58,8 @@ zuul:
       path: /management/**
 
 ribbon:
-  ConnectTimeout: 30000
-  ReadTimeout: 990000
+  ConnectTimeout: 5000
+  ReadTimeout: 5000
   maxAutoRetries: 2
   MaxAutoRetriesNextServer: 2
 

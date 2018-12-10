@@ -26,7 +26,7 @@ public class UserRepositoryTests {
 
         assertTrue(actualUser.getEmail().equals(expectedUser.getEmail()));
         assertTrue(actualUser.getPassword().equals(expectedUser.getPassword()));
-        assertTrue(actualUser.getUsername().equals(expectedUser.getUsername()));
+        assertTrue(actualUser.getId().equals(expectedUser.getId()));
 
         repository.deleteById(actualUser.getId());
     }
@@ -43,7 +43,7 @@ public class UserRepositoryTests {
     }
 
     private User getDefaultUser() {
-        return new User(null,"Javier","Santos","jsa4000@gmail.com", true,
+        return new User("jsa4000","password","jsa4000@gmail.com", true,
                 null,null);
     }
 }

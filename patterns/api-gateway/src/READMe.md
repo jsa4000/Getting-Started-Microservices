@@ -53,3 +53,14 @@ oauth/token
   "lastName": "Santos"
 }
 ```
+
+
+## Improvements
+
+- Mem-Cache: use of local and distributed cache. i.e enumerable data (non-changed eventually) such as roles, catalog, users, etc...
+- Check user Roles and Authorities for securing resources in REST API endpoints.
+- TLS for secure channel connection.
+- Exception handling and logging enhancements
+- Metrics for Prometheus: micrometer default, custom metrics (via AOP), etc..
+- Event Driven development, DDD
+- Testing: integration test, validation test (cocomo), performance tests (jmeter, gantling)

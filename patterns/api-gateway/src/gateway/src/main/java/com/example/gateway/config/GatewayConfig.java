@@ -1,9 +1,9 @@
 package com.example.gateway.config;
 
-import com.example.gateway.action.fallback.CustomerFallbackProvider;
-import com.example.gateway.action.fallback.DefaultFallbackProvider;
-import com.example.gateway.action.filter.DebugRoutingFilter;
-import com.example.gateway.action.filter.ForwardedHeaderFilter;
+import com.example.gateway.proxy.fallback.CustomerFallbackProvider;
+import com.example.gateway.proxy.fallback.DefaultFallbackProvider;
+import com.example.gateway.proxy.filter.DebugRoutingFilter;
+import com.example.gateway.proxy.filter.ForwardedHeaderFilter;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.cloud.netflix.zuul.EnableZuulProxy;
 import org.springframework.context.annotation.Bean;

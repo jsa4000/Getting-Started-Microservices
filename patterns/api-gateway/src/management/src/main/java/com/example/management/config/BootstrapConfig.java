@@ -105,9 +105,9 @@ public class BootstrapConfig {
     }
 
     private User createUser(User user) {
-        if (!userRepository.findByUsername(user.getUsername()).isPresent()) {
+        if (!userRepository.findById(user.getId()).isPresent()) {
             userRepository.insert(user);
-            log.info(String.format("%s user has been created.", user.getUsername()));
+            log.info(String.format("%s user has been created.", user.getId()));
         }
         return user;
     }
@@ -116,9 +116,9 @@ public class BootstrapConfig {
         return createRole(new Role(name,name));
     }
 
-    private User getUserOrCreate(String username, String password, String email,
+    private User getUserOrCreate(String id, String password, String email,
                                  List<String> resources, List<Role> roles){
-        return createUser(new User(null, username, passwordEncoder().encode(password),email, true,
+        return createUser(new User(id, passwordEncoder().encode(password),email, true,
                 resources, roles.stream().map(x -> x.getId()).collect(Collectors.toList())));
     }
 }

@@ -11,7 +11,7 @@
   ],
   "users": [
     {
-      "username": "root",
+      "id": "root",
       "password": "$2a$10$RZ3aMVd2DmU.gGV2Z2rSx.lQCCIlGaRmrpT7X2ue9HDz6ZUfI5j.W",
       "email": "root@email.com",
       "resources": [
@@ -23,7 +23,7 @@
       ]
     },
     {
-      "username": "user",
+      "id": "user",
       "password": "$2a$10$RZ3aMVd2DmU.gGV2Z2rSx.lQCCIlGaRmrpT7X2ue9HDz6ZUfI5j.W",
       "email": "user@email.com",
       "resources": [

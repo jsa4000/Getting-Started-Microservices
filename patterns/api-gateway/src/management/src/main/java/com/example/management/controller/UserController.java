@@ -35,15 +35,6 @@ public class UserController {
         return ResponseEntity.ok(user.get());
     }
 
-    @ApiOperation(value = "Get user by Name")
-    @GetMapping("/name/{name}")
-    public ResponseEntity<User> getUserByName(@PathVariable(value = "name") String userName){
-        Optional<User> user = userService.findByName(userName);
-        if (!user.isPresent())
-            throw new UserNotFoundException("User not found");
-        return ResponseEntity.ok(user.get());
-    }
-
     @ApiOperation(value = "Create or update an user")
     @PostMapping("/")
     public ResponseEntity<User> createUser(@RequestBody User user){

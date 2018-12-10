@@ -12,7 +12,6 @@ import java.util.List;
 @AllArgsConstructor
 public class User {
     @Getter private String id;
-    @Getter private String username;
     @Getter private String password;
     @Getter private String email;
     @Getter private boolean active;

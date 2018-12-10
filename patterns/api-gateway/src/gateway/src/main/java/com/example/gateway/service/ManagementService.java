@@ -6,5 +6,5 @@ import java.util.Optional;
 
 public interface ManagementService {
 
-    Optional<User> getUserById(String name);
+    Optional<User> getUserById(String id);
 }

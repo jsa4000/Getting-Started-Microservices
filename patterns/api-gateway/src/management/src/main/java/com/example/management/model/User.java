@@ -15,9 +15,8 @@ import java.util.List;
 @AllArgsConstructor
 public class User {
     @Id private String id;
-    @Indexed(unique = true) private String username;
     private String password;
-    private String email;
+    @Indexed(unique = true) private String email;
     private boolean active;
     private List<String> resources;
     private List<String> roles;
