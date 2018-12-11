@@ -13,12 +13,12 @@ buildscript {
 
 plugins {
 	id "org.sonarqube" version "2.6.2"
-	//id "nebula.facet" version "5.1.2"
+	id "nebula.facet" version "5.1.2"
 }
-
 
 apply plugin: 'java'
 apply plugin: 'eclipse'
+apply plugin: 'nebula.facet'
 apply plugin: 'org.springframework.boot'
 apply plugin: 'io.spring.dependency-management'
 
@@ -29,12 +29,9 @@ sourceCompatibility = 1.8
 apply from: 'gradle/docker.gradle'
 apply from: 'gradle/sonar.gradle'
 
-//facets {
-	//intTest {
-	//	parentSourceSet = 'main'
-    //		testTaskName = 'intTest'
-    // 	}
-//}
+facets {
+	intTest
+}
 
 repositories {
 	mavenCentral()
@@ -62,10 +59,8 @@ dependencies {
 	implementation("io.springfox:springfox-swagger-ui:${swaggerVersion}")
 	compileOnly('org.projectlombok:lombok')
 	testImplementation('org.springframework.boot:spring-boot-starter-test')
-    //intTestImplementation('org.springframework.boot:spring-boot-starter-test')
-	//intTestImplementation('org.testcontainers:testcontainers:1.8.0')
-
-
+    intTestImplementation('org.springframework.boot:spring-boot-starter-test')
+	//intTestImplementation('org.testcontainers:testcontainers:1.10.2')
 }
 
 dependencyManagement {
