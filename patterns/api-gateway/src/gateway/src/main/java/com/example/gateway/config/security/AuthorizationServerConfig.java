@@ -3,6 +3,7 @@ package com.example.gateway.config.security;
 import com.example.gateway.config.bean.AuthorityProperties;
 import com.example.gateway.config.bean.SecurityProperties;
 import com.example.gateway.security.CustomTokenEnhancer;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -20,7 +21,9 @@ import org.springframework.security.oauth2.provider.token.store.JwtAccessTokenCo
 import org.springframework.security.oauth2.provider.token.store.JwtTokenStore;
 
 import java.util.Arrays;
+import java.util.Map;
 
+@Slf4j
 @Configuration
 @EnableAuthorizationServer
 public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdapter {
@@ -79,56 +82,44 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
     @Override
     public void configure(ClientDetailsServiceConfigurer configure) throws Exception {
         if (securityProperties.getAuthorities() == null) return;
-        for (SecurityProperties.AuthorityType key : securityProperties.getAuthorities().keySet()) {
-            AuthorityProperties authority = securityProperties.getAuthorities().get(key);
-            switch (key) {
-                case basic:
-                    configure.inMemory()
-                            .withClient(authority.getName())
-                            .resourceIds(securityProperties.getResourceId())
-                            .authorities(AUTHORITIES_BASIC)
-                            .secret(bcryptEncoder.encode(authority.getSecret()))
-                            .authorizedGrantTypes(GRANT_TYPE_PASSWORD, AUTHORIZATION_CODE, IMPLICIT )
-                            //.autoApprove(true)
-                            .scopes(SCOPE_READ)
-                            .accessTokenValiditySeconds(securityProperties.getAccessTokenValidity())
-                            .refreshTokenValiditySeconds(securityProperties.getRefreshTokenValidity());
-                    break;
-                case normal:
-                    configure.inMemory()
-                            .withClient(authority.getName())
-                            .resourceIds(securityProperties.getResourceId())
-                            .authorities(AUTHORITIES_NORMAL)
-                            .secret(bcryptEncoder.encode(authority.getSecret()))
-                            .authorizedGrantTypes(GRANT_TYPE_PASSWORD, AUTHORIZATION_CODE, IMPLICIT )
-                            .scopes(SCOPE_READ, SCOPE_WRITE)
-                            .accessTokenValiditySeconds(securityProperties.getAccessTokenValidity())
-                            .refreshTokenValiditySeconds(securityProperties.getRefreshTokenValidity());
-                    break;
-                case trusted:
-                    configure.inMemory()
-                            .withClient(authority.getName())
-                            .resourceIds(securityProperties.getResourceId())
-                            .authorities(AUTHORITIES_TRUSTED)
-                            .secret(bcryptEncoder.encode(authority.getSecret()))
-                            .authorizedGrantTypes(GRANT_TYPE_PASSWORD, AUTHORIZATION_CODE, REFRESH_TOKEN, IMPLICIT )
-                            .scopes(SCOPE_READ, SCOPE_WRITE, SCOPE_TRUST)
-                            .accessTokenValiditySeconds(securityProperties.getAccessTokenValidity())
-                            .refreshTokenValiditySeconds(securityProperties.getRefreshTokenValidity());
-                    break;
-            }
-        }
+        log.debug("Configuring client authorities: {}", securityProperties.getAuthorities().keySet());
+        Map<SecurityProperties.AuthorityType, AuthorityProperties> authorities = securityProperties.getAuthorities();
+        configure.inMemory()
+                .withClient(authorities.get(SecurityProperties.AuthorityType.basic).getName())
+                    .resourceIds(securityProperties.getResourceId())
+                    .authorities(AUTHORITIES_BASIC)
+                    .secret(bcryptEncoder.encode(authorities.get(SecurityProperties.AuthorityType.basic).getSecret()))
+                    .authorizedGrantTypes(GRANT_TYPE_PASSWORD, AUTHORIZATION_CODE, IMPLICIT )
+                    //.autoApprove(true)
+                    .scopes(SCOPE_READ)
+                    .accessTokenValiditySeconds(securityProperties.getAccessTokenValidity())
+                    .refreshTokenValiditySeconds(securityProperties.getRefreshTokenValidity())
+                .and()
+                .withClient(authorities.get(SecurityProperties.AuthorityType.normal).getName())
+                    .resourceIds(securityProperties.getResourceId())
+                    .authorities(AUTHORITIES_NORMAL)
+                    .secret(bcryptEncoder.encode(authorities.get(SecurityProperties.AuthorityType.normal).getSecret()))
+                    .authorizedGrantTypes(GRANT_TYPE_PASSWORD, AUTHORIZATION_CODE, IMPLICIT )
+                    .scopes(SCOPE_READ, SCOPE_WRITE)
+                    .accessTokenValiditySeconds(securityProperties.getAccessTokenValidity())
+                    .refreshTokenValiditySeconds(securityProperties.getRefreshTokenValidity())
+                .and()
+                .withClient(authorities.get(SecurityProperties.AuthorityType.trusted).getName())
+                    .resourceIds(securityProperties.getResourceId())
+                    .authorities(AUTHORITIES_TRUSTED)
+                    .secret(bcryptEncoder.encode(authorities.get(SecurityProperties.AuthorityType.trusted).getSecret()))
+                    .authorizedGrantTypes(GRANT_TYPE_PASSWORD, AUTHORIZATION_CODE, REFRESH_TOKEN, IMPLICIT )
+                    .scopes(SCOPE_READ, SCOPE_WRITE, SCOPE_TRUST)
+                    .accessTokenValiditySeconds(securityProperties.getAccessTokenValidity())
+                    .refreshTokenValiditySeconds(securityProperties.getRefreshTokenValidity());
     }
 
     @Override
     public void configure(AuthorizationServerEndpointsConfigurer endpoints) throws Exception {
         TokenEnhancerChain tokenEnhancerChain = new TokenEnhancerChain();
-        tokenEnhancerChain.setTokenEnhancers(
-                Arrays.asList(tokenEnhancer(), accessTokenConverter()));
-
-        endpoints
-            .tokenStore(tokenStore())
-            .authenticationManager(authenticationManager)
-            .tokenEnhancer(tokenEnhancerChain);
+        tokenEnhancerChain.setTokenEnhancers(Arrays.asList(tokenEnhancer(), accessTokenConverter()));
+        endpoints.tokenStore(tokenStore())
+                .authenticationManager(authenticationManager)
+                .tokenEnhancer(tokenEnhancerChain);
     }
 }

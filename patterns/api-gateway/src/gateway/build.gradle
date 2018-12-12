@@ -30,7 +30,7 @@ apply from: 'gradle/docker.gradle'
 apply from: 'gradle/sonar.gradle'
 
 facets {
-	intTest
+	testInt
 }
 
 repositories {
@@ -59,8 +59,8 @@ dependencies {
 	implementation("io.springfox:springfox-swagger-ui:${swaggerVersion}")
 	compileOnly('org.projectlombok:lombok')
 	testImplementation('org.springframework.boot:spring-boot-starter-test')
-    intTestImplementation('org.springframework.boot:spring-boot-starter-test')
-	//intTestImplementation('org.testcontainers:testcontainers:1.10.2')
+    testIntImplementation('org.springframework.boot:spring-boot-starter-test')
+	//testIntImplementation('org.testcontainers:testcontainers:1.10.2')
 }
 
 dependencyManagement {

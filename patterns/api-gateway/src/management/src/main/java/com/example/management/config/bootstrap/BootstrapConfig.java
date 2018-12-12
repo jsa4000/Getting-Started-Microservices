@@ -1,4 +1,4 @@
-package com.example.management.config;
+package com.example.management.config.bootstrap;
 
 import com.example.management.model.Role;
 import com.example.management.model.User;
@@ -8,9 +8,6 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Charsets;
 import com.google.common.io.Resources;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -123,10 +120,3 @@ public class BootstrapConfig {
     }
 }
 
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-class FileData {
-    private List<Role> roles;
-    private List<User> users;
-}

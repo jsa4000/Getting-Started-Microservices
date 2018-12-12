@@ -20,9 +20,8 @@ import org.springframework.web.filter.CorsFilter;
 
 @Configuration
 @EnableWebSecurity
-@SuppressWarnings("unchecked")
 @EnableGlobalMethodSecurity(prePostEnabled = true)
-public class SecurityConfig extends WebSecurityConfigurerAdapter {
+public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Autowired
     @Qualifier("userDetailsService")
@@ -36,9 +35,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Autowired
     public void globalUserDetails(AuthenticationManagerBuilder auth) throws Exception {
-        auth
-            .userDetailsService(userDetailsService)
-            .passwordEncoder(encoder());
+        auth.userDetailsService(userDetailsService).passwordEncoder(encoder());
     }
 
     @Bean
@@ -48,8 +45,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http
-            .csrf().disable()
+        http.csrf().disable()
             .anonymous().disable()
             .authorizeRequests()
                 .antMatchers(HttpMethod.OPTIONS).permitAll()

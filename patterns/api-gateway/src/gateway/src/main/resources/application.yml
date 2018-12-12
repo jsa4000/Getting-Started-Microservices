@@ -39,6 +39,8 @@ security:
       secret: password
 
 zuul:
+  sensitiveHeaders: Cookie,Set-Cookie
+  ignoreSecurityHeaders: false
   ignoredServices: "*"
   prefix: /api
   host:

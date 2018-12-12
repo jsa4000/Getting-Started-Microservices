@@ -1,4 +1,4 @@
-package com.example.management.config;
+package com.example.management.config.web;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

@@ -1,4 +1,4 @@
-package com.example.management.config;
+package com.example.management.config.web;
 
 import com.example.management.actuator.CustomInfoContributor;
 import org.springframework.boot.actuate.info.InfoContributor;

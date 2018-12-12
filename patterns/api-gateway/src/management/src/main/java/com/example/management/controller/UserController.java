@@ -7,6 +7,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -35,12 +36,14 @@ public class UserController {
         return ResponseEntity.ok(user.get());
     }
 
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @ApiOperation(value = "Create or update an user")
     @PostMapping("/")
     public ResponseEntity<User> createUser(@RequestBody User user){
         return ResponseEntity.ok(userService.save(user));
     }
 
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @ApiOperation(value = "Delete an existing user")
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteUser(@PathVariable(value = "id") String id){
