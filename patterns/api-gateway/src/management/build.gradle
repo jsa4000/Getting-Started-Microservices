@@ -8,21 +8,26 @@ buildscript {
 	}
 	dependencies {
 		classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+		classpath("gradle.plugin.ua.eshepelyuk:ManifestClasspath:1.0.0")
 	}
 }
 
 plugins {
     id "org.sonarqube" version "2.6.2"
+	id "ua.eshepelyuk.ManifestClasspath" version "1.0.0"
 }
 
 apply plugin: 'java'
 apply plugin: 'eclipse'
 apply plugin: 'org.springframework.boot'
 apply plugin: 'io.spring.dependency-management'
+apply plugin: "ua.eshepelyuk.ManifestClasspath"
 
 group = 'com.example'
 version = '0.0.1-SNAPSHOT'
 sourceCompatibility = 1.8
+
+springBoot { mainClassName = 'com.example.management.ManagementApplication' }
 
 apply from: 'gradle/docker.gradle'
 apply from: 'gradle/sonar.gradle'

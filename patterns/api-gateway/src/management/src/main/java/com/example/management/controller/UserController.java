@@ -21,6 +21,7 @@ public class UserController {
     @Autowired
     private UserService userService;
 
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @ApiOperation(value = "Get a List of Users")
     @GetMapping("/")
     public ResponseEntity<List> getUsers(){

@@ -3,36 +3,36 @@ package com.example.management.config.security;
 import com.example.management.config.bean.SecurityProperties;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.filter.OncePerRequestFilter;
+import org.springframework.security.access.AuthorizationServiceException;
 
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
+import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
-import java.util.stream.Collectors;
 
-public class JwtAuthenticationFilter extends  OncePerRequestFilter {
+@Slf4j
+public class JwtUserControllerFilter implements   Filter  {
 
     private static final String TOKEN_USER_NAME = "user_name";
     private static final String TOKEN_TOKEN_PREFIX = "Bearer ";
     private static final String TOKEN_AUTHORIZATION_HEADER = "Authorization";
-    private static final String TOKEN_AUTHORITIES_PARAMETER = "authorities";
+    private static final String TOKEN_RESOURCES_PARAMETER = "resources";
 
     private SecurityProperties securityProperties;
 
-    public JwtAuthenticationFilter(SecurityProperties securityProperties) {
+    public JwtUserControllerFilter(SecurityProperties securityProperties) {
         this.securityProperties = securityProperties;
     }
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
+    public  void doFilter(ServletRequest req, ServletResponse res, FilterChain chain)
             throws ServletException, IOException {
+        HttpServletRequest request = (HttpServletRequest) req;
+        HttpServletResponse response = (HttpServletResponse) res;
+
         String header = request.getHeader(TOKEN_AUTHORIZATION_HEADER);
         if(header == null || !header.startsWith(TOKEN_TOKEN_PREFIX)) {
             chain.doFilter(request, response);
@@ -47,14 +47,15 @@ public class JwtAuthenticationFilter extends  OncePerRequestFilter {
 
             if(claims.containsKey(TOKEN_USER_NAME)) {
                 @SuppressWarnings("unchecked")
-                List<String> authorities = (List<String>) claims.get(TOKEN_AUTHORITIES_PARAMETER);
-                UsernamePasswordAuthenticationToken auth =
-                        new UsernamePasswordAuthenticationToken(claims.get(TOKEN_USER_NAME), null,
-                                authorities.stream().map(SimpleGrantedAuthority::new).collect(Collectors.toList()));
-                SecurityContextHolder.getContext().setAuthentication(auth);
+                List<String> resources = (List<String>) claims.get(TOKEN_RESOURCES_PARAMETER);
+                if (!resources.stream().anyMatch(x->x.equals(request.getRequestURI()))) {
+                    throw new AuthorizationServiceException(String.format("User %s not authorized for resource %s",
+                                    claims.get(TOKEN_USER_NAME), request.getRequestURI()));
+                }
             }
         } catch (Exception e) {
-            SecurityContextHolder.clearContext();
+            //SecurityContextHolder.clearContext();
+            log.error(e.getMessage());
         }
         chain.doFilter(request, response);
     }

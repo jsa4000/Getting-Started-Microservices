@@ -24,7 +24,7 @@ hystrix:
 security:
   enabled: true
   symmetricKey: as466gf
-  resourceId: oauth2_application
+  resourceId: application
   accessTokenValidity: 3600
   refreshTokenValidity: 21600
   authorities:

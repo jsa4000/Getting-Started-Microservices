@@ -14,6 +14,11 @@ bootstrap:
   save:
     enabled: false
 
+security:
+  enabled: true
+  symmetricKey: as466gf
+  resourceId: application
+
 logging:
   level:
     root: WARN

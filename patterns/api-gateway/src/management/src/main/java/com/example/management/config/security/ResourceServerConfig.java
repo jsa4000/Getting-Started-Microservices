@@ -1,5 +1,8 @@
 package com.example.management.config.security;
 
+import com.example.management.config.bean.SecurityProperties;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
@@ -17,11 +20,12 @@ import org.springframework.security.oauth2.provider.token.store.JwtTokenStore;
 @EnableResourceServer
 public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
 
-    private String resourceId = "oauth2_application";
+    @Autowired
+    private SecurityProperties securityProperties;
 
     @Override
     public void configure(ResourceServerSecurityConfigurer config) {
-        config.resourceId(resourceId)
+        config.resourceId(securityProperties.getResourceId())
                 .tokenServices(tokenServices());
     }
 
@@ -33,7 +37,7 @@ public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
     @Bean
     public JwtAccessTokenConverter accessTokenConverter() {
         JwtAccessTokenConverter converter = new JwtAccessTokenConverter();
-        converter.setSigningKey("as466gf");
+        converter.setSigningKey(securityProperties.getSymmetricKey());
         return converter;
     }
 
@@ -52,5 +56,15 @@ public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
                 .and()
                 .exceptionHandling()
                 .accessDeniedHandler(new OAuth2AccessDeniedHandler());
+    }
+
+    @Bean
+    public FilterRegistrationBean<JwtUserControllerFilter> loggingFilter(){
+        FilterRegistrationBean<JwtUserControllerFilter> registrationBean = new FilterRegistrationBean<>();
+
+        registrationBean.setFilter(new JwtUserControllerFilter(securityProperties));
+        registrationBean.addUrlPatterns("/users/*");
+
+        return registrationBean;
     }
 }

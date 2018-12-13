@@ -1,0 +1,4 @@
+security:
+  enabled: true
+  symmetricKey: 1234
+  resourceId: application

@@ -14,6 +14,7 @@
       "id": "root",
       "password": "$2a$10$RZ3aMVd2DmU.gGV2Z2rSx.lQCCIlGaRmrpT7X2ue9HDz6ZUfI5j.W",
       "email": "root@email.com",
+      "active": "true",
       "resources": [
         "/*"
       ],
@@ -26,8 +27,9 @@
       "id": "user",
       "password": "$2a$10$RZ3aMVd2DmU.gGV2Z2rSx.lQCCIlGaRmrpT7X2ue9HDz6ZUfI5j.W",
       "email": "user@email.com",
+      "active": "true",
       "resources": [
-        "/users/*",
+        "/users/user",
         "/roles/*"
       ],
       "roles": [

@@ -49,7 +49,7 @@ public class BootstrapConfig {
     //@PostConstruct
     public void init(){
         if (enabled) {
-            log.info("Bootstrapping Oauth Server...");
+            log.info("Bootstrapping Managemenr Server...");
             Role adminRole = getRoleOrCreate("ADMIN");
             Role userRole = getRoleOrCreate("USER");
             User userRoot = getUserOrCreate("root","password", "root@email.com",
