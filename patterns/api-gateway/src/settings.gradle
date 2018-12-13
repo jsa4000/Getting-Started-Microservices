@@ -1,4 +1,3 @@
-include 'order'
 include 'management'
 include 'customer'
 include 'catalog'

@@ -6,8 +6,13 @@
 
 There are multiple service discovery alternative such as: Eureka, etcd (kubernetes), Consul, Zookeeper, etc..
 
-
-
+```mermaid
+graph TD;
+    A-->B;
+    A-->C;
+    B-->D;
+    C-->D;
+```
 
 ## References
 
