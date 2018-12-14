@@ -21,8 +21,7 @@ hystrix:
           thread:
             timeoutInMilliseconds: 10000
 
-security:
-  enabled: true
+authentication:
   symmetricKey: as466gf
   resourceId: oauth2_application
   accessTokenValidity: 3600

@@ -10,9 +10,8 @@ import org.springframework.stereotype.Component;
 @Component
 @AllArgsConstructor
 @NoArgsConstructor
-@ConfigurationProperties("security")
-public class SecurityProperties {
-    private boolean enabled = true;
+@ConfigurationProperties("authentication")
+public class AuthenticationProperties {
     private String symmetricKey;
     private String resourceId;
 }

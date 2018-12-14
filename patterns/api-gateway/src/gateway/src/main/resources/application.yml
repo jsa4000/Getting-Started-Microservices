@@ -22,7 +22,9 @@ hystrix:
             timeoutInMilliseconds: 30000
 
 security:
-  enabled: true
+  require-ssl: true
+
+authentication:
   symmetricKey: as466gf
   resourceId: application
   accessTokenValidity: 3600
@@ -66,8 +68,18 @@ ribbon:
   MaxAutoRetriesNextServer: 2
 
 server:
-  port: 8080
+  port: 8443
   error.whitelabel.enabled: false
+  use-forward-headers: true
+  ssl:
+    enabled: true
+    keyStoreType: JKS
+    sslHostnameValidationEnabled: false
+    keyAlias: keystore
+    key-store: classpath:keystore.jks
+    key-store-password: password
+    key-password: password
+
 ---
 spring:
   profiles: local

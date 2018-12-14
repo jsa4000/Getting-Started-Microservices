@@ -1,12 +1,13 @@
 {
 	"info": {
-		"_postman_id": "01f57864-174a-4f65-bffb-3bbc55c8921c",
+		"_postman_id": "d2d7b70a-4b03-4950-a225-44fd5a5a7c6d",
 		"name": "Gateway",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"item": [
 		{
 			"name": "Token",
+			"description": null,
 			"item": [
 				{
 					"name": "GetToken-Trusted",
@@ -30,9 +31,7 @@
 						"header": [
 							{
 								"key": "Content-Type",
-								"name": "Content-Type",
-								"value": "application/x-www-form-urlencoded",
-								"type": "text"
+								"value": "application/x-www-form-urlencoded"
 							}
 						],
 						"body": {
@@ -56,12 +55,12 @@
 							]
 						},
 						"url": {
-							"raw": "http://{{url}}:8080/oauth/token",
-							"protocol": "http",
+							"raw": "https://{{url}}:8443/oauth/token",
+							"protocol": "https",
 							"host": [
 								"{{url}}"
 							],
-							"port": "8080",
+							"port": "8443",
 							"path": [
 								"oauth",
 								"token"
@@ -92,8 +91,6 @@
 						"header": [
 							{
 								"key": "Content-Type",
-								"name": "Content-Type",
-								"type": "text",
 								"value": "application/x-www-form-urlencoded"
 							}
 						],
@@ -118,12 +115,12 @@
 							]
 						},
 						"url": {
-							"raw": "http://{{url}}:8080/oauth/token",
-							"protocol": "http",
+							"raw": "https://{{url}}:8443/oauth/token",
+							"protocol": "https",
 							"host": [
 								"{{url}}"
 							],
-							"port": "8080",
+							"port": "8443",
 							"path": [
 								"oauth",
 								"token"
@@ -154,8 +151,6 @@
 						"header": [
 							{
 								"key": "Content-Type",
-								"name": "Content-Type",
-								"type": "text",
 								"value": "application/x-www-form-urlencoded"
 							}
 						],
@@ -180,12 +175,12 @@
 							]
 						},
 						"url": {
-							"raw": "http://{{url}}:8080/oauth/token",
-							"protocol": "http",
+							"raw": "https://{{url}}:8443/oauth/token",
+							"protocol": "https",
 							"host": [
 								"{{url}}"
 							],
-							"port": "8080",
+							"port": "8443",
 							"path": [
 								"oauth",
 								"token"
@@ -216,9 +211,7 @@
 						"header": [
 							{
 								"key": "Content-Type",
-								"name": "Content-Type",
-								"value": "application/x-www-form-urlencoded",
-								"type": "text"
+								"value": "application/x-www-form-urlencoded"
 							}
 						],
 						"body": {
@@ -232,12 +225,12 @@
 							]
 						},
 						"url": {
-							"raw": "http://{{url}}:8080/oauth/check_token",
-							"protocol": "http",
+							"raw": "https://{{url}}:8443/oauth/check_token",
+							"protocol": "https",
 							"host": [
 								"{{url}}"
 							],
-							"port": "8080",
+							"port": "8443",
 							"path": [
 								"oauth",
 								"check_token"
@@ -250,9 +243,11 @@
 		},
 		{
 			"name": "Management",
+			"description": null,
 			"item": [
 				{
 					"name": "Roles",
+					"description": null,
 					"item": [
 						{
 							"name": "GetRoles",
@@ -264,12 +259,12 @@
 									"raw": ""
 								},
 								"url": {
-									"raw": "http://{{url}}:8080/api/management/roles/",
-									"protocol": "http",
+									"raw": "https://{{url}}:8443/api/management/roles/",
+									"protocol": "https",
 									"host": [
 										"{{url}}"
 									],
-									"port": "8080",
+									"port": "8443",
 									"path": [
 										"api",
 										"management",
@@ -290,12 +285,12 @@
 									"raw": ""
 								},
 								"url": {
-									"raw": "http://{{url}}:8080/api/management/roles/:id",
-									"protocol": "http",
+									"raw": "https://{{url}}:8443/api/management/roles/:id",
+									"protocol": "https",
 									"host": [
 										"{{url}}"
 									],
-									"port": "8080",
+									"port": "8443",
 									"path": [
 										"api",
 										"management",
@@ -317,14 +312,17 @@
 							"request": {
 								"method": "DELETE",
 								"header": [],
-								"body": {},
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
 								"url": {
-									"raw": "http://{{url}}:8080/api/management/roles/:id",
-									"protocol": "http",
+									"raw": "https://{{url}}:8443/api/management/roles/:id",
+									"protocol": "https",
 									"host": [
 										"{{url}}"
 									],
-									"port": "8080",
+									"port": "8443",
 									"path": [
 										"api",
 										"management",
@@ -356,12 +354,12 @@
 									"raw": "{\r\n    \"name\" : \"BASIC\"\r\n}"
 								},
 								"url": {
-									"raw": "http://{{url}}:8080/api/management/roles/",
-									"protocol": "http",
+									"raw": "https://{{url}}:8443/api/management/roles/",
+									"protocol": "https",
 									"host": [
 										"{{url}}"
 									],
-									"port": "8080",
+									"port": "8443",
 									"path": [
 										"api",
 										"management",
@@ -387,12 +385,12 @@
 									"raw": "{\n    \"id\": \"5bc5f2288424be1608d76b4f\",\n    \"name\": \"STANDARD\"\n}"
 								},
 								"url": {
-									"raw": "http://{{url}}:8080/api/management/roles/",
-									"protocol": "http",
+									"raw": "https://{{url}}:8443/api/management/roles/",
+									"protocol": "https",
 									"host": [
 										"{{url}}"
 									],
-									"port": "8080",
+									"port": "8443",
 									"path": [
 										"api",
 										"management",
@@ -408,6 +406,7 @@
 				},
 				{
 					"name": "Users",
+					"description": null,
 					"item": [
 						{
 							"name": "GetUsers",
@@ -419,12 +418,12 @@
 									"raw": ""
 								},
 								"url": {
-									"raw": "http://{{url}}:8080/api/management/users/",
-									"protocol": "http",
+									"raw": "https://{{url}}:8443/api/management/users/",
+									"protocol": "https",
 									"host": [
 										"{{url}}"
 									],
-									"port": "8080",
+									"port": "8443",
 									"path": [
 										"api",
 										"management",
@@ -445,12 +444,12 @@
 									"raw": ""
 								},
 								"url": {
-									"raw": "http://{{url}}:8080/api/management/users/:id",
-									"protocol": "http",
+									"raw": "https://{{url}}:8443/api/management/users/:id",
+									"protocol": "https",
 									"host": [
 										"{{url}}"
 									],
-									"port": "8080",
+									"port": "8443",
 									"path": [
 										"api",
 										"management",
@@ -472,14 +471,17 @@
 							"request": {
 								"method": "DELETE",
 								"header": [],
-								"body": {},
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
 								"url": {
-									"raw": "http://{{url}}:8080/api/management/users/:id",
-									"protocol": "http",
+									"raw": "https://{{url}}:8443/api/management/users/:id",
+									"protocol": "https",
 									"host": [
 										"{{url}}"
 									],
-									"port": "8080",
+									"port": "8443",
 									"path": [
 										"api",
 										"management",
@@ -511,12 +513,12 @@
 									"raw": "{\n    \"username\": \"test\",\n    \"password\": \"$2a$10$/lqPNEg9MsP6eDKVzcIcR.fcgTuRQaIsLz7qo8kp2TUS5kqmH29Ie\",\n    \"email\": \"test@email.com\",\n    \"roles\": [\n        \"5bc5f1378424be1608d76b4c\"\n    ]\n}"
 								},
 								"url": {
-									"raw": "http://{{url}}:8080/api/management/users/",
-									"protocol": "http",
+									"raw": "https://{{url}}:8443/api/management/users/",
+									"protocol": "https",
 									"host": [
 										"{{url}}"
 									],
-									"port": "8080",
+									"port": "8443",
 									"path": [
 										"api",
 										"management",
@@ -542,12 +544,12 @@
 									"raw": "{\n    \"id\": \"5bc5f1868424be1608d76b4e\",\n    \"username\": \"test\",\n    \"password\": \"$2a$10$/lqPNEg9MsP6eDKVzcIcR.fcgTuRQaIsLz7qo8kp2TUS5kqmH29Ie\",\n    \"email\": \"test@email.com\",\n    \"roles\": [\n        \"5bc5f1368424be1608d76b4b\",\n        \"5bc5f1378424be1608d76b4c\"\n    ]\n}"
 								},
 								"url": {
-									"raw": "http://{{url}}:8080/api/management/users/",
-									"protocol": "http",
+									"raw": "https://{{url}}:8443/api/management/users/",
+									"protocol": "https",
 									"host": [
 										"{{url}}"
 									],
-									"port": "8080",
+									"port": "8443",
 									"path": [
 										"api",
 										"management",
@@ -562,6 +564,66 @@
 					"_postman_isSubFolder": true
 				}
 			]
+		},
+		{
+			"name": "GetToken-Trusted",
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "password",
+							"value": "password",
+							"type": "string"
+						},
+						{
+							"key": "username",
+							"value": "trusted-client",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/x-www-form-urlencoded"
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "username",
+							"value": "root",
+							"type": "text"
+						},
+						{
+							"key": "password",
+							"value": "password",
+							"type": "text"
+						},
+						{
+							"key": "grant_type",
+							"value": "password",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{protocol}}://{{url}}:8080/oauth/token",
+					"protocol": "{{protocol}}",
+					"host": [
+						"{{url}}"
+					],
+					"port": "8080",
+					"path": [
+						"oauth",
+						"token"
+					]
+				}
+			},
+			"response": []
 		}
 	],
 	"auth": {

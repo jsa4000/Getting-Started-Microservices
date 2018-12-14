@@ -1,7 +1,7 @@
 package com.example.gateway.config.security;
 
 import com.example.gateway.config.bean.AuthorityProperties;
-import com.example.gateway.config.bean.SecurityProperties;
+import com.example.gateway.config.bean.AuthenticationProperties;
 import com.example.gateway.security.CustomTokenEnhancer;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,7 +42,7 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
     public static final String SCOPE_TRUST = "trust";
 
     @Autowired
-    private SecurityProperties securityProperties;
+    private AuthenticationProperties authProperties;
 
     @Autowired
     private BCryptPasswordEncoder bcryptEncoder;
@@ -53,7 +53,7 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
     @Bean
     public JwtAccessTokenConverter accessTokenConverter() {
         JwtAccessTokenConverter converter = new JwtAccessTokenConverter();
-        converter.setSigningKey(securityProperties.getSymmetricKey());
+        converter.setSigningKey(authProperties.getSymmetricKey());
 
         /*
         // Add key-pair signing method instead symmetric. See 'resources/README.md'
@@ -81,37 +81,37 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
 
     @Override
     public void configure(ClientDetailsServiceConfigurer configure) throws Exception {
-        if (securityProperties.getAuthorities() == null) return;
-        log.debug("Configuring client authorities: {}", securityProperties.getAuthorities().keySet());
-        Map<SecurityProperties.AuthorityType, AuthorityProperties> authorities = securityProperties.getAuthorities();
+        if (authProperties.getAuthorities() == null) return;
+        log.debug("Configuring client authorities: {}", authProperties.getAuthorities().keySet());
+        Map<AuthenticationProperties.AuthorityType, AuthorityProperties> authorities = authProperties.getAuthorities();
         configure.inMemory()
-                .withClient(authorities.get(SecurityProperties.AuthorityType.basic).getName())
-                    .resourceIds(securityProperties.getResourceId())
+                .withClient(authorities.get(AuthenticationProperties.AuthorityType.basic).getName())
+                    .resourceIds(authProperties.getResourceId())
                     .authorities(AUTHORITIES_BASIC)
-                    .secret(bcryptEncoder.encode(authorities.get(SecurityProperties.AuthorityType.basic).getSecret()))
+                    .secret(bcryptEncoder.encode(authorities.get(AuthenticationProperties.AuthorityType.basic).getSecret()))
                     .authorizedGrantTypes(GRANT_TYPE_PASSWORD, AUTHORIZATION_CODE, IMPLICIT )
                     //.autoApprove(true)
                     .scopes(SCOPE_READ)
-                    .accessTokenValiditySeconds(securityProperties.getAccessTokenValidity())
-                    .refreshTokenValiditySeconds(securityProperties.getRefreshTokenValidity())
+                    .accessTokenValiditySeconds(authProperties.getAccessTokenValidity())
+                    .refreshTokenValiditySeconds(authProperties.getRefreshTokenValidity())
                 .and()
-                .withClient(authorities.get(SecurityProperties.AuthorityType.normal).getName())
-                    .resourceIds(securityProperties.getResourceId())
+                .withClient(authorities.get(AuthenticationProperties.AuthorityType.normal).getName())
+                    .resourceIds(authProperties.getResourceId())
                     .authorities(AUTHORITIES_NORMAL)
-                    .secret(bcryptEncoder.encode(authorities.get(SecurityProperties.AuthorityType.normal).getSecret()))
+                    .secret(bcryptEncoder.encode(authorities.get(AuthenticationProperties.AuthorityType.normal).getSecret()))
                     .authorizedGrantTypes(GRANT_TYPE_PASSWORD, AUTHORIZATION_CODE, IMPLICIT )
                     .scopes(SCOPE_READ, SCOPE_WRITE)
-                    .accessTokenValiditySeconds(securityProperties.getAccessTokenValidity())
-                    .refreshTokenValiditySeconds(securityProperties.getRefreshTokenValidity())
+                    .accessTokenValiditySeconds(authProperties.getAccessTokenValidity())
+                    .refreshTokenValiditySeconds(authProperties.getRefreshTokenValidity())
                 .and()
-                .withClient(authorities.get(SecurityProperties.AuthorityType.trusted).getName())
-                    .resourceIds(securityProperties.getResourceId())
+                .withClient(authorities.get(AuthenticationProperties.AuthorityType.trusted).getName())
+                    .resourceIds(authProperties.getResourceId())
                     .authorities(AUTHORITIES_TRUSTED)
-                    .secret(bcryptEncoder.encode(authorities.get(SecurityProperties.AuthorityType.trusted).getSecret()))
+                    .secret(bcryptEncoder.encode(authorities.get(AuthenticationProperties.AuthorityType.trusted).getSecret()))
                     .authorizedGrantTypes(GRANT_TYPE_PASSWORD, AUTHORIZATION_CODE, REFRESH_TOKEN, IMPLICIT )
                     .scopes(SCOPE_READ, SCOPE_WRITE, SCOPE_TRUST)
-                    .accessTokenValiditySeconds(securityProperties.getAccessTokenValidity())
-                    .refreshTokenValiditySeconds(securityProperties.getRefreshTokenValidity());
+                    .accessTokenValiditySeconds(authProperties.getAccessTokenValidity())
+                    .refreshTokenValiditySeconds(authProperties.getRefreshTokenValidity());
     }
 
     @Override

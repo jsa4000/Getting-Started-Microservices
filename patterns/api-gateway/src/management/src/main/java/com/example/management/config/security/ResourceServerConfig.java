@@ -1,6 +1,6 @@
 package com.example.management.config.security;
 
-import com.example.management.config.bean.SecurityProperties;
+import com.example.management.config.bean.AuthenticationProperties;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
@@ -21,11 +21,11 @@ import org.springframework.security.oauth2.provider.token.store.JwtTokenStore;
 public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
 
     @Autowired
-    private SecurityProperties securityProperties;
+    private AuthenticationProperties authProperties;
 
     @Override
     public void configure(ResourceServerSecurityConfigurer config) {
-        config.resourceId(securityProperties.getResourceId())
+        config.resourceId(authProperties.getResourceId())
                 .tokenServices(tokenServices());
     }
 
@@ -37,7 +37,7 @@ public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
     @Bean
     public JwtAccessTokenConverter accessTokenConverter() {
         JwtAccessTokenConverter converter = new JwtAccessTokenConverter();
-        converter.setSigningKey(securityProperties.getSymmetricKey());
+        converter.setSigningKey(authProperties.getSymmetricKey());
         return converter;
     }
 
@@ -62,7 +62,7 @@ public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
     public FilterRegistrationBean<JwtUserControllerFilter> loggingFilter(){
         FilterRegistrationBean<JwtUserControllerFilter> registrationBean = new FilterRegistrationBean<>();
 
-        registrationBean.setFilter(new JwtUserControllerFilter(securityProperties));
+        registrationBean.setFilter(new JwtUserControllerFilter(authProperties));
         registrationBean.addUrlPatterns("/users/*");
 
         return registrationBean;

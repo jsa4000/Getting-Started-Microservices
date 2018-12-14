@@ -34,7 +34,13 @@
 
         http://dockerhost:8080/api/customer/actuator/info
 
-oauth/token
+- Authenticate Gateway Rest API
+
+    http://localhost:8080/oauth/token
+
+- Generate JKS keystore
+
+        keytool -genkey -keyalg RSA -alias keystore -keystore keystore.jks -storepass password -validity 360 -keysize 2048
 
 - Create ``Customers``
 

@@ -13,11 +13,10 @@ import java.util.Map;
 @Component
 @AllArgsConstructor
 @NoArgsConstructor
-@ConfigurationProperties("security")
-public class SecurityProperties {
+@ConfigurationProperties("authentication")
+public class AuthenticationProperties {
     public enum AuthorityType { basic, normal, trusted }
 
-    private boolean enabled = true;
     private String symmetricKey = StringUtils.EMPTY;
     private String resourceId = StringUtils.EMPTY;
     private int accessTokenValidity = Integer.MAX_VALUE;

@@ -1,6 +1,6 @@
 package com.example.gateway.config.security;
 
-import com.example.gateway.config.bean.SecurityProperties;
+import com.example.gateway.config.bean.AuthenticationProperties;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -14,11 +14,11 @@ import org.springframework.security.oauth2.provider.error.OAuth2AccessDeniedHand
 public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
 
     @Autowired
-    private SecurityProperties securityProperties;
+    private AuthenticationProperties authProperties;
 
     @Override
     public void configure(ResourceServerSecurityConfigurer config) {
-        config.resourceId(securityProperties.getResourceId());
+        config.resourceId(authProperties.getResourceId());
     }
 
     @Override

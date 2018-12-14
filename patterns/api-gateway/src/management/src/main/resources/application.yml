@@ -14,8 +14,7 @@ bootstrap:
   save:
     enabled: false
 
-security:
-  enabled: true
+authentication:
   symmetricKey: as466gf
   resourceId: application
 

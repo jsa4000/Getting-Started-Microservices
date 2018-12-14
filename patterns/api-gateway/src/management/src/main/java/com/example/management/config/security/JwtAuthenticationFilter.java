@@ -1,6 +1,6 @@
 package com.example.management.config.security;
 
-import com.example.management.config.bean.SecurityProperties;
+import com.example.management.config.bean.AuthenticationProperties;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import org.apache.commons.lang.StringUtils;
@@ -24,9 +24,9 @@ public class JwtAuthenticationFilter extends  OncePerRequestFilter {
     private static final String TOKEN_AUTHORIZATION_HEADER = "Authorization";
     private static final String TOKEN_AUTHORITIES_PARAMETER = "authorities";
 
-    private SecurityProperties securityProperties;
+    private AuthenticationProperties securityProperties;
 
-    public JwtAuthenticationFilter(SecurityProperties securityProperties) {
+    public JwtAuthenticationFilter(AuthenticationProperties securityProperties) {
         this.securityProperties = securityProperties;
     }
 
