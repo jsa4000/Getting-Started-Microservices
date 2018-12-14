@@ -17,10 +17,10 @@ jib {
         image = "${rootProject.name}:latest"
     }
     container {
-        ports = ['8080']
+        ports = ['8443']
         environment = [
             SPRING_PROFILES_ACTIVE: 'docker',
-            SERVER_PORT: '8080'
+            SERVER_PORT: '8443'
         ]
         labels = [app:rootProject.name,version:version]
         useCurrentTimestamp = true

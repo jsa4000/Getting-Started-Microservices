@@ -7,7 +7,7 @@ services:
     environment:
       SPRING_PROFILES_ACTIVE: docker
     ports:
-    - 8080:8080
+    - 8443:8443
     networks:
     - gateway-network
 

@@ -36,7 +36,9 @@
 
 - Authenticate Gateway Rest API
 
-    http://localhost:8080/oauth/token
+    https://localhost:8080/oauth/token
+
+    > xDisable `Settings -> SSL certificate verification` in Postman.
 
 - Generate JKS keystore
 
