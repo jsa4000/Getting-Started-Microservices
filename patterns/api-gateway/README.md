@@ -52,6 +52,18 @@ Following are described some of the components:
 
 > Inside this solution we wil be using [Consul](https://github.com/hashicorp/consul) instead Eureka for the Service Discovery.
 
+## Service Mesh
+
+A **service mesh** is a configurable infrastructure layer for a microservices application. It makes communication between service instances flexible, reliable, and fast. The mesh provides service discovery, load balancing, encryption, authentication and authorization, support for the circuit breaker pattern, and other capabilities.
+
+The service mesh is usually implemented by providing a proxy instance, called a sidecar, for each service instance. Sidecars handle inter‑service communications, monitoring, security‑related concerns – anything that can be abstracted away from the individual services. This way, developers can handle development, support, and maintenance for the application code in the services; operations can maintain the service mesh and run the app.
+
+### Service Mesh vs Netflix OOS
+
+It can be used both stacks, however Service Mesh is language independent, for polyglot architecture, since it based on sidecar proxies attached to each pod. Also, Service Meshes are very integrated with Kubernetes. Current available Service Mesh best options are **Istio** and **linkerd**
+
+![mapping-table](files/images/istio.png)
+
 ## Implementation
 
 ### Consul Server - Registration Service
@@ -128,6 +140,19 @@ spring:
 
 > In the current example, the **authorization** are delegated to the micro-services. So each micro-service must creates the necessary filter rules and also sets the ``@EnableResourceServer`` annotation, so it checks for the current JWT token to have enough privileges (based on Authorities or custom Jwt parameters) to access to that particular resource.
 
+Netflix uses Zuul for the following:
+
+- Authentication
+- Insights
+- Stress Testing and Canary Testing
+- Dynamic Routing
+- Service Migration
+- Load Shedding
+- Security
+- Static Response handling
+- Active/Active traffic management
+- *Headers enrichment and filtering (forward & backward)*
+
 In order to build Zuul gateway, the micro-service that handles the UI need to be enabled with zuul config. We have to import the dependency ``spring-cloud-starter-zuul`` in *gradle.build* and enable it in application main class using ``@EnableZuulProxy`` annotation.
 
 Zuul also support for **TLS termination** communication and other server modes. Since internal micro-services are supposed to be isolated from outside world, this can **increase** performances on internal communication.
@@ -158,6 +183,7 @@ hystrix:
       execution:
         isolation:
           thread:
+            # Must be greater than ribbon.ConnectTimeout + ribbon.ReadTimeout
             timeoutInMilliseconds: 30000
 
 security:
@@ -256,6 +282,25 @@ server:
     enabled: true
     mime-types: text/html,text/xml,text/plain,text/css, application/javascript, application/json
     min-response-size: 1024
+```
+
+Gateways are also used to solve back-pressure to prevent system overload. It uses the following parameters:
+
+- Max Connections: ``zuul.host.max-total-connections = 2000``
+- Max Connections per host: ``zuul.host.max-per-route-connections = 500``
+- Semaphores: ``zuul.semaphore.maxSemaphores = 3000``
+
+```yaml
+zuul:
+  # ...
+  host:
+    max-total-connections: 1000
+    max-per-route-connections: 100
+  semaphore:
+    max-semaphores: 500
+  routes:
+  # ...
+
 ```
 
 ### Ribbon — Load Balancing
