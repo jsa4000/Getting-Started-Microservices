@@ -1,7 +1,7 @@
 package com.example.gateway.config.security;
 
-import com.example.gateway.config.bean.AuthorityProperties;
 import com.example.gateway.config.bean.AuthenticationProperties;
+import com.example.gateway.config.bean.AuthorityProperties;
 import com.example.gateway.security.CustomTokenEnhancer;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
