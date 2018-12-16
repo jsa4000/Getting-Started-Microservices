@@ -40,31 +40,37 @@ We’ll grab the latest version of DevStack via https:
 
 Now to configure ``stack.sh``. DevStack includes a sample in ``devstack/samples/local.conf``.
 
+> This file must be in ``LF`` format (End Of Line mode).
+
 Create ``local.conf`` as shown below to do the following:
 
 - Set ``FLOATING_RANGE`` to a range not used on the local network, i.e. 192.168.1.224/27. This configures IP addresses ending in 225-254 to be used as floating IPs.
 - Set ``FIXED_RANGE`` and FIXED_NETWORK_SIZE to configure the internal address space used by the instances.
 - Set ``FLAT_INTERFACE`` to the Ethernet interface that connects the host to your local network. This is the interface that should be configured with the static IP address mentioned above.
 - Set the administrative password. This password is used for the admin and demo accounts set up as OpenStack users.
-- Set the ``MySQL`` administrative password. The default here is a random hex string which is inconvenient if you need to look at the database directly for anything.
-- Set the ``RabbitMQ`` password.
-- Set the ``service`` password. This is used by the OpenStack services (Nova, Glance, etc) to authenticate with Keystone.
+- Set the ``DATABASE_PASSWORD`` administrative password. The default here is a random hex string which is inconvenient if you need to look at the database directly for anything.
+- Set the ``RABBIT_PASSWORD`` password.
+- Set the ``SERVICE_PASSWORD`` password. This is used by the OpenStack services (Nova, Glance, etc) to authenticate with Keystone.
+- Set the ``HOST_IP`` with the IP Address of current host.
 
 ``local.conf`` should look something like this:
 
 ```bash
 [[local|localrc]]
-HOST_IP=10.0.0.10
 ADMIN_PASSWORD=password
 DATABASE_PASSWORD=$ADMIN_PASSWORD
 RABBIT_PASSWORD=$ADMIN_PASSWORD
 SERVICE_PASSWORD=$ADMIN_PASSWORD
+HOST_IP=10.0.0.10
+#FLOATING_RANGE=10.0.0.224/27
 LOGFILE=$DEST/logs/stack.sh.log
 LOGDAYS=2
 SWIFT_HASH=66a3d6b56c1f479c8b4e70ab5c2000f5
 SWIFT_REPLICAS=1
 SWIFT_DATA_DIR=$DEST/data
 ```
+
+> It can be used the pre-made configuration inside ``/vagrant/files/`` folder.  i.e ``cp /vagrant/files/local.lbaas.conf local.conf``
 
 Run DevStack:
 
@@ -92,6 +98,32 @@ Change: 86011b700a89dc4e7e156eb662f435271934d5f1 Merge "Update cirros version" 2
 OS Version: Ubuntu 16.04 xenial
 ```
 
+Create an snapshot
+
+     vagrant snapshot save openstack-master initial-openstack
+
 ## Using OpenStack
 
 At this point you should be able to access the dashboard from other computers on the local network. In this example that would be http://192.168.1.201/ for the dashboard (aka Horizon). Launch VMs and if you give them floating IPs and security group access those VMs will be accessible from other machines on your network.
+
+## Network
+
+By default , previous installation creates new interfaces on host machine. The most important interface is ``br-ex``, that allows internal networks created on open-stack to connect to external interfaces such as internet.
+
+```bash
+vagrant@openstack-master:~$ ifconfig br-ex
+br-ex     Link encap:Ethernet  HWaddr f2:16:49:f0:c9:40
+          inet addr:172.24.4.1  Bcast:0.0.0.0  Mask:255.255.255.0
+          inet6 addr: 2001:db8::2/64 Scope:Global
+          inet6 addr: fe80::f016:49ff:fef0:c940/64 Scope:Link
+          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
+          RX packets:29 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:12 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:1
+          RX bytes:1744 (1.7 KB)  TX bytes:1256 (1.2 KB)
+ ```
+
+Perform some sanity checks (get current networks created)
+
+    . ./openrc
+    openstack network list  # should show public and private networks
