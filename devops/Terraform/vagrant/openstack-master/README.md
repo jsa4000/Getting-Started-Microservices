@@ -26,7 +26,9 @@ Since this user will be making many changes to your system, it will need to have
 From here on you should use the user you created. Logout and login as that user.
 
     su -l stack  
-    # 'sudo su -l stack' if not sudo user
+
+    # if not sudo user
+    sudo su -l stack
 
 ## Download DevStack
 
@@ -38,14 +40,16 @@ We’ll grab the latest version of DevStack via https:
 
 ## Run DevStack
 
+[Configuring DevStack for Horizon](https://docs.openstack.org/horizon/latest/contributor/ref/local_conf.html)
+
 Now to configure ``stack.sh``. DevStack includes a sample in ``devstack/samples/local.conf``.
 
 > This file must be in ``LF`` format (End Of Line mode).
 
 Create ``local.conf`` as shown below to do the following:
 
-- Set ``FLOATING_RANGE`` to a range not used on the local network, i.e. 192.168.1.224/27. This configures IP addresses ending in 225-254 to be used as floating IPs.
-- Set ``FIXED_RANGE`` and FIXED_NETWORK_SIZE to configure the internal address space used by the instances.
+- Set ``FLOATING_RANGE`` (CIDR) to a range not used on the local network, i.e. 10.0.0.224/27. This configures IP addresses ending in 225-254 to be used as **floating IP**s.
+- Set ``FIXED_RANGE`` and ``FIXED_NETWORK_SIZE`` to configure the internal address space used by the instances.
 - Set ``FLAT_INTERFACE`` to the Ethernet interface that connects the host to your local network. This is the interface that should be configured with the static IP address mentioned above.
 - Set the administrative password. This password is used for the admin and demo accounts set up as OpenStack users.
 - Set the ``DATABASE_PASSWORD`` administrative password. The default here is a random hex string which is inconvenient if you need to look at the database directly for anything.
@@ -62,7 +66,7 @@ DATABASE_PASSWORD=$ADMIN_PASSWORD
 RABBIT_PASSWORD=$ADMIN_PASSWORD
 SERVICE_PASSWORD=$ADMIN_PASSWORD
 HOST_IP=10.0.0.10
-#FLOATING_RANGE=10.0.0.224/27
+FLOATING_RANGE=10.0.0.224/27
 LOGFILE=$DEST/logs/stack.sh.log
 LOGDAYS=2
 SWIFT_HASH=66a3d6b56c1f479c8b4e70ab5c2000f5
@@ -110,17 +114,19 @@ At this point you should be able to access the dashboard from other computers on
 
 By default , previous installation creates new interfaces on host machine. The most important interface is ``br-ex``, that allows internal networks created on open-stack to connect to external interfaces such as internet.
 
+Following command shows the interface ``br-ex`` starting from the range configured in the settings. ``FLOATING_RANGE=10.0.0.224/27``
+
 ```bash
 vagrant@openstack-master:~$ ifconfig br-ex
-br-ex     Link encap:Ethernet  HWaddr f2:16:49:f0:c9:40
-          inet addr:172.24.4.1  Bcast:0.0.0.0  Mask:255.255.255.0
+br-ex     Link encap:Ethernet  HWaddr 8e:78:34:db:a3:4e
+          inet addr:10.0.0.225  Bcast:0.0.0.0  Mask:255.255.255.224
           inet6 addr: 2001:db8::2/64 Scope:Global
-          inet6 addr: fe80::f016:49ff:fef0:c940/64 Scope:Link
+          inet6 addr: fe80::8c78:34ff:fedb:a34e/64 Scope:Link
           UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
-          RX packets:29 errors:0 dropped:0 overruns:0 frame:0
-          TX packets:12 errors:0 dropped:0 overruns:0 carrier:0
+          RX packets:32 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:13 errors:0 dropped:0 overruns:0 carrier:0
           collisions:0 txqueuelen:1
-          RX bytes:1744 (1.7 KB)  TX bytes:1256 (1.2 KB)
+          RX bytes:1844 (1.8 KB)  TX bytes:1326 (1.3 KB)
  ```
 
 Perform some sanity checks (get current networks created)
