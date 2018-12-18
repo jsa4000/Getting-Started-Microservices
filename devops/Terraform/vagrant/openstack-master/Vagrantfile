@@ -18,4 +18,5 @@ Vagrant.configure("2") do |config|
      vb.cpus = "4"
   end
   config.vm.provision :shell, path: "provision/ubuntu_update.sh"
+  config.vm.provision :shell, path: "provision/openstack_install.sh"
 end
