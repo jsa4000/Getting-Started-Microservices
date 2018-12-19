@@ -1,6 +1,4 @@
 # Terraform Openstack deployment
-# Author: Rafael Belchior - rafael.belchior@tecnico.ulisboa.pt
-
 
 #Debugging
 #OS_DEBUG=1 
@@ -11,9 +9,10 @@ variable "tenant_name"	{}
 variable "user_name"	{}	 	
 variable "password"	{} 	
 variable "domain_name"	{} 	 
+variable "ssh_key_public"	{} 
 
 provider "openstack" {
-  user_name   = "${var.username}"
+  user_name   = "${var.user_name}"
   password    = "${var.password}"
   tenant_name = "${var.tenant_name}"
   domain_name = "${var.domain_name}"
