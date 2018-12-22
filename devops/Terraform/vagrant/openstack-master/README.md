@@ -74,7 +74,7 @@ SWIFT_REPLICAS=1
 SWIFT_DATA_DIR=$DEST/data
 ```
 
-> It can be used the pre-made configuration inside ``/vagrant/files/`` folder.  i.e ``cp /vagrant/files/local.lbaas.conf local.conf``
+> It can be used the pre-made configuration inside ``/vagrant/files/`` folder.  i.e ``cp /vagrant/files/local.conf local.conf``
 
 Run DevStack:
 
@@ -103,8 +103,8 @@ OS Version: Ubuntu 16.04 xenial
 ```
 
 Create an snapshot
-
-     vagrant snapshot save openstack-master initial-openstack
+o
+     vagrant snapshot save initial-openstack
 
 ## Using OpenStack
 
