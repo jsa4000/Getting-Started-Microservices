@@ -1,0 +1,150 @@
+<html>
+
+<head>
+
+<style>
+pre {}
+.string { color: green; }
+.number { color: darkorange; }
+.boolean { color: blue; }
+.null { color: magenta; }
+.key { color: red; }
+</style>
+
+
+</head>
+
+<body>
+
+<form id="jsonFile" name="jsonFile" enctype="multipart/form-data" method="post">
+
+  <fieldset>
+    <h2>Json File</h2>
+     <input type='file' id='fileinput'>
+     <input type='button' id='btnLoad' value='Load' onclick='loadFile();'>
+  </fieldset>
+</form>
+
+<script type="text/javascript">
+
+  function loadFile() {
+    var input, file, fr;
+
+    if (typeof window.FileReader !== 'function') {
+      alert("The file API isn't supported on this browser yet.");
+      return;
+    }
+
+    input = document.getElementById('fileinput');
+    if (!input) {
+      alert("Um, couldn't find the fileinput element.");
+    }
+    else if (!input.files) {
+      alert("This browser doesn't seem to support the `files` property of file inputs.");
+    }
+    else if (!input.files[0]) {
+      alert("Please select a file before clicking 'Load'");
+    }
+    else {
+      file = input.files[0];
+      fr = new FileReader();
+      fr.onload = receivedText;
+      fr.readAsText(file);
+    }
+
+    function receivedText(e) {
+      let lines = e.target.result;
+      var newArr = JSON.parse(lines); 
+    }
+  }
+</script>
+
+<form id="jsonUrl" name="jsonUrl" enctype="multipart/form-data" method="post">
+
+  <fieldset>
+    <h2>Json Url</h2>
+     <input type='text' id='urlGet' style="width: 550px;" value="https://api.github.com/users/jsa4000/repos">
+     <input type='button' id='btnLoadUrl' value='LoadUrl'  onclick='gethtmlcontents();'>
+	 <input type='button' id='btnCloneUrl' value='LoadCloneUrl'  onclick='getCloneUrl();'>
+  </fieldset>
+</form>
+
+<script>
+function output(inp) {
+    document.body.appendChild(document.createElement('pre')).innerHTML = inp;
+}
+
+function getCloneUrl(){
+    //path = "https://api.github.com/users/jsa4000/repos";
+	path = document.getElementById('urlGet').value;
+    var rawFile = new XMLHttpRequest();
+    var my_file = rawFile.open("GET", path, true)  // Synchronous File Read
+    //alert('Starting to read text')
+    rawFile.onreadystatechange = function ()
+    {
+        //alert("I am here");
+        if(rawFile.readyState === 4)
+        {
+            if(rawFile.status === 200 || rawFile.status == 0)
+            {
+                var loop = [];
+                //alert(allText)
+                var jsonData = JSON.parse(rawFile.responseText);
+				for (var i = 0, len = jsonData.length; i < len; ++i) {
+					loop.push({url:  jsonData[i]['clone_url']});
+				}
+
+				var json_format = JSON.stringify({repos: loop});
+                output(syntaxHighlight(json_format));
+            }
+        }
+    }
+    rawFile.send(null);
+}
+
+function gethtmlcontents(){
+    //path = "https://api.github.com/users/jsa4000/repos";
+	path = document.getElementById('urlGet').value;
+    var rawFile = new XMLHttpRequest();
+    var my_file = rawFile.open("GET", path, true)  // Synchronous File Read
+    //alert('Starting to read text')
+    rawFile.onreadystatechange = function ()
+    {
+        //alert("I am here");
+        if(rawFile.readyState === 4)
+        {
+            if(rawFile.status === 200 || rawFile.status == 0)
+            {
+                var allText = rawFile.responseText;
+                //alert(allText)
+                var json_format = JSON.stringify(JSON.parse(allText), null, 8)
+                //output(json_format)
+                output(syntaxHighlight(json_format));
+            }
+        }
+    }
+    rawFile.send(null);
+}
+
+function syntaxHighlight(json) {
+    json = json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function (match) {
+        var cls = 'number';
+        if (/^"/.test(match)) {
+            if (/:$/.test(match)) {
+                cls = 'key';
+            } else {
+                cls = 'string';
+            }
+        } else if (/true|false/.test(match)) {
+            cls = 'boolean';
+        } else if (/null/.test(match)) {
+            cls = 'null';
+        }
+        return '<span class="' + cls + '">' + match + '</span>';
+    });
+}
+
+</script>
+</body>
+</html>
