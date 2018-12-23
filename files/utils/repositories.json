@@ -1,0 +1,58 @@
+{
+    "repos": [
+        {
+            "url": "https://github.com/jsa4000/Apache-JMeter-Toolkit.git"
+        },
+        {
+            "url": "https://github.com/jsa4000/Autopilot-TSIP.git"
+        },
+        {
+            "url": "https://github.com/jsa4000/Dropbox-Remote-Desktop.git"
+        },
+        {
+            "url": "https://github.com/jsa4000/Getting-Started-GitHub.git"
+        },
+        {
+            "url": "https://github.com/jsa4000/Getting-Started-Microservices.git"
+        },
+        {
+            "url": "https://github.com/jsa4000/Getting-Started-MongoDB.git"
+        },
+        {
+            "url": "https://github.com/jsa4000/Getting-Started-NodeJS.git"
+        },
+        {
+            "url": "https://github.com/jsa4000/Getting-Started-Python.git"
+        },
+        {
+            "url": "https://github.com/jsa4000/NET-Framework-Projects.git"
+        },
+        {
+            "url": "https://github.com/jsa4000/Observable-Distributed-System.git"
+        },
+        {
+            "url": "https://github.com/jsa4000/OpenGL-Python.git"
+        },
+        {
+            "url": "https://github.com/jsa4000/SideFX-HOUDINI.git"
+        },
+        {
+            "url": "https://github.com/jsa4000/Singularity.git"
+        },
+        {
+            "url": "https://github.com/jsa4000/Spatial-Module-Python.git"
+        },
+        {
+            "url": "https://github.com/jsa4000/Terrain-3d-Generator.git"
+        },
+        {
+            "url": "https://github.com/jsa4000/Training-Courses.git"
+        },
+        {
+            "url": "https://github.com/jsa4000/Windows-KeyPress-Hook.git"
+        },
+        {
+            "url": "https://github.com/jsa4000/Windows-Session-Unlocker.git"
+        }
+    ]
+}
