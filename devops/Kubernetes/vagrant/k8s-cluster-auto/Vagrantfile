@@ -3,7 +3,7 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
-WORKERS_COUNT = 2
+WORKERS_COUNT = ENV['WORKERS_COUNT']
 
 Vagrant.configure("2") do |config|
  
