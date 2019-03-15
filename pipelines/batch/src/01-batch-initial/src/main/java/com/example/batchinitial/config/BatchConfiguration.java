@@ -55,7 +55,7 @@ public class BatchConfiguration {
                       ItemProcessor<Person, Person> processor,
                       ItemWriter<Person> writer) {
         return stepBuilderFactory.get("step1")
-                .<Person, Person>chunk(100)
+                .<Person, Person>chunk(10)
                 .reader(reader)
                 .processor(processor)
                 .writer(writer)
