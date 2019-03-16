@@ -5,23 +5,23 @@ spring:
   batch:
     job.enabled: false
     initialize-schema: always
+  #jpa.database: default
   #jpa.hibernate.ddl-auto: update
-  datasource:
-    #initialize: false
-    initialization-mode: always
-    url: jdbc:postgresql://dockerhost:5432/db
-    username: postgres
-    password: password
-    driver-class-name: org.postgresql.Driver
 
-person:
+app:
   datasource:
-    #initialize: false
-    initialization-mode: always
-    url: jdbc:postgresql://dockerhost:5432/db
-    username: postgres
-    password: password
-    driver-class-name: org.postgresql.Driver
+    first:
+      initialization-mode: always
+      url: jdbc:mysql://dockerhost:3306/db
+      username: root
+      password: password
+      driver-class-name: com.mysql.cj.jdbc.Driver
+    second:
+      initialization-mode: always
+      url: jdbc:postgresql://dockerhost:5432/db
+      username: postgres
+      password: password
+      driver-class-name: org.postgresql.Driver
 
 batch:
   resource: ${BATCH_RESOURCE:file:D:/DEVELOPMENT/Github/Getting-Started-Microservices/pipelines/batch/src/01-batch-initial/src/main/resources/sample-data.csv}
