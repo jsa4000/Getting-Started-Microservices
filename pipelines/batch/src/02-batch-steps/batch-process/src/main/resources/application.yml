@@ -10,7 +10,7 @@ spring:
 
 batch:
   max-threads: 4
-  filename: sample-data.xml
+  filename: sample-data.csv
   departmentsUri: http://localhost:8081/departments
   datasource:
     first:

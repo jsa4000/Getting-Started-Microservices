@@ -10,16 +10,16 @@ import org.springframework.stereotype.Component;
 public class SkipProcessListener implements SkipListener<Person, Person> {
     @Override
     public void onSkipInRead(Throwable t) {
-
+        log.info("Skipped Record Read");
     }
 
     @Override
     public void onSkipInWrite(Person item, Throwable t) {
-
+        log.info("Skipped Record Written (" + item + ")");
     }
 
     @Override
     public void onSkipInProcess(Person item, Throwable t) {
-        log.info("Skipped Process Record (" + item + ")");
+        log.info("Skipped Record Processed(" + item + ")");
     }
 }
