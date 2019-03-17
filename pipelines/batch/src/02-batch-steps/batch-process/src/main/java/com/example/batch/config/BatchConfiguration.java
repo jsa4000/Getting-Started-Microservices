@@ -24,6 +24,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.Resource;
+import org.springframework.core.task.SimpleAsyncTaskExecutor;
+import org.springframework.core.task.TaskExecutor;
 import org.springframework.retry.annotation.EnableRetry;
 
 import javax.sql.DataSource;
@@ -32,6 +34,9 @@ import javax.sql.DataSource;
 @Configuration
 @EnableBatchProcessing
 public class BatchConfiguration {
+
+    @Value("${app.max-threads:4}")
+    private int maxThreads;
 
     @Bean
     public FlatFileItemReader<Person> reader(@Value("${batch.resource:sample-data.csv}") Resource resource) {
@@ -86,6 +91,14 @@ public class BatchConfiguration {
                 .retry(RuntimeException.class)
                 .listener(skipListener)
                 .writer(writer)
+                .taskExecutor(taskExecutor())
                 .build();
+    }
+
+    @Bean
+    public TaskExecutor taskExecutor() {
+        SimpleAsyncTaskExecutor taskExecutor = new SimpleAsyncTaskExecutor();
+        taskExecutor.setConcurrencyLimit(maxThreads);
+        return taskExecutor;
     }
 }

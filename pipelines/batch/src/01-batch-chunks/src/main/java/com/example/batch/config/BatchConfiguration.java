@@ -18,10 +18,15 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.Resource;
+import org.springframework.core.task.SimpleAsyncTaskExecutor;
+import org.springframework.core.task.TaskExecutor;
 
 @Configuration
 @EnableBatchProcessing
 public class BatchConfiguration {
+
+    @Value("${batch.max-threads:4}")
+    private int maxThreads;
 
     @Bean
     public FlatFileItemReader<Person> reader(@Value("${batch.resource:sample-data.csv}") Resource resource) {
@@ -59,6 +64,14 @@ public class BatchConfiguration {
                 .reader(reader)
                 .processor(processor)
                 .writer(writer)
+                .taskExecutor(taskExecutor())
                 .build();
+    }
+
+    @Bean
+    public TaskExecutor taskExecutor() {
+        SimpleAsyncTaskExecutor taskExecutor = new SimpleAsyncTaskExecutor();
+        taskExecutor.setConcurrencyLimit(maxThreads);
+        return taskExecutor;
     }
 }
