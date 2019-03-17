@@ -35,6 +35,10 @@ public class PersonEnrichProcessor implements ItemProcessor<Person, Person> {
     public Person process(final Person person) throws Exception {
         Optional<Department> dep = deparmentService.getById(person.getDepartmentId());
         if (dep.isPresent()) {
+             if (dep.get().getName().toUpperCase().equals("UNKNOWN")) {
+                 log.info("Filtering (" + person + ")");
+                return null;
+            }
             log.info("From Rest Service; " + dep.get().getName());
         } else {
             dep = Optional.of(new Department(0, "Error retrieving the department"));
