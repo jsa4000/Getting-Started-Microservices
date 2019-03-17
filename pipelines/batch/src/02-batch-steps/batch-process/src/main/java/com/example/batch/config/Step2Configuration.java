@@ -5,6 +5,7 @@ import com.example.batch.listener.SkipProcessListener;
 import com.example.batch.model.Person;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
+import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.item.database.BeanPropertyItemSqlParameterSourceProvider;
 import org.springframework.batch.item.database.JdbcBatchItemWriter;
 import org.springframework.batch.item.database.builder.JdbcBatchItemWriterBuilder;
@@ -25,8 +26,9 @@ import javax.sql.DataSource;
 @Configuration
 public class Step2Configuration {
 
-    @Bean(name = "readerStep2")
-    public FlatFileItemReader<Person> reader(@Value("${batch.resource:sample-data.csv}") String filename) {
+    @Bean
+    @StepScope
+    public FlatFileItemReader<Person> readerStep2(@Value("${batch.resource:sample-data.csv}") String filename) {
         return new FlatFileItemReaderBuilder<Person>()
                 .name("personItemReader")
                 .linesToSkip(1)
@@ -39,8 +41,9 @@ public class Step2Configuration {
                 .build();
     }
 
-    @Bean(name = "writerStep2")
-    public JdbcBatchItemWriter<Person> writer(@Qualifier("secondDataSource") DataSource dataSource) {
+    @Bean
+    @StepScope
+    public JdbcBatchItemWriter<Person> writerStep2(@Qualifier("secondDataSource") DataSource dataSource) {
         return new JdbcBatchItemWriterBuilder<Person>()
                 .itemSqlParameterSourceProvider(new BeanPropertyItemSqlParameterSourceProvider<>())
                 .sql("INSERT INTO person2 (first_name, last_name, department, update_time) VALUES (:firstName, :lastName, :department, :updateTime)")
@@ -56,7 +59,7 @@ public class Step2Configuration {
 
         return stepBuilderFactory.get("step2")
                 .<Person, Person>chunk(10)
-                .reader(reader(null))
+                .reader(readerStep2(null))
                 .processor(processor)
                 .faultTolerant()
                 .skipLimit(10)
@@ -64,7 +67,7 @@ public class Step2Configuration {
                 .retryLimit(2)
                 .retry(RuntimeException.class)
                 .listener(skipListener)
-                .writer(writer(null))
+                .writer(writerStep2(null))
                 .taskExecutor(taskExecutor)
                 .build();
     }
