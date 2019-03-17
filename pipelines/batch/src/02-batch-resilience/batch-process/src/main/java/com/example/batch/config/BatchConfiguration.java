@@ -1,8 +1,10 @@
 package com.example.batch.config;
 
 import com.example.batch.listener.JobCompletionNotificationListener;
+import com.example.batch.listener.SkipProcessListener;
 import com.example.batch.model.Person;
 import org.springframework.batch.core.Job;
+import org.springframework.batch.core.SkipListener;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
@@ -70,11 +72,19 @@ public class BatchConfiguration {
     public Step step1(StepBuilderFactory stepBuilderFactory,
                       ItemReader<Person> reader,
                       ItemProcessor<Person, Person> processor,
-                      ItemWriter<Person> writer) {
+                      ItemWriter<Person> writer,
+                      SkipProcessListener skipListener) {
+
         return stepBuilderFactory.get("step1")
                 .<Person, Person>chunk(10)
                 .reader(reader)
                 .processor(processor)
+                .faultTolerant()
+                .skipLimit(10)
+                .skip(RuntimeException.class)
+                .retryLimit(2)
+                .retry(RuntimeException.class)
+                .listener(skipListener)
                 .writer(writer)
                 .build();
     }

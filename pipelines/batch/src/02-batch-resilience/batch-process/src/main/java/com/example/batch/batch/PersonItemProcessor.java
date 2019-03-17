@@ -31,7 +31,7 @@ public class PersonItemProcessor implements ItemProcessor<Person, Person> {
     }
 
     @Override
-    @CircuitBreaker (maxAttempts = 2, resetTimeout= 20000, openTimeout = 5000)
+    //@CircuitBreaker (maxAttempts = 2, resetTimeout= 20000, openTimeout = 5000)
     public Person process(final Person person) throws Exception {
         Optional<Department> dep = deparmentService.getById(person.getDepartmentId());
         if (dep.isPresent()) {
