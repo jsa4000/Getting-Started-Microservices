@@ -13,26 +13,26 @@ public class DataSourceConfig {
 
     @Bean
     @Primary
-    @ConfigurationProperties("app.datasource.first")
+    @ConfigurationProperties("batch.datasource.first")
     public DataSourceProperties firstDataSourceProperties() {
         return new DataSourceProperties();
     }
 
     @Bean
     @Primary
-    @ConfigurationProperties("app.datasource.first")
+    @ConfigurationProperties("batch.datasource.first")
     public DataSource firstDataSource() {
         return firstDataSourceProperties().initializeDataSourceBuilder().build();
     }
 
     @Bean
-    @ConfigurationProperties("app.datasource.second")
+    @ConfigurationProperties("batch.datasource.second")
     public DataSourceProperties secondDataSourceProperties() {
         return new DataSourceProperties();
     }
 
     @Bean(name = "secondDataSource")
-    @ConfigurationProperties("app.datasource.second")
+    @ConfigurationProperties("batch.datasource.second")
     public DataSource secondDataSource() {
         return secondDataSourceProperties().initializeDataSourceBuilder().build();
     }

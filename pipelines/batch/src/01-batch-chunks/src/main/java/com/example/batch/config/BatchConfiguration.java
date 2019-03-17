@@ -17,6 +17,7 @@ import org.springframework.batch.item.file.mapping.BeanWrapperFieldSetMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.task.SimpleAsyncTaskExecutor;
 import org.springframework.core.task.TaskExecutor;
@@ -29,11 +30,11 @@ public class BatchConfiguration {
     private int maxThreads;
 
     @Bean
-    public FlatFileItemReader<Person> reader(@Value("${batch.resource:sample-data.csv}") Resource resource) {
+    public FlatFileItemReader<Person> reader(@Value("${batch.file:sample-data.csv}") String filename) {
         return new FlatFileItemReaderBuilder<Person>()
                 .name("personItemReader")
                 .linesToSkip(1)
-                .resource(resource)
+                .resource(new ClassPathResource(filename))
                 .delimited()
                 .names(new String[]{"firstName", "lastName"})
                 .fieldSetMapper(new BeanWrapperFieldSetMapper<Person>() {{

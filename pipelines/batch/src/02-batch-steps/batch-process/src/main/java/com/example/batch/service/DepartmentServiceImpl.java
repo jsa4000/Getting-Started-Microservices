@@ -13,7 +13,7 @@ import java.util.Optional;
 @Component
 public class DepartmentServiceImpl implements DepartmentService {
 
-    @Value("${app.departmentsUri:http://localhost:8081/departments}")
+    @Value("${batch.departmentsUri:http://localhost:8081/departments}")
     String departmentsUri;
 
     @Autowired

@@ -8,7 +8,9 @@ spring:
   #jpa.database: default
   #jpa.hibernate.ddl-auto: update
 
-app:
+batch:
+  max-threads: 4
+  filename: sample-data.xml
   departmentsUri: http://localhost:8081/departments
   datasource:
     first:
@@ -23,6 +25,3 @@ app:
       username: postgres
       password: password
       driver-class-name: org.postgresql.Driver
-
-batch:
-  resource: ${BATCH_RESOURCE:file:D:/DEVELOPMENT/Github/Getting-Started-Microservices/pipelines/batch/src/02-batch-resilience/batch-process/src/main/resources/sample-data.csv}

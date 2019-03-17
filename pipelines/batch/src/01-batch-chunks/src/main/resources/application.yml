@@ -22,4 +22,4 @@ spring:
 
 batch:
   max-threads: 4
-  resource: ${BATCH_RESOURCE:file:D:/DEVELOPMENT/Github/Getting-Started-Microservices/pipelines/batch/src/01-batch-chunks/src/main/resources/sample-data.csv}
+  filename: sample-data.csv
