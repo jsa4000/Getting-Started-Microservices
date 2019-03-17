@@ -36,7 +36,7 @@ public class BatchConfiguration {
                 .linesToSkip(1)
                 .resource(resource)
                 .delimited()
-                .names(new String[]{"firstName", "lastName"})
+                .names(new String[]{"firstName", "lastName", "departmentId"})
                 .fieldSetMapper(new BeanWrapperFieldSetMapper<Person>() {{
                     setTargetType(Person.class);
                 }})
@@ -47,7 +47,7 @@ public class BatchConfiguration {
     public JdbcBatchItemWriter<Person> writer(@Qualifier("secondDataSource") DataSource dataSource) {
         return new JdbcBatchItemWriterBuilder<Person>()
                 .itemSqlParameterSourceProvider(new BeanPropertyItemSqlParameterSourceProvider<>())
-                .sql("INSERT INTO person (first_name, last_name, update_time) VALUES (:firstName, :lastName, :updateTime)")
+                .sql("INSERT INTO person (first_name, last_name, department, update_time) VALUES (:firstName, :lastName, :department, :updateTime)")
                 .dataSource(dataSource)
                 .build();
     }

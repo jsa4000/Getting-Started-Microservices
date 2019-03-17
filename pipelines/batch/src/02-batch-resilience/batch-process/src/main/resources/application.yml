@@ -9,6 +9,7 @@ spring:
   #jpa.hibernate.ddl-auto: update
 
 app:
+  departmentsUri: http://localhost:8081/departments
   datasource:
     first:
       initialization-mode: always
