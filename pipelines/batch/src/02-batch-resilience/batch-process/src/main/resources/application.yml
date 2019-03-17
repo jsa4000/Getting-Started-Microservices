@@ -1,0 +1,27 @@
+server:
+  port: 8080
+
+spring:
+  batch:
+    job.enabled: false
+    initialize-schema: always
+  #jpa.database: default
+  #jpa.hibernate.ddl-auto: update
+
+app:
+  datasource:
+    first:
+      initialization-mode: always
+      url: jdbc:mysql://dockerhost:3306/db
+      username: root
+      password: password
+      driver-class-name: com.mysql.cj.jdbc.Driver
+    second:
+      initialization-mode: always
+      url: jdbc:postgresql://dockerhost:5432/db
+      username: postgres
+      password: password
+      driver-class-name: org.postgresql.Driver
+
+batch:
+  resource: ${BATCH_RESOURCE:file:D:/DEVELOPMENT/Github/Getting-Started-Microservices/pipelines/batch/src/02-batch-resilience/batch-process/src/main/resources/sample-data.csv}
