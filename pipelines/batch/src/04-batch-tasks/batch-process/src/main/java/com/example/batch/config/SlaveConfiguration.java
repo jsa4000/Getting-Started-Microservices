@@ -34,8 +34,7 @@ public class SlaveConfiguration {
     private int maxThreads;
 
     @Bean
-    public DeployerStepExecutionHandler stepExecutionHandler(ApplicationContext context,
-                                                             JobExplorer jobExplorer,
+    public DeployerStepExecutionHandler stepExecutionHandler(ApplicationContext context, JobExplorer jobExplorer,
                                                              JobRepository jobRepository) {
         return new DeployerStepExecutionHandler(context, jobExplorer, jobRepository);
     }
