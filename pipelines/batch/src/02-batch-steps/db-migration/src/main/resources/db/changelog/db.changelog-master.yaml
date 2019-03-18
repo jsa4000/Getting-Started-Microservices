@@ -1,0 +1,55 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1
+      author: jsantosa
+      changes:
+        - createTable:
+            tableName: person
+            columns:
+              - column:
+                  name: person_id
+                  type: int
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: first_name
+                  type: varchar(255)
+              - column:
+                  name: last_name
+                  type: varchar(255)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: department
+                  type: varchar(255)
+                  constraints:
+                    nullable: true
+
+
+  - changeSet:
+      id: 2
+      author: jsantosa
+      changes:
+        - addColumn:
+            tableName: person
+            columns:
+              - column:
+                  name: update_time
+                  type: datetime
+                  constraints:
+                    nullable: true
+
+  - changeSet:
+      id: 3
+      author: jsantosa
+      changes:
+        - addColumn:
+            tableName: person
+            columns:
+              - column:
+                  name: file_name
+                  type: varchar(1024)
+                  constraints:
+                    nullable: true

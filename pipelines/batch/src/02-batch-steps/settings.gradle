@@ -1,5 +1,6 @@
 include 'batch-process'
 include 'rest-service'
+include 'db-migration'
 
 
 
