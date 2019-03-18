@@ -11,8 +11,8 @@ spring:
 batch:
   max-threads: 4
   filename: sample-data.zip
-  file: sample-data-01.csv
   tempDir: src/main/resources/data
+  pattern: D:/Minsait/Projects/Github/Getting-Started-Microservices/pipelines/batch/src/03-batch-partitions/batch-process/src/main/resources/data/*.csv
   departmentsUri: http://localhost:8081/departments
   datasource:
     first:
