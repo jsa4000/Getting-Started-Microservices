@@ -89,6 +89,4 @@ public class SlaveConfiguration {
         taskExecutor.afterPropertiesSet();
         return taskExecutor;
     }
-
-
 }

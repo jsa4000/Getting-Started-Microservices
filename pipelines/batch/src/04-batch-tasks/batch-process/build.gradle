@@ -4,6 +4,7 @@ plugins {
 }
 
 apply plugin: 'io.spring.dependency-management'
+apply plugin: 'maven-publish'
 
 group = 'com.example'
 version = '0.0.1-SNAPSHOT'
@@ -25,6 +26,7 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-aop'
 	implementation 'org.springframework.batch:spring-batch-integration'
 	implementation 'org.springframework.cloud:spring-cloud-starter-task:2.1.1.RELEASE'
+    implementation 'org.springframework.cloud:spring-cloud-task-dependencies:2.1.1.RELEASE'
 	implementation 'org.springframework.cloud:spring-cloud-deployer-local:2.0.0.RELEASE'
 	runtimeOnly 'mysql:mysql-connector-java'
 	runtimeOnly 'org.postgresql:postgresql'
@@ -33,4 +35,13 @@ dependencies {
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.springframework.batch:spring-batch-test'
 	testRuntimeOnly 'com.h2database:h2'
+}
+
+jar {
+	manifest {
+		attributes "Main-Class": "com.example.batch.BatchApplication"
+	}
+	from {
+		configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
+	}
 }

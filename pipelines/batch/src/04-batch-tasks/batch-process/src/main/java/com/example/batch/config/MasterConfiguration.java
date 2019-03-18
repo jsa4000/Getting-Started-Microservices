@@ -77,7 +77,7 @@ public class MasterConfiguration {
                                                      CommandLineArgsProvider commandLineArgsProvider) {
         DeployerPartitionHandler partitionHandler = new DeployerPartitionHandler(taskLauncher,
                         jobExplorer,
-                        context.getResource(resourceLocation),
+                        context.getResource("file:" + resourceLocation),
                         "load");
 
         partitionHandler.setCommandLineArgsProvider(commandLineArgsProvider);
@@ -109,9 +109,9 @@ public class MasterConfiguration {
         return jobBuilderFactory.get("job")
                 .incrementer(new RunIdIncrementer())
                 .listener(listener)
-                .start(preProcessStep(null,null))
-                .next(masterStep( null, null, null))
-                .next(postProcessStep(null,null))
+                //.start(preProcessStep(null,null))
+                .start(masterStep( null, null, null))
+                //.next(postProcessStep(null,null))
                 .build();
     }
 }
