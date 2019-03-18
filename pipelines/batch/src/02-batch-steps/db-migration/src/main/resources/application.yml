@@ -1,5 +1,3 @@
-server.port: 9999
-
 spring:
   datasource:
     url: jdbc:postgresql://dockerhost:5432/db
