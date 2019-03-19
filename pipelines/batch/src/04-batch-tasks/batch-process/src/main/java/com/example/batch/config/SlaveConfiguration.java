@@ -43,7 +43,7 @@ public class SlaveConfiguration {
 
     @Bean
     @StepScope
-    public FlatFileItemReader<Person> reader(@Value("#{stepExecutionContext['localFile']}") Resource resource) {
+    public FlatFileItemReader<Person> reader(@Value("#{stepExecutionContext['fileName']}") Resource resource) {
         return new FlatFileItemReaderBuilder<Person>()
                 .name("personItemReader")
                 .linesToSkip(1)
@@ -66,8 +66,8 @@ public class SlaveConfiguration {
                 .build();
     }
 
-    @Bean(name = "slaveStep")
-    public Step slaveStep(StepBuilderFactory stepBuilderFactory,
+    @Bean
+    public Step load(StepBuilderFactory stepBuilderFactory,
                           PersonEnrichProcessor processor) {
 
         return stepBuilderFactory.get("load")

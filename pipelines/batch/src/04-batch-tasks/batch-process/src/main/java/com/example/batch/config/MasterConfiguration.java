@@ -64,6 +64,7 @@ public class MasterConfiguration {
         commandLineArgs.add("--spring.cloud.task.initialize.enable=false");
         commandLineArgs.add("--spring.batch.initializer.enabled=false");
         commandLineArgs.add("--spring.datasource.initialize=false");
+        commandLineArgs.add("--spring.main.web-application-type=none");
         provider.setAppendedArgs(commandLineArgs);
 
         return provider;
