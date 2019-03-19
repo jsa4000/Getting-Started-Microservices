@@ -7,7 +7,6 @@ import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.core.step.tasklet.Tasklet;
 import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -27,7 +26,7 @@ public class PreProcessTasklet implements Tasklet {
         log.info("Started Pre-Processing");
 
         log.info("Uncompressing Content to Process");
-        int files = Zip.unZip(new ClassPathResource(filename), tempDir );
+        int files = Zip.unZip(filename, tempDir );
         log.info("Files uncompressed " + files);
 
         log.info("Finished Pre-Processing");

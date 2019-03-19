@@ -9,11 +9,11 @@ spring:
 
 batch:
   max-threads: 4
-  filename: sample-data.zip
-  tempDir: src/main/resources/data
-  pattern: src/main/resources/data/*.csv
+  filename: C:/test/sample-data.zip
+  tempDir: C:/test/data
+  pattern: C:/test/data/*.csv
   departmentsUri: http://localhost:8081/departments
-  worker-app: build/libs/batch-process-0.0.1-SNAPSHOT.jar
+  worker-app: C:/Users/jsantosa/.m2/repository/com/example/batch-process/0.0.1-SNAPSHOT/batch-process-0.0.1-SNAPSHOT.jar
   datasource:
     first:
       initialization-mode: always

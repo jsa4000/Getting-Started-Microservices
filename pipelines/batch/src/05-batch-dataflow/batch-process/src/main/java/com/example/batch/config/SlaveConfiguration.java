@@ -74,8 +74,8 @@ public class SlaveConfiguration {
                 .reader(reader(null))
                 .processor(processor)
                 .writer(writer(null))
-                .taskExecutor(taskExecutor())
-                .throttleLimit(20)
+                //.taskExecutor(taskExecutor())
+                //.throttleLimit(20)
                 .build();
     }
 

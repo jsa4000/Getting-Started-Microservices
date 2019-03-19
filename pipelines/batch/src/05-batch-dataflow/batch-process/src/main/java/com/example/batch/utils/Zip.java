@@ -1,8 +1,7 @@
 package com.example.batch.utils;
 
-import org.springframework.core.io.Resource;
-
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.zip.ZipEntry;
@@ -10,13 +9,13 @@ import java.util.zip.ZipInputStream;
 
 public class Zip {
 
-    public static int unZip(Resource src, String dest) throws IOException {
+    public static int unZip(String file, String dest) throws IOException {
         byte[] buffer = new byte[1024];
         File destDir = new File(dest);
         if (!destDir.exists()) {
             destDir.mkdir();
         }
-        ZipInputStream zis = new ZipInputStream(src.getInputStream());
+        ZipInputStream zis = new ZipInputStream(new FileInputStream(file));
         ZipEntry zipEntry = zis.getNextEntry();
         int result = 0;
         while (zipEntry != null) {
