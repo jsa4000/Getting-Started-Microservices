@@ -23,6 +23,7 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.core.io.Resource;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+import org.springframework.web.client.RestTemplate;
 
 import javax.sql.DataSource;
 
@@ -34,14 +35,15 @@ public class SlaveConfiguration {
     private int maxThreads;
 
     @Bean
-    public DeployerStepExecutionHandler stepExecutionHandler(ApplicationContext context, JobExplorer jobExplorer,
+    public DeployerStepExecutionHandler stepExecutionHandler(ApplicationContext context,
+                                                             JobExplorer jobExplorer,
                                                              JobRepository jobRepository) {
         return new DeployerStepExecutionHandler(context, jobExplorer, jobRepository);
     }
 
     @Bean
     @StepScope
-    public FlatFileItemReader<Person> reader(@Value("#{stepExecutionContext[localFile]}") Resource resource) {
+    public FlatFileItemReader<Person> reader(@Value("#{stepExecutionContext['localFile']}") Resource resource) {
         return new FlatFileItemReaderBuilder<Person>()
                 .name("personItemReader")
                 .linesToSkip(1)
@@ -56,7 +58,7 @@ public class SlaveConfiguration {
 
     @Bean
     @StepScope
-    public JdbcBatchItemWriter<Person> writer(DataSource dataSource) {
+    public JdbcBatchItemWriter<Person> writer(@Qualifier("secondDataSource") DataSource dataSource) {
         return new JdbcBatchItemWriterBuilder<Person>()
                 .itemSqlParameterSourceProvider(new BeanPropertyItemSqlParameterSourceProvider<>())
                 .sql("INSERT INTO person (first_name, last_name, department, group_name, update_time) VALUES (:firstName, :lastName, :department, :groupName, :updateTime)")
@@ -66,20 +68,19 @@ public class SlaveConfiguration {
 
     @Bean(name = "slaveStep")
     public Step slaveStep(StepBuilderFactory stepBuilderFactory,
-                          PersonEnrichProcessor processor,
-                          @Qualifier("slaveTaskExecutor") TaskExecutor taskExecutor) {
+                          PersonEnrichProcessor processor) {
 
         return stepBuilderFactory.get("load")
                 .<Person, Person>chunk(10)
                 .reader(reader(null))
                 .processor(processor)
                 .writer(writer(null))
-                //.taskExecutor(taskExecutor)
+                //.taskExecutor(taskExecutor())
                 //.throttleLimit(20)
                 .build();
     }
 
-    @Bean(name = "slaveTaskExecutor")
+    @Bean
     public TaskExecutor taskExecutor() {
         ThreadPoolTaskExecutor taskExecutor = new ThreadPoolTaskExecutor();
         taskExecutor.setMaxPoolSize(maxThreads);
@@ -87,5 +88,10 @@ public class SlaveConfiguration {
         taskExecutor.setQueueCapacity(maxThreads);
         taskExecutor.afterPropertiesSet();
         return taskExecutor;
+    }
+
+    @Bean
+    public RestTemplate restTemplate() {
+        return new RestTemplate();
     }
 }

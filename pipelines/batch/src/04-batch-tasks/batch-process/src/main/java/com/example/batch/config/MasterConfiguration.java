@@ -39,6 +39,7 @@ public class MasterConfiguration {
     public Partitioner partitioner(ResourcePatternResolver resourcePatternResolver,
                                    @Value("${batch.pattern}") String resourcePath) throws IOException {
         Resource[] resources = resourcePatternResolver.getResources("file:" + resourcePath);
+        log.info("Current files to process are: " + resources.length);
         MultiResourcePartitioner partitioner = new MultiResourcePartitioner();
         partitioner.setResources(resources);
         return partitioner;

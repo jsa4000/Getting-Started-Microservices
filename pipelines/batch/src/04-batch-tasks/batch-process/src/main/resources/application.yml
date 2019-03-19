@@ -3,18 +3,12 @@ server:
 
 spring:
   application:
-    name: batchJob
+    name: batchJobTask
   batch:
     job.enabled: false
     initialize-schema: always
   #jpa.database: default
   #jpa.hibernate.ddl-auto: update
-  datasource:
-    initialization-mode: always
-    url: jdbc:postgresql://dockerhost:5432/db
-    username: postgres
-    password: password
-    driver-class-name: org.postgresql.Driver
 
 batch:
   max-threads: 4
@@ -23,4 +17,16 @@ batch:
   pattern: src/main/resources/data/*.csv
   departmentsUri: http://localhost:8081/departments
   worker-app: D:/Minsait/Projects/Github/Getting-Started-Microservices/pipelines/batch/src/04-batch-tasks/batch-process/build/libs/batch-process-0.0.1-SNAPSHOT.jar
-
+  datasource:
+    first:
+      initialization-mode: always
+      url: jdbc:mysql://dockerhost:3306/db
+      username: root
+      password: password
+      driver-class-name: com.mysql.cj.jdbc.Driver
+    second:
+      initialization-mode: always
+      url: jdbc:postgresql://dockerhost:5432/db
+      username: postgres
+      password: password
+      driver-class-name: org.postgresql.Driver
