@@ -35,7 +35,7 @@ import java.util.List;
 @Configuration
 public class MasterConfiguration {
 
-    @Bean
+    //@Bean
     public Partitioner partitioner(ResourcePatternResolver resourcePatternResolver,
                                    @Value("${batch.pattern}") String resourcePath) throws IOException {
         Resource[] resources = resourcePatternResolver.getResources("file:" + resourcePath);
@@ -111,9 +111,9 @@ public class MasterConfiguration {
         return jobBuilderFactory.get("job")
                 .incrementer(new RunIdIncrementer())
                 .listener(listener)
-                //.start(preProcessStep(null,null))
-                .start(masterStep( null, null, null))
-                //.next(postProcessStep(null,null))
+                .start(preProcessStep(null,null))
+                .next(masterStep( null, null, null))
+                .next(postProcessStep(null,null))
                 .build();
     }
 }
