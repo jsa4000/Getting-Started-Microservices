@@ -69,14 +69,13 @@ public class SlaveConfiguration {
     @Bean
     public Step load(StepBuilderFactory stepBuilderFactory,
                           PersonEnrichProcessor processor) {
-
         return stepBuilderFactory.get("load")
                 .<Person, Person>chunk(10)
                 .reader(reader(null))
                 .processor(processor)
                 .writer(writer(null))
-                //.taskExecutor(taskExecutor())
-                //.throttleLimit(20)
+                .taskExecutor(taskExecutor())
+                .throttleLimit(20)
                 .build();
     }
 
@@ -85,7 +84,7 @@ public class SlaveConfiguration {
         ThreadPoolTaskExecutor taskExecutor = new ThreadPoolTaskExecutor();
         taskExecutor.setMaxPoolSize(maxThreads);
         taskExecutor.setCorePoolSize(maxThreads);
-        taskExecutor.setQueueCapacity(maxThreads);
+        //taskExecutor.setQueueCapacity(maxThreads);
         taskExecutor.afterPropertiesSet();
         return taskExecutor;
     }
