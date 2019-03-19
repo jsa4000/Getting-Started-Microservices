@@ -30,6 +30,7 @@ public class MultiResourcePartitioner implements Partitioner {
 
     @Override
     public Map<String, ExecutionContext> partition(int gridSize) {
+        log.info("Creating the partitions. gridSize=" + gridSize);
         Resource[] resources;
         try {
             resources = resourcePatternResolver.getResources("file:" + pattern);
