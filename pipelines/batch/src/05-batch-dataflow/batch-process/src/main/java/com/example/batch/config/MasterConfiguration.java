@@ -16,10 +16,9 @@ import org.springframework.batch.core.partition.support.Partitioner;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.deployer.resource.support.DelegatingResourceLoader;
 import org.springframework.cloud.deployer.spi.task.TaskLauncher;
-import org.springframework.cloud.task.batch.partition.CommandLineArgsProvider;
 import org.springframework.cloud.task.batch.partition.DeployerPartitionHandler;
 import org.springframework.cloud.task.batch.partition.NoOpEnvironmentVariablesProvider;
-import org.springframework.cloud.task.batch.partition.SimpleCommandLineArgsProvider;
+import org.springframework.cloud.task.batch.partition.PassThroughCommandLineArgsProvider;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -52,24 +51,9 @@ public class MasterConfiguration {
                            Partitioner partitioner,
                            PartitionHandler partitionHandler) {
         return stepBuilderFactory.get("masterStep")
-                .partitioner("load", partitioner)
+                .partitioner("slaveStep", partitioner)
                 .partitionHandler(partitionHandler)
                 .build();
-    }
-
-    @Bean
-    public SimpleCommandLineArgsProvider commandLineArgsProvider() {
-        SimpleCommandLineArgsProvider provider = new SimpleCommandLineArgsProvider();
-
-        List<String> commandLineArgs = new ArrayList<>(4);
-        commandLineArgs.add("--spring.profiles.active=worker");
-        commandLineArgs.add("--spring.cloud.task.initialize.enable=false");
-        commandLineArgs.add("--spring.batch.initializer.enabled=false");
-        commandLineArgs.add("--spring.datasource.initialize=false");
-        commandLineArgs.add("--spring.main.web-application-type=none");
-        provider.setAppendedArgs(commandLineArgs);
-
-        return provider;
     }
 
     @Bean
@@ -78,13 +62,18 @@ public class MasterConfiguration {
                                                      ApplicationContext context,
                                                      TaskLauncher taskLauncher,
                                                      JobExplorer jobExplorer,
-                                                     DelegatingResourceLoader resourceLoader,
-                                                     CommandLineArgsProvider commandLineArgsProvider) {
+                                                     DelegatingResourceLoader resourceLoader) {
 
         Resource resource = resourceLoader.getResource(resourceLocation);
         DeployerPartitionHandler partitionHandler = new DeployerPartitionHandler(taskLauncher,
-                jobExplorer,resource,"load");
-        partitionHandler.setCommandLineArgsProvider(commandLineArgsProvider);
+                jobExplorer,resource,"slaveStep");
+
+        List<String> commandLineArgs = new ArrayList<>(3);
+        commandLineArgs.add("--spring.profiles.active=worker");
+        commandLineArgs.add("--spring.cloud.task.initialize.enable=false");
+        commandLineArgs.add("--spring.batch.initializer.enabled=false");
+
+        partitionHandler.setCommandLineArgsProvider(new PassThroughCommandLineArgsProvider(commandLineArgs));
         partitionHandler.setEnvironmentVariablesProvider(new NoOpEnvironmentVariablesProvider());
         partitionHandler.setMaxWorkers(1);
         partitionHandler.setApplicationName(applicationName);

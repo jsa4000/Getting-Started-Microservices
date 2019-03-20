@@ -67,9 +67,9 @@ public class SlaveConfiguration {
     }
 
     @Bean
-    public Step load(StepBuilderFactory stepBuilderFactory,
+    public Step slaveStep(StepBuilderFactory stepBuilderFactory,
                           PersonEnrichProcessor processor) {
-        return stepBuilderFactory.get("load")
+        return stepBuilderFactory.get("slaveStep")
                 .<Person, Person>chunk(10)
                 .reader(reader(null))
                 .processor(processor)
