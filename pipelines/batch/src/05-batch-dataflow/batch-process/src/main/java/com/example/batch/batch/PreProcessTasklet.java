@@ -15,18 +15,18 @@ import java.io.IOException;
 @Component
 public class PreProcessTasklet implements Tasklet {
 
-    @Value("${batch.filename:sample-data.zip}")
+    @Value("${batch.inputFile:sample-data.zip}")
     String filename;
 
-    @Value("${batch.tempDir:src/main/resources/data}")
-    String tempDir;
+    @Value("${batch.resourcesPath:src/main/resources/data}")
+    String resourcesPath;
 
     @Override
     public RepeatStatus execute(StepContribution stepContribution, ChunkContext chunkContext) throws IOException {
         log.info("Started Pre-Processing");
 
         log.info("Uncompressing Content to Process");
-        int files = Zip.unZip(filename, tempDir );
+        int files = Zip.unZip(filename, resourcesPath );
         log.info("Files uncompressed " + files);
 
         log.info("Finished Pre-Processing");

@@ -15,15 +15,15 @@ import java.io.File;
 @Component
 public class PostProcessTasklet implements Tasklet {
 
-    @Value("${batch.tempDir:src/main/resources/data}")
-    String tempDir;
+    @Value("${batch.resourcesPath:src/main/resources/data}")
+    String resourcesPath;
 
     @Override
     public RepeatStatus execute(StepContribution stepContribution, ChunkContext chunkContext) {
         log.info("Started Post-Processing");
 
         log.info("Deleting all the files");
-        FileSystemUtils.deleteRecursively(new File(tempDir));
+        FileSystemUtils.deleteRecursively(new File(resourcesPath));
 
         log.info("Finished Post-Processing");
         return RepeatStatus.FINISHED;

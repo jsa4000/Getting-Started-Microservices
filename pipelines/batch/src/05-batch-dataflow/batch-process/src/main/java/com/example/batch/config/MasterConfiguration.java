@@ -14,6 +14,7 @@ import org.springframework.batch.core.partition.PartitionHandler;
 import org.springframework.batch.core.partition.support.MultiResourcePartitioner;
 import org.springframework.batch.core.partition.support.Partitioner;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cloud.deployer.resource.support.DelegatingResourceLoader;
 import org.springframework.cloud.deployer.spi.task.TaskLauncher;
 import org.springframework.cloud.task.batch.partition.CommandLineArgsProvider;
 import org.springframework.cloud.task.batch.partition.DeployerPartitionHandler;
@@ -37,8 +38,9 @@ public class MasterConfiguration {
 
     //@Bean
     public Partitioner partitioner(ResourcePatternResolver resourcePatternResolver,
-                                   @Value("${batch.pattern}") String resourcePath) throws IOException {
-        Resource[] resources = resourcePatternResolver.getResources("file:" + resourcePath);
+                                   @Value("${batch.resourcesPath}") String resourcesPath,
+                                   @Value("${batch.filePattern:*.csv}") String pattern) throws IOException {
+        Resource[] resources = resourcePatternResolver.getResources("file:" + resourcesPath + "/" + pattern);
         log.info("Current files to process are: " + resources.length);
         MultiResourcePartitioner partitioner = new MultiResourcePartitioner();
         partitioner.setResources(resources);
@@ -47,8 +49,8 @@ public class MasterConfiguration {
 
     @Bean
     public Step masterStep(StepBuilderFactory stepBuilderFactory,
-                              Partitioner partitioner,
-                              PartitionHandler partitionHandler) {
+                           Partitioner partitioner,
+                           PartitionHandler partitionHandler) {
         return stepBuilderFactory.get("masterStep")
                 .partitioner("load", partitioner)
                 .partitionHandler(partitionHandler)
@@ -76,15 +78,15 @@ public class MasterConfiguration {
                                                      ApplicationContext context,
                                                      TaskLauncher taskLauncher,
                                                      JobExplorer jobExplorer,
+                                                     DelegatingResourceLoader resourceLoader,
                                                      CommandLineArgsProvider commandLineArgsProvider) {
-        DeployerPartitionHandler partitionHandler = new DeployerPartitionHandler(taskLauncher,
-                        jobExplorer,
-                        context.getResource("file:" + resourceLocation),
-                        "load");
 
+        Resource resource = resourceLoader.getResource(resourceLocation);
+        DeployerPartitionHandler partitionHandler = new DeployerPartitionHandler(taskLauncher,
+                jobExplorer,resource,"load");
         partitionHandler.setCommandLineArgsProvider(commandLineArgsProvider);
         partitionHandler.setEnvironmentVariablesProvider(new NoOpEnvironmentVariablesProvider());
-        partitionHandler.setMaxWorkers(2);
+        partitionHandler.setMaxWorkers(1);
         partitionHandler.setApplicationName(applicationName);
 
         return partitionHandler;

@@ -25,15 +25,19 @@ public class MultiResourcePartitioner implements Partitioner {
     @Autowired
     ResourcePatternResolver resourcePatternResolver;
 
-    @Value("${batch.pattern}")
-    String pattern;
+    @Value("${batch.resourcesPath}")
+    String resourcesPath;
+
+    @Value("${batch.filePattern:*.csv}")
+    String filePattern;
+
 
     @Override
     public Map<String, ExecutionContext> partition(int gridSize) {
         log.info("Creating the partitions. gridSize=" + gridSize);
         Resource[] resources;
         try {
-            resources = resourcePatternResolver.getResources("file:" + pattern);
+            resources = resourcePatternResolver.getResources("file:" + resourcesPath + "/" + filePattern);
             log.info("Current files to process are: " + resources.length);
         } catch (IOException e) {
             throw new RuntimeException("I/O problems when resolving" + " the input file pattern.", e);

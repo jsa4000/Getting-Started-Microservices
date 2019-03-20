@@ -2,14 +2,15 @@
 
 ## Usage
 
+1. Copy the zip file `sample-data.zip` into `C:\test\`
 1. Use `gradle build` to create all the packages.
 1. Run `gradle install` to publish maven artifact locally (using `maven` plugin)
   > Check generated artifact `com\example\batch-process\0.0.1-SNAPSHOT\batch-process-0.0.1-SNAPSHOT.jar`
-1. Then deploy the `docker-compose` file inside the project.
+1. Then deploy the `docker-compose` file inside the project. (Run MySQL and PostgreSQL instances)
 
 ## Dataflow Server (local)
 
-- Download the Spring Cloud Data Flow Server and Shell apps:
+- Download the Spring Cloud Data Flow Server (local) and Shell apps:
 
     wget http://repo.spring.io/milestone/org/springframework/cloud/spring-cloud-dataflow-server-local/1.7.4.RELEASE/spring-cloud-dataflow-server-local-1.7.4.RELEASE.jar
 
@@ -27,7 +28,7 @@
 
     --spring.rabbitmq.host=127.0.0.1 --spring.rabbitmq.port=5672 --spring.rabbitmq.username=guest --spring.rabbitmq.password=guest
 
-> Check the drivers supported by dataflow https://docs.spring.io/spring-cloud-dataflow/docs/1.2.4.BUILD-SNAPSHOT/reference/html/configuration-rdbms.html
+> Check the drivers supported by data flow server at [link](https://docs.spring.io/spring-cloud-dataflow/docs/1.2.4.BUILD-SNAPSHOT/reference/html/configuration-rdbms.html)
 
 > Server runs at http://localhost:9393
 
