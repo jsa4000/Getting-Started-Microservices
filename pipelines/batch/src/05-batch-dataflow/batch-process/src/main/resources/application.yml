@@ -10,8 +10,8 @@ spring:
 
 batch:
   max-threads: 4
-  inputFile: C:/test/sample-data.zip
-  resourcesPath: C:/test/data
+  inputFile: /Users/jsantosa/Downloads/sample-data.zip
+  resourcesPath: /Users/jsantosa/Downloads/data
   filePattern: "*.csv"
   departmentsUri: http://localhost:8081/departments
   worker-app: maven://com.example:batch-process:0.0.1-SNAPSHOT

@@ -2,7 +2,7 @@
 
 ## Usage
 
-1. Copy the zip file `sample-data.zip` into `C:\test\`
+1. Copy the zip file `sample-data.zip` into `C:\test\`, `/Users/jsantosa/Downloads`, or whatever foder
 1. Use `gradle build` to create all the packages.
 1. Run `gradle install` to publish maven artifact locally (using `maven` plugin)
   > Check generated artifact `com\example\batch-process\0.0.1-SNAPSHOT\batch-process-0.0.1-SNAPSHOT.jar`
@@ -30,7 +30,7 @@
 
 > Check the drivers supported by data flow server at [link](https://docs.spring.io/spring-cloud-dataflow/docs/1.2.4.BUILD-SNAPSHOT/reference/html/configuration-rdbms.html)
 
-> Server runs at http://localhost:9393
+> Server runs at http://localhost:9393 (/dasboard)
 
 - Launch the shell:
 
@@ -66,6 +66,13 @@ Create task from app definition (task type)
 ## Launch the task
 
 Launch the task normally
+
+
+java -jar batch-process-0.0.1-SNAPSHOT.jar --inputFile=/Users/jsantosa/Downloads/sample-data.zip --resourcesPath=/Users/jsantosa/Downloads/data
+
+java -jar batch-process-0.0.1-SNAPSHOT.jar --inputFile=/Users/jsantosa/Downloads/sample-data-test.zip --resourcesPath=/Users/jsantosa/Downloads/data-test
+
+
 
 ## References
 
