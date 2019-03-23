@@ -1040,11 +1040,14 @@ This is a full example after the installation of the cluster.
   - prometheus dashboard: http://prometheus.monitoring.com:31971
   - AlertManager dashboard: http://alertmanager.monitoring.com:31971
 
+ > kubectl get secret --namespace grafana grafana-dashboard -o jsonpath="{.data.admin-password}" | base64 --decode ; echo
+ > http://prometheus-server.prometheus.svc.cluster.local:80
+
 - To run the dashboard
 
       kubectl proxy --port=9999 --address='10.0.0.11' --accept-hosts="^*$"
 
-  - Kubernetes dashbard: http://10.0.0.11:9997/api/v1/namespaces/kube-system/services/https:kubernetes-dashboard:/proxy/#!/login
+  - Kubernetes dashbard: http://10.0.0.11:9999/api/v1/namespaces/kube-system/services/https:kubernetes-dashboard:/proxy/#!/login
 
 ## References
 
