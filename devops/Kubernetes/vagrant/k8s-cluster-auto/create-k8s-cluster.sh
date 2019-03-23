@@ -2,7 +2,7 @@
 echo "Create Kubernetes Cluster (KVM)"
 
 echo "- Loading the entire kubernetes cluster"
-WORKER_COUNT=2 vagrant up  
+vagrant up  
 
 echo "- Performing the post-process"
 vagrant ssh k8s-master -c "sudo bash /vagrant/post-provision/all-install.sh"

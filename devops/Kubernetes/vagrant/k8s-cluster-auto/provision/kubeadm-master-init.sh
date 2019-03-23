@@ -4,7 +4,7 @@ echo "- Initializing kubeadm from Master Node"
 echo "-    Initializing kubeadm"
 mkdir /vagrant/files/kube-config
 
-kubeadm init --pod-network-cidr=10.244.0.0/16 --apiserver-advertise-address=10.0.0.11 --kubernetes-version stable-1.11 > /vagrant/files/kube-config/kubeadm-install.log
+kubeadm init --pod-network-cidr=10.244.0.0/16 --apiserver-advertise-address=10.0.0.11 --kubernetes-version stable-1.13 > /vagrant/files/kube-config/kubeadm-install.log
 cp -i /etc/kubernetes/admin.conf /vagrant/files/kube-config
 
 # Create a script to join k8n nodes to cluster 
@@ -20,8 +20,10 @@ chown $(id -u):$(id -g) $HOME/.kube/config
 
 echo "-    Initializing kubernetes CNI (flannel)"
 
+# Following flannel instructions from https://kubernetes.io/docs/setup/independent/create-cluster-kubeadm/
+sysctl net.bridge.bridge-nf-call-iptables=1
+# Apply flannel config
 kubectl apply -f /vagrant/files/flannel-config/kube-flannel.yml
-kubectl apply -f /vagrant/files/flannel-config/kube-flannel-rbac.yml
 
 
 
