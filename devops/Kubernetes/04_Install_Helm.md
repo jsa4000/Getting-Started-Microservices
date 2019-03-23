@@ -978,6 +978,74 @@ In order to accesos to the Chart externally, it recommend you to perform some op
     export POD_NAME=$(kubectl get pods --namespace default -l "app=prometheus,component=pushgateway" -o jsonpath="{.items[0].metadata.name}")
     kubectl --namespace default port-forward $POD_NAME 9091
 
+## Full Example
+
+This is a full example after the installation of the cluster.
+
+- Connect to vagrant master node
+
+      vagrant ssh k8s-master
+
+- Connect as `sudo`
+
+  > This is to avoid using `sudo kubectl` every time.
+
+      sudo su
+
+- Install helm (only client) for `sudo` user
+
+      helm init --client-only
+
+- Check if all nodes and pods are correctly running
+
+      kubectl get nodes
+      kubectl get pods --all-namespaces -o wide
+
+- Create default persistence volume using NFS provider
+
+      kubectl apply -f /vagrant/files/volumes/pv-nfs-volumes-001_010.yaml
+
+- Install `traefik` for ingress controller using helm
+
+      helm install --name traefik-ingress --namespace kube-system --set serviceType=NodePort,dashboard.enabled=true,metrics.prometheus.enabled=true,rbac.enabled=true stable/traefik
+
+- Check the configuration for `traefik-ingress` service (`NodePort`)
+
+      kubectl describe svc traefik-ingress --namespace kube-system
+      kubectl get services --all-namespaces
+
+- Install `Prometheus` and `Grafana`
+
+      helm install --name prometheus --namespace prometheus --set alertmanager.persistentVolume.storageClass=nfs-slow,server.persistentVolume.storageClass=nfs-slow,server.service.type=NodePort,server.service.nodePort=30001,server.ingress.enabled=true,server.ingress.annotations."kubernetes\.io/ingress\.class"=traefik,server.ingress.hosts={prometheus.monitoring.com},alertmanager.service.type=NodePort,alertmanager.ingress.enabled=true,alertmanager.ingress.annotations."kubernetes\.io/ingress\.class"=traefik,alertmanager.ingress.hosts={alertmanager.monitoring.com} stable/prometheus
+
+      helm install --name grafana-dashboard --namespace grafana --set persistence.enabled=true,persistence.accessModes={ReadWriteOnce},persistence.size=8Gi,persistence.storageClassName=nfs-slow,service.type=NodePort,ingress.enabled=true,ingress.annotations."kubernetes\.io/ingress\.class"=traefik,ingress.hosts={grafana.monitoring.com} stable/grafana
+
+- Check if all pods are running correctly
+  
+      kubectl get pods --all-namespaces
+      kubectl get services --all-namespaces
+
+- Add following `/etc/hosts` dns to your local machine
+
+```txt
+10.0.0.11   grafana.monitoring.com
+10.0.0.11   prometheus.monitoring.com
+10.0.0.11   alertmanager.monitoring.com
+```
+
+- Connect using the `NodePort` assigned to `traefik-ingress` service
+
+  - Traefik Dashboard: http://10.0.0.11:30576/dashboard/
+  - grafana dashboard: http://grafana.monitoring.com:31971/login
+  - prometheus dashboard: http://prometheus.monitoring.com:31971
+  - AlertManager dashboard: http://alertmanager.monitoring.com:31971
+
+- To run the dashboard
+
+      kubectl proxy --port=9999 --address='10.0.0.11' --accept-hosts="^*$"
+
+  - Kubernetes dashbard: http://10.0.0.11:9997/api/v1/namespaces/kube-system/services/https:kubernetes-dashboard:/proxy/#!/login
+
 ## References
 
 - [Application Dashboard for Kubernetes](https://kubeapps.com/)
