@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 echo "Installing kubernets dashboard"
 kubectl apply -f /vagrant/files/dashboard-config/dashboard-no-auth.yaml
-kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/master/aio/deploy/recommended//kubernetes-dashboard.yaml
+kubectl apply -f /vagrant/files/dashboard-config/kubernetes-dashboard.yaml
 
 #echo "Launch kubernets dashboard"
 # Launch the dahsboard using the IP from the same host as the api-server 

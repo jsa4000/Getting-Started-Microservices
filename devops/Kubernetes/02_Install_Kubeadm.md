@@ -350,12 +350,12 @@ Verify on master the new node has been correctly joined into the cluster
 
 The Kubernetes dashboard can be deployed as another Pod, which we can then view on our local machine. Since we did not expose Kubernetes over the Internet we'll use an SSH tunnel to view the site.
 
-    kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/master/aio/deploy/recommended//kubernetes-dashboard.yaml
-    kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/master/aio/deploy/recommended//kubernetes-dashboard-head.yaml
+    kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/master/aio/deploy/recommended/kubernetes-dashboard.yaml
+    kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/master/aio/deploy/recommended/kubernetes-dashboard-head.yaml
 
 - To remove the dashboard (or stop the pods running)
 
-      kubectl delete -f https://raw.githubusercontent.com/kubernetes/dashboard/master/aio/deploy/recommended//kubernetes-dashboard.yaml
+      kubectl delete -f https://raw.githubusercontent.com/kubernetes/dashboard/master/aio/deploy/recommended/kubernetes-dashboard.yaml
 
 - To find the master ip address run the following
 
