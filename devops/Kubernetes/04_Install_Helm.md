@@ -1067,7 +1067,7 @@ Kibana can be accessed:
 
 Install **Fluent Bit** helm chart
 
-    helm install --name fluentbit --namespace logging --set backend.type=es,backend.es.host=elasticsearch-client,service.logLevel=debug stable/fluent-bit
+    helm install --name fluentbit --namespace logging --set backend.type=es,backend.es.host=elasticsearch-client,service.logLevel=info,filter.mergeJSONLog=false stable/fluent-bit
 
 Output, after installing the chart.
 
@@ -1134,6 +1134,9 @@ This is a full example after the installation of the cluster.
 10.0.0.11   grafana.monitoring.com
 10.0.0.11   prometheus.monitoring.com
 10.0.0.11   alertmanager.monitoring.com
+
+10.0.0.11   elasticsearch.logging.com
+10.0.0.11   kibana.logging.com
 ```
 
 - Connect using the `NodePort` assigned to `traefik-ingress` service
