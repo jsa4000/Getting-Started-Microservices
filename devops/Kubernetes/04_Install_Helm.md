@@ -1009,11 +1009,8 @@ Install **Elastic Search** cluster, with only 1 replica and 2 clients.
 
     helm install --name elasticsearch --namespace logging --set client.ingress.enabled=true,client.ingress.annotations."kubernetes\.io/ingress\.class"=traefik,client.ingress.hosts={elasticsearch.logging.com},master.replicas=1,master.persistentVolume.storageClass=nfs-slow,data.replicas=1,data.persistentVolume.storageClass=nfs-slow,cluster.env.MINIMUM_MASTER_NODES=1 stable/elasticsearch
 
-    # Without persistence volume
-    helm install --name elasticsearch --namespace logging --set client.ingress.enabled=true,client.ingress.annotations."kubernetes\.io/ingress\.class"=traefik,client.ingress.hosts={elasticsearch.logging.com},master.replicas=1,master.persistence.enabled=false,data.replicas=1,data.persistence.enabled=false,cluster.env.MINIMUM_MASTER_NODES=1 stable/elasticsearch
-
-    # Without persistence volume and HA=2
-    helm install --name elasticsearch --namespace logging --set client.ingress.enabled=true,client.ingress.annotations."kubernetes\.io/ingress\.class"=traefik,client.ingress.hosts={elasticsearch.logging.com},master.replicas=2,master.persistence.enabled=false,data.replicas=2,data.persistence.enabled=false,cluster.env.MINIMUM_MASTER_NODES=2 stable/elasticsearch
+    # Without persistence volume and minimum deployment configuration
+    helm install --name elasticsearch --namespace logging --set client.ingress.enabled=true,client.ingress.annotations."kubernetes\.io/ingress\.class"=traefik,client.ingress.hosts={elasticsearch.logging.com},client.replicas=1,master.replicas=2,master.persistence.enabled=false,data.replicas=1,data.persistence.enabled=false,cluster.env.MINIMUM_MASTER_NODES=2 stable/elasticsearch
 
 Output, after installing the chart.
 
@@ -1119,7 +1116,7 @@ This is a full example after the installation of the cluster.
 
 - Install `Prometheus` and `Grafana`
 
-      helm install --name prometheus --namespace prometheus --set alertmanager.persistentVolume.storageClass=nfs-slow,server.persistentVolume.storageClass=nfs-slow,server.service.type=NodePort,server.service.nodePort=30001,server.ingress.enabled=true,server.ingress.annotations."kubernetes\.io/ingress\.class"=traefik,server.ingress.hosts={prometheus.monitoring.com},alertmanager.service.type=NodePort,alertmanager.ingress.enabled=true,alertmanager.ingress.annotations."kubernetes\.io/ingress\.class"=traefik,alertmanager.ingress.hosts={alertmanager.monitoring.com} stable/prometheus
+      helm install --name prometheus --namespace prometheus --set alertmanager.enabled=false,pushgateway.enabled=false,server.persistentVolume.enabled=false,server.replicaCount=1,server.service.type=NodePort,server.service.nodePort=30001,server.ingress.enabled=true,server.ingress.annotations."kubernetes\.io/ingress\.class"=traefik,server.ingress.hosts={prometheus.monitoring.com} stable/prometheus
 
       helm install --name grafana-dashboard --namespace grafana --set persistence.enabled=true,persistence.accessModes={ReadWriteOnce},persistence.size=8Gi,persistence.storageClassName=nfs-slow,service.type=NodePort,ingress.enabled=true,ingress.annotations."kubernetes\.io/ingress\.class"=traefik,ingress.hosts={grafana.monitoring.com} stable/grafana
 
