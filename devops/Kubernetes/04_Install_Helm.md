@@ -978,6 +978,109 @@ In order to accesos to the Chart externally, it recommend you to perform some op
     export POD_NAME=$(kubectl get pods --namespace default -l "app=prometheus,component=pushgateway" -o jsonpath="{.items[0].metadata.name}")
     kubectl --namespace default port-forward $POD_NAME 9091
 
+## EFK
+
+In this section it will be explained howto deploy EFK stack into kubernetes cluster.
+
+### Fluent Bit
+
+> For this example the option choosen is `fluentbit` instead `fluentd` for performances and memory reasons.
+
+You may have heard of `Fluentd` and the only difference between both are:
+
+- `Fluentd` is a log collector, processor, and aggregator.
+- `Fluent Bit` is a log collector and processor (it doesn’t have strong aggregation features such as Fluentd).
+
+This is where `Fluent Bit` shines because of its tiny memory footprint and built-in aggregation for docker and kubernetes log files.
+
+### Elasticsearch and Kibana
+
+Fluent Bit transfers logs to Elasticsearch. Elasticsearch will be the data store of the aggregated and parsed log files by Fluent Bit. This is commonly called document indexing. Each line of the container logs will be parsed as a time-stamped document.
+
+Kibana, on the other hand, is the visualizer of those indexed data. You can simply view the logs here in real time and use filters to narrow down your search. You can also create graphs and dashboards out of those search.
+
+#### Installation
+
+##### Elasticsearch
+
+[Stable helm Chart](https://hub.kubeapps.com/charts/stable/elasticsearch)
+
+Install **Elastic Search** cluster, with only 1 replica and 2 clients.
+
+    helm install --name elasticsearch --namespace logging --set client.ingress.enabled=true,client.ingress.annotations."kubernetes\.io/ingress\.class"=traefik,client.ingress.hosts={elasticsearch.logging.com},master.replicas=1,master.persistentVolume.storageClass=nfs-slow,data.replicas=1,data.persistentVolume.storageClass=nfs-slow,cluster.env.MINIMUM_MASTER_NODES=1 stable/elasticsearch
+
+    # Without persistence volume
+    helm install --name elasticsearch --namespace logging --set client.ingress.enabled=true,client.ingress.annotations."kubernetes\.io/ingress\.class"=traefik,client.ingress.hosts={elasticsearch.logging.com},master.replicas=1,master.persistence.enabled=false,data.replicas=1,data.persistence.enabled=false,cluster.env.MINIMUM_MASTER_NODES=1 stable/elasticsearch
+
+    # Without persistence volume and HA=2
+    helm install --name elasticsearch --namespace logging --set client.ingress.enabled=true,client.ingress.annotations."kubernetes\.io/ingress\.class"=traefik,client.ingress.hosts={elasticsearch.logging.com},master.replicas=2,master.persistence.enabled=false,data.replicas=2,data.persistence.enabled=false,cluster.env.MINIMUM_MASTER_NODES=2 stable/elasticsearch
+
+Output, after installing the chart.
+
+```bash
+NOTES:
+The elasticsearch cluster has been installed.
+
+Elasticsearch can be accessed:
+
+  * Within your cluster, at the following DNS name at port 9200:
+
+    elasticsearch-client.logging.svc
+
+  * From outside the cluster, run these commands in the same shell:
+
+    export POD_NAME=$(kubectl get pods --namespace logging -l "app=elasticsearch,component=client,release=elasticsearch" -o jsonpath="{.items[0].metadata.name}")
+    echo "Visit http://127.0.0.1:9200 to use Elasticsearch"
+    kubectl port-forward --namespace logging $POD_NAME 9200:9200
+```
+
+Verify the current client can be accessed from ingress http://elasticsearch.logging.com:30537/ and http://elasticsearch.logging.com:30537/_count?pretty
+
+##### Kibana
+
+[Stable helm Chart](https://hub.kubeapps.com/charts/stable/kibana)
+
+Install **kibana** helm chart
+
+    helm install --name kibana --namespace logging --set service.type=NodePort,ingress.enabled=true,ingress.annotations."kubernetes\.io/ingress\.class"=traefik,ingress.hosts={kibana.logging.com},service.externalPort=80,env.ELASTICSEARCH_URL=http://elasticsearch-client:9200 stable/kibana
+
+Output, after installing the chart.
+
+```bash
+NOTES:
+To verify that kibana has started, run:
+
+  kubectl --namespace=logging get pods -l "app=kibana"
+
+Kibana can be accessed:
+
+  * From outside the cluster, run these commands in the same shell:
+
+    export NODE_PORT=$(kubectl get --namespace logging -o jsonpath="{.spec.ports[0].nodePort}" services kibana)
+    export NODE_IP=$(kubectl get nodes --namespace logging -o jsonpath="{.items[0].status.addresses[0].address}")
+    echo http://$NODE_IP:$NODE_PORT
+```
+
+##### Fluent Bit (daemonset)
+
+[Stable helm Chart](https://hub.kubeapps.com/charts/stable/fluent-bit)
+
+Install **Fluent Bit** helm chart
+
+    helm install --name fluentbit --namespace logging --set backend.type=es,backend.es.host=elasticsearch-client,service.logLevel=debug stable/fluent-bit
+
+Output, after installing the chart.
+
+```bash
+NOTES:
+fluent-bit is now running.
+
+It will forward all container logs to the svc named elasticsearch-client on port: 9200
+
+```
+
+> To verify the installation, check if the pods are connected to the backend (elasticsearch) via logs. `kubectl logs -n logging pods/fluentbit-fluent-bit-wjhsr`
+
 ## Full Example
 
 This is a full example after the installation of the cluster.
@@ -1036,7 +1139,7 @@ This is a full example after the installation of the cluster.
 - Connect using the `NodePort` assigned to `traefik-ingress` service
 
   - Traefik Dashboard: http://10.0.0.11:30576/dashboard/
-  - grafana dashboard: http://grafana.monitoring.com:31971/login
+  - grafana dashboard: http://grafana.monitoring.com:30537/login
   - prometheus dashboard: http://prometheus.monitoring.com:31971
   - AlertManager dashboard: http://alertmanager.monitoring.com:31971
 
