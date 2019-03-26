@@ -118,8 +118,8 @@ Following are the Steps in order to install and configure Terraform
 - Install Terraform.
 
         sudo apt-get install unzip
-        wget https://releases.hashicorp.com/terraform/0.11.7/terraform_0.11.7_linux_amd64.zip
-        unzip terraform_0.11.7_linux_amd64.zip
+        wget https://releases.hashicorp.com/terraform/0.11.13/terraform_0.11.13_linux_amd64.zip
+        unzip terraform_0.11.13_linux_amd64.zip
 
 - Add terraform into PATH environment variable (.profile)
 
@@ -135,7 +135,7 @@ Following are the Steps in order to install and configure Terraform
         terraform version
 
     ```txt
-    Terraform v0.11.7
+    Terraform v0.11.13
         + provider.openstack v1.6.0
     ```
 
