@@ -59,8 +59,8 @@ name_prefix = "db-sec-group"
     # cidr_blocks = ["${var.vpc_cidr_block}"]
     cidr_blocks = ["0.0.0.0/0"]
   }
-               
-  tags = "${local.tags}"
+
+  tags          = "${merge(local.tags, map("Name", "${var.cluster_name}-database_sec_group"))}"        
 }
 
 resource "aws_security_group" "level_one_sec_group" {
@@ -77,7 +77,7 @@ resource "aws_security_group" "level_one_sec_group" {
       "10.0.0.0/8",
     ]
   }
-  tags = "${local.tags}"
+  tags        = "${merge(local.tags, map("Name", "${var.cluster_name}-level_one_sec_group"))}" 
 }
 
 resource "aws_security_group" "level_two_sec_group" {
@@ -94,12 +94,12 @@ resource "aws_security_group" "level_two_sec_group" {
       "192.168.0.0/16",
     ]
   }
-  tags = "${local.tags}"
+  tags        = "${merge(local.tags, map("Name", "${var.cluster_name}-level_two_sec_group"))}" 
 }
 
-resource "aws_security_group" "mgmt_sec_group" {
-  name_prefix = "mgmt-sec-group"
-  description = "Security to be applied for management purposes"
+resource "aws_security_group" "eks_sec_group" {
+  name_prefix = "eks-sec-group"
+  description = "Security to be applied for eks nodes"
   vpc_id      = "${module.vpc.vpc_id}"
 
   ingress {

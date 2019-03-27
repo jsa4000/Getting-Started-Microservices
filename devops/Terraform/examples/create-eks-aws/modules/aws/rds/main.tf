@@ -14,10 +14,10 @@ module "db" {
   storage_type              = "${var.storage_type}"
   allocated_storage         = "${var.allocated_storage}"
   engine                    = "${var.engine}"
+  family                    = "${var.family}"
   engine_version            = "${var.engine_version}"
   instance_class            = "${var.instance_class}"
   storage_encrypted         = false
-  name                      = "${var.cluster_name}"
   username                  = "${var.username}"
   password                  = "${var.password}"
   port                      = "${var.port}"

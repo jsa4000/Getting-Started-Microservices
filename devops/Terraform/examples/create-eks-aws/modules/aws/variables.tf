@@ -43,6 +43,10 @@ variable "db_engine" {
    description = "Database engine"
 }
 
+variable "db_family" {
+   description = "Database parameter group family"
+}
+
 variable "db_engine_version" {
    description = "Database engine version"
 }
@@ -59,6 +63,17 @@ variable "db_password" {
    description = "Database password root"
 }
 
+variable "eks_instance_type" {
+   description = "Worker instance type yo use"
+}
+
+variable "eks_asg_desired_capacity" {
+   description = "Desired capacity for auto-scaling eks nodes"
+}
+
+variable "eks_spot_instance_pools" {
+   description = "Desired capacity for auto-scaling eks spot instance pools"
+}
 
 
 

@@ -83,6 +83,45 @@ Check the bucket has been created successfully
   
         terragrunt get --terragrunt-source-update
 
+## Kubernetes 
+
+1. Create new AWS CLI profile
+
+    In order to use kubectl with EKS we need to set new AWS CLI profile
+
+    > NOTE: will need to use secret and access keys from terraform.tfvars
+
+        cat terraform.tfvars
+        aws configure --profile terraform
+        export AWS_PROFILE=terraform
+
+2. Configure kubectl to allow us to connect to EKS cluster
+
+    In terraform configuration we output configuration file for kubectl
+
+        terraform output kubeconfig
+
+3. Add output of “terraform output kubeconfig” to ~/.kube/config-devel
+
+        terraform output eks_kubectl_config > config-eks-lab-dev
+
+        terraform output kubeconfig > ~/.kube/config-devel
+        export KUBECONFIG=$KUBECONFIG:~/.kube/config-devel
+
+4. Verify kubectl connectivity
+
+        kubectl get namespaces
+        kubectl get services
+
+5. Second part we need to allow EKS to add nodes by running configmap
+
+        terraform output config_map_aws_auth > yaml/config_map_aws_auth.yaml
+        kubectl apply -f yaml/config_map_aws_auth.yaml
+
+6. Now you should be able to see nodes
+
+        kubectl get nodes
+
 ## References
 
 - [Naming conventions](http://lloydholman.co.uk/in-the-wild-aws-iam-naming-conventions/)

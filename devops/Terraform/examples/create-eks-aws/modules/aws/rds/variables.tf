@@ -18,6 +18,8 @@ variable "allocated_storage" {}
 
 variable "engine" {}
 
+variable "family" {}
+
 variable "engine_version" {}
 
 variable "instance_class" {}
