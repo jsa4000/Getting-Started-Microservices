@@ -32,16 +32,6 @@ output "database_sec_group" {
   value       = "${aws_security_group.database_sec_group.id}"
 }
 
-output "level_one_sec_group" {
-  description = "Security to be applied to all unix machines"
-  value       = "${aws_security_group.level_one_sec_group.id}"
-}
-
-output "level_two_sec_group" {
-  description = "Security to be applied to some unix machines"
-  value       = "${aws_security_group.level_two_sec_group.id}"
-}
-
 output "eks_sec_group" {
   description = "SSecurity to be applied for eks nodes"
   value       = "${aws_security_group.eks_sec_group.id}"

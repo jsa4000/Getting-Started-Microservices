@@ -1,4 +1,3 @@
-/*
 output "eks_cluster_endpoint" {
   description = "Endpoint for EKS control plane."
   value       = "${module.eks.cluster_endpoint}"
@@ -18,4 +17,4 @@ output "eks_config_map_aws_auth" {
   description = ""
   value       = "${module.eks.config_map_aws_auth}"
 }
-*/
+

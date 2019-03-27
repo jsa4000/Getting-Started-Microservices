@@ -83,6 +83,20 @@ Check the bucket has been created successfully
   
         terragrunt get --terragrunt-source-update
 
+- Prepare a plan with the resoruces to be created/modified/deleted
+  
+         terragrunt apply
+
+- Apply the changes to be made
+
+        terragrunt apply
+
+- Destroy infraestructure
+
+        terragrunt destroy
+
+> Use `TF_WARN_OUTPUT_ERRORS=1 terragrunt destroy`if you find any output or warning after the execution.
+
 ## Kubernetes 
 
 1. Create new AWS CLI profile

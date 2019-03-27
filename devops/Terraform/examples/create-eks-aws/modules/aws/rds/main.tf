@@ -34,7 +34,7 @@ module "db" {
   backup_window             = "03:00-06:00"
   backup_retention_period   = 0
   final_snapshot_identifier = "${var.cluster_name}"
-  deletion_protection       = true
+  deletion_protection       = false
 
   tags                      = "${local.tags}"
 }
