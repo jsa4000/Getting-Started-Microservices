@@ -52,6 +52,10 @@ If using `AWSCLI`, following commands will create an user that can be used with 
         sudo mv terragrunt_linux_amd64 /usr/bin/terragrunt
         sudo chmod a+wrx /usr/bin/terragrunt
 
+- Helm (*current v2.13.1*)
+
+        curl https://raw.githubusercontent.com/kubernetes/helm/master/scripts/get | bash
+
 - Install `awscli`
 
         sudo apt-get install awscli
@@ -70,6 +74,7 @@ If using `AWSCLI`, following commands will create an user that can be used with 
         terragrunt --version
         awscli --version
         aws-iam-authenticator version
+        helm version
 
 ## Terraform
 
@@ -124,9 +129,9 @@ If using `AWSCLI`, following commands will create an user that can be used with 
 
     > Use `-auto-approve` to forze the deletion without prompt
 
-        terragrunt destroy 
+        terragrunt destroy
 
-> Use `TF_WARN_OUTPUT_ERRORS=1 terragrunt destroy`if you find any output or warning after the execution.
+> Use `TF_WARN_OUTPUT_ERRORS=1 terragrunt destroy`, if find it any output or warning after the execution.
 
 ## Kubernetes
 
@@ -146,26 +151,26 @@ This process should be done manually if the previous process using terragrunt, i
 
     > In terraform configuration we **output** configuration file for kubectl
 
-        terragrunt output eks_kubectl_config
+        terragrunt output eks_kubectl_config > eks_kubectl_config
 
-3. Add output of terragrunt output kubeconfig” to ~/.kube/config-devel
+3. Add output to `~/.kube/`
 
         mkdir ~/.kube
-        terragrunt output eks_kubectl_config > ~/.kube/config-devel
+        mv eks_kubectl_config ~/.kube/eks_kubectl_config
 
-        # Set the context with the kubeconfig to use with kubectl
+        # Set the context with the kube-config to use with kubectl
         # Note AWS crentials must be provided
-        export KUBECONFIG=$KUBECONFIG:~/.kube/config-devel
+        export KUBECONFIG=$KUBECONFIG:~/.kube/eks_kubectl_config
 
 4. Verify kubectl connectivity
 
         kubectl get namespaces
         kubectl get services
 
-        # This should be prompt 'No resources found.' for the next step
+        # If 'No resources found.' go to for the next step 5 (manual bootstrap)
         kubectl get nodes
 
-5. Second part we need to allow EKS to add nodes by running `configmap`
+5. [Manual Bootstrap] Second part we need to allow EKS to add nodes by running `configmap`
 
         terragrunt output eks_config_map_aws_auth > config_map_aws_auth.yaml
         kubectl apply -f config_map_aws_auth.yaml
@@ -180,7 +185,20 @@ This process should be done manually if the previous process using terragrunt, i
         ip-10-10-1-52.eu-west-1.compute.internal    Ready    <none>   3m    v1.11.9   10.10.1.52    <none>        Amazon Linux 2   4.14.104-95.84.amzn2.x86_64   docker://18.6.1
         ip-10-10-2-227.eu-west-1.compute.internal   Ready    <none>   3m    v1.11.9   10.10.2.227   <none>        Amazon Linux 2   4.14.104-95.84.amzn2.x86_64   docker://18.6.1
 
+7. Cluster Info and kubectl version (client and server)
+
+        kubectl version
+
+        kubectl cluster-info
+
+        Kubernetes master is running at https://E12965DE82F9F8E204ED4196D9260329.sk1.eu-west-1.eks.amazonaws.com
+        CoreDNS is running at https://E12965DE82F9F8E204ED4196D9260329.sk1.eu-west-1.eks.amazonaws.com/api/v1/namespaces/kube-system/services/kube-dns:dns/proxy
+
+        To further debug and diagnose cluster problems, use 'kubectl cluster-info dump'.
+
 ### Tools
+
+#### Kubernetes Dashboard
 
 - Deploy the Kubernetes Dashboard (*localhost*)
 
@@ -208,7 +226,129 @@ This process should be done manually if the previous process using terragrunt, i
 - Access to the dashboard (press *skip* button)
 
         https://10.0.0.12:9999/api/v1/namespaces/kube-system/services/https:kubernetes-dashboard:/proxy/
-h
+
+#### Helm
+
+Helm is a tool for managing Kubernetes charts. Charts are packages of pre-configured Kubernetes resources.
+
+- Find and use popular software packaged as Helm charts to run in Kubernetes
+- Share your own applications as Helm charts
+- Create reproducible builds of your Kubernetes applications
+- Intelligently manage your Kubernetes manifest files
+- Manage releases of Helm packages
+
+##### Helm Installation
+
+- Initialize `helm` to deploy the necessary pods into eks cluster
+
+        kubectl -n kube-system create sa tiller
+
+        kubectl create clusterrolebinding tiller --clusterrole cluster-admin --serviceaccount=kube-system:tiller
+
+        helm init --service-account tiller
+
+- Verify helm is correctly installed
+
+        helm version
+
+- To **remove** `tiller` from server
+
+        helm reset --force
+
+#### Nginx Ingress
+
+- Install `nginx-ingress` for ingress controller using helm
+
+        helm install stable/nginx-ingress --name nginx-ingress --set controller.stats.enabled=true,controller.metrics.enabled=true
+
+  ```baSH
+  NOTES:
+  The nginx-ingress controller has been installed.
+  It may take a few minutes for the LoadBalancer IP to be available.
+  You can watch the status by running 'kubectl --namespace default get services   -o wide -w nginx-ingress-controller'
+  
+  An example Ingress that makes use of the controller:
+  
+    apiVersion: extensions/v1beta1
+    kind: Ingress
+    metadata:
+      annotations:
+        kubernetes.io/ingress.class: nginx
+      name: example
+      namespace: foo
+    spec:
+      rules:
+        - host: www.example.com
+          http:
+            paths:
+              - backend:
+                  serviceName: exampleService
+                  servicePort: 80
+                path: /
+      # This section is only required if TLS is to be enabled for the Ingress
+      tls:
+          - hosts:
+              - www.example.com
+            secretName: example-tls
+  
+  If TLS is enabled for the Ingress, a Secret containing the certificate and   key must also be provided:
+  
+    apiVersion: v1
+    kind: Secret
+    metadata:
+      name: example-tls
+      namespace: foo
+    data:
+      tls.crt: <base64 encoded cert>
+      tls.key: <base64 encoded key>
+    type: kubernetes.io/tls
+  ```
+
+- Check the configuration for `nginx-ingress`
+
+        kubectl --namespace default get services -o wide -w nginx-ingress-controller
+
+#### Traefik Ingress
+
+**Traefik** is a modern HTTP reverse proxy and load balancer that makes deploying microservices easy. Traefik integrates with your existing infrastructure components (Docker, Swarm mode, Kubernetes, Marathon, Consul, Etcd, Rancher, Amazon ECS, ...) and configures itself automatically and dynamically. Pointing Traefik at your orchestrator should be the only configuration step you need.
+
+- Install `traefik` for ingress controller using helm
+
+        helm install --name traefik-ingress --namespace kube-system --set dashboard.enabled=true,metrics.prometheus.enabled=true,rbac.enabled=true stable/traefik
+
+  ```bash
+  NOTES:
+
+  1. Get Traefik's load balancer IP/hostname:
+
+  NOTE: It may take a few minutes for this to become available.
+
+  You can watch the status by running:
+
+          $ kubectl get svc traefik-ingress --namespace kube-system -w
+
+  Once 'EXTERNAL-IP' is no longer '<pending>':
+
+          $ kubectl describe svc traefik-ingress --namespace kube-system | grep Ingress | awk '{print $3}'
+
+  1. Configure DNS records corresponding to Kubernetes ingres  resources to point to the load balancer IP/hostname found in step 1
+  ```
+
+- Check the configuration for `traefik-ingress`
+
+      kubectl describe svc traefik-ingress --namespace kube-system
+      kubectl get services --all-namespaces
+
+#### Prometheus and Grafana
+
+- Install `Prometheus` and `Grafana`
+
+      helm install --name prometheus --namespace prometheus --set alertmanager.enabled=false,pushgateway.enabled=false,server.persistentVolume.enabled=false,server.replicaCount=1,server.service.type=NodePort,server.service.nodePort=30001,server.ingress.enabled=true,server.ingress.annotations."kubernetes\.io/ingress\.class"=traefik,server.ingress.hosts={prometheus.monitoring.com} stable/prometheus
+
+      helm install --name grafana-dashboard --namespace grafana --set ingress.enabled=true,ingress.annotations."kubernetes\.io/ingress\.class"=nginx,ingress.hosts={grafana.adebc4a31515f11e9a4230a0fd559c43-365802087.eu-west-1.elb.amazonaws.com} stable/grafana
+
+
 ## References
 
 - [Naming conventions](http://lloydholman.co.uk/in-the-wild-aws-iam-naming-conventions/)
+- [Traefik and Services](https://www.jeffgeerling.com/blog/2018/fixing-503-service-unavailable-and-endpoints-not-available-traefik-ingress-kubernetes)

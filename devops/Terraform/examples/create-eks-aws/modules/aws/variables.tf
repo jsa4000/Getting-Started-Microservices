@@ -68,11 +68,11 @@ variable "eks_instance_type" {
 }
 
 variable "eks_asg_desired_capacity" {
-   description = "Desired capacity for auto-scaling eks nodes"
+   description = "Desired capacity for auto-scaling on-demand workers"
 }
 
-variable "eks_spot_instance_pools" {
-   description = "Desired capacity for auto-scaling eks spot instance pools"
+variable "eks_asg_spot_desired_capacity" {
+   description = "Desired capacity for auto-scaling spot fleet workers"
 }
 
 

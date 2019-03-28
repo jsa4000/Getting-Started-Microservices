@@ -47,7 +47,7 @@ module "eks" {
   subnets                   = "${module.vpc.private_subnets}"
   instance_type             = "${var.eks_instance_type}"
   asg_desired_capacity      = "${var.eks_asg_desired_capacity}"
-  spot_instance_pools       = "${var.eks_spot_instance_pools}"
+  asg_spot_desired_capacity = "${var.eks_asg_spot_desired_capacity}"
 }
 
 

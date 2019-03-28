@@ -19,6 +19,10 @@ variable "asg_desired_capacity" {
   default = 2
 }
 
+variable "asg_spot_desired_capacity" {
+  default = 2
+}
+
 variable "spot_instance_pools" {
   default = 10
 }

@@ -16,7 +16,7 @@ locals {
     {
       instance_type                            = "${var.instance_type}"
       subnets                                  = "${join(",", var.subnets)}"
-      asg_desired_capacity                     = "${var.asg_desired_capacity}"
+      asg_desired_capacity                     = "${var.asg_spot_desired_capacity}"
       spot_instance_pools                      = "${var.spot_instance_pools}"
       on_demand_percentage_above_base_capacity = "0"
     },

@@ -44,8 +44,6 @@ resource "aws_security_group" "database_sec_group" {
   description             = "Security to be applied to database"
   vpc_id                  = "${module.vpc.vpc_id}"
 
-  revoke_rules_on_delete  = true
-
   ingress {
     from_port             = "${var.db_port}"
     to_port               = "${var.db_port}"
@@ -70,8 +68,6 @@ resource "aws_security_group" "eks_sec_group" {
   description             = "Security to be applied for eks nodes"
   vpc_id                  = "${module.vpc.vpc_id}"
   
-  revoke_rules_on_delete  = true
-  
   ingress {
     from_port             = 22
     to_port               = 22
@@ -82,6 +78,6 @@ resource "aws_security_group" "eks_sec_group" {
       "192.168.0.0/16",
     ]
   }
-  tags                    = "${local.tags}"
+  tags                    = "${merge(local.tags, map("Name", "${var.cluster_name}-database_sec_group"))}"      
 }
 
