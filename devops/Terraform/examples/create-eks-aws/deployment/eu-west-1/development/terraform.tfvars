@@ -35,7 +35,7 @@ db_username           = "root"
 db_password           = "password"
 
 #eks_instance_type             = "t2.small"
-eks_instance_type             = "t2.large"
+eks_instance_type             = "t2.xlarge"
 eks_asg_desired_capacity      = 2
 eks_asg_spot_desired_capacity = 2
 

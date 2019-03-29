@@ -133,6 +133,10 @@ If using `AWSCLI`, following commands will create an user that can be used with 
 
 > Use `TF_WARN_OUTPUT_ERRORS=1 terragrunt destroy`, if find it any output or warning after the execution.
 
+- It can be run specific modules only (i.e `module.eks`).
+
+        terragrunt destroy -target=module.eks
+
 ## Kubernetes
 
 This process should be done manually if the previous process using terragrunt, it was a problem at the end trying to bootstrap the eks  cluster.
@@ -197,6 +201,20 @@ This process should be done manually if the previous process using terragrunt, i
         To further debug and diagnose cluster problems, use 'kubectl cluster-info dump'.
 
 ### Tools
+
+#### Run Docker
+
+It can be run docker containers interactively rby using the following command
+
+        # Create container to run shell
+        kubectl run --generator=run-pod/v1 my-shell --rm -i --tty --image ubuntu -- bash
+
+        # Create container with postgresql
+        kubectl run --generator=run-pod/v1 pg-shell --rm -i --tty --image=postgres -- sh
+        # Connect to RDS postgre database
+        psql postgresql://root:password@eks-lab-dev-db.ctlhqjtqc4hl.eu-west-1.rds.amazonaws.com:5432/postgres
+        # User following command to list all the databases
+        \l
 
 #### Kubernetes Dashboard
 
@@ -341,14 +359,154 @@ Helm is a tool for managing Kubernetes charts. Charts are packages of pre-config
 
 #### Prometheus and Grafana
 
-- Install `Prometheus` and `Grafana`
+- Install `Prometheus`
 
-      helm install --name prometheus --namespace prometheus --set alertmanager.enabled=false,pushgateway.enabled=false,server.persistentVolume.enabled=false,server.replicaCount=1,server.service.type=NodePort,server.service.nodePort=30001,server.ingress.enabled=true,server.ingress.annotations."kubernetes\.io/ingress\.class"=traefik,server.ingress.hosts={prometheus.monitoring.com} stable/prometheus
+        helm install --name prometheus --namespace prometheus --set server.ingress.enabled=true,server.ingress.annotations."kubernetes\.io/ingress\.class"=traefik,server.ingress.hosts={prometheus.eks-lab.com},alertmanager.ingress.enabled=true,alertmanager.ingress.annotations."kubernetes\.io/ingress\.class"=traefik,alertmanager.ingress.hosts={alertmanager.eks-lab.com} stable/prometheus
 
-      helm install --name grafana-dashboard --namespace grafana --set ingress.enabled=true,ingress.annotations."kubernetes\.io/ingress\.class"=nginx,ingress.hosts={grafana.adebc4a31515f11e9a4230a0fd559c43-365802087.eu-west-1.elb.amazonaws.com} stable/grafana
+    > The Prometheus server can be accessed via port 80 on the following DNS name from within your cluster: `prometheus-server.prometheus.svc.cluster.local`
 
+- Install `Grafana`
+
+        helm install --name grafana-dashboard --namespace grafana --set persistence.enabled=true,ingress.enabled=true,ingress.annotations."kubernetes\.io/ingress\.class"=traefik,ingress.hosts={grafana.eks-lab.com} stable/grafana
+
+    > Get the credentials to access grafana dashboard
+
+        kubectl get secret --namespace grafana grafana-dashboard -o jsonpath="{.data.admin-password}" | base64 --decode ; echo
+
+- Set `prometheus` datasource and the dashboards into grafana (http://grafana.eks-lab.com/)
+
+  > Use `http://prometheus-server.prometheus.svc.cluster.local` as URL in grafana datasource
+  
+  - Node eXporter: 405
+  - Cadvisor: 893
+  - Kubernetes cluster monitoring: 1621
+
+- **Uninstall** helm packages
+
+        helm del grafana-dashboard --purge
+        helm del prometheus --purge
+
+#### Install EFK
+
+In this section it will be explained howto deploy EFK stack into kubernetes cluster.
+
+##### Elasticsearch
+
+[Stable helm Chart](https://hub.kubeapps.com/charts/stable/elasticsearch)
+
+Install **Elastic Search** cluster, with only 1 replica and 2 clients.
+
+    helm install --name elasticsearch --namespace logging --set client.ingress.enabled=true,client.ingress.annotations."kubernetes\.io/ingress\.class"=traefik,client.ingress.hosts={elasticsearch.eks-lab.com},client.replicas=1,master.replicas=2,data.replicas=1,cluster.env.MINIMUM_MASTER_NODES=2 stable/elasticsearch
+
+> It is needed to increase the number `max file descriptors`. https://forums.aws.amazon.com/thread.jspa?threadID=205170
+
+####################
+> sed -i -e 's/1024:4096/65536:65536/g' /etc/sysconfig/docker
+> https://github.com/bitnami/kube-prod-runtime/pull/430
+> https://github.com/bitnami/kube-prod-runtime/blob/master/docs/troubleshooting.md#troubleshooting-elasticsearch
+#####################
+
+Output, after installing the chart.
+
+```bash
+NOTES:
+The elasticsearch cluster has been installed.
+
+Elasticsearch can be accessed:
+
+  * Within your cluster, at the following DNS name at port 9200:
+
+    elasticsearch-client.logging.svc
+
+  * From outside the cluster, run these commands in the same shell:
+
+    export POD_NAME=$(kubectl get pods --namespace logging -l "app=elasticsearch,component=client,release=elasticsearch" -o jsonpath="{.items[0].metadata.name}")
+    echo "Visit http://127.0.0.1:9200 to use Elasticsearch"
+    kubectl port-forward --namespace logging $POD_NAME 9200:9200
+```
+
+Verify the current client can be accessed from ingress http://elasticsearch.logging.com:30537/ and http://elasticsearch.logging.com:30537/_count?pretty
+
+##### Kibana
+
+[Stable helm Chart](https://hub.kubeapps.com/charts/stable/kibana)
+
+Install **kibana** helm chart
+
+    helm install --name kibana --namespace logging --set ingress.enabled=true,ingress.annotations."kubernetes\.io/ingress\.class"=traefik,ingress.hosts={kibana.eks-lab.com},env.ELASTICSEARCH_URL=http://elasticsearch-client:9200 stable/kibana
+
+Output, after installing the chart.
+
+```bash
+NOTES:
+To verify that kibana has started, run:
+
+  kubectl --namespace=logging get pods -l "app=kibana"
+
+Kibana can be accessed:
+
+  * From outside the cluster, run these commands in the same shell:
+
+    export NODE_PORT=$(kubectl get --namespace logging -o jsonpath="{.spec.ports[0].nodePort}" services kibana)
+    export NODE_IP=$(kubectl get nodes --namespace logging -o jsonpath="{.items[0].status.addresses[0].address}")
+    echo http://$NODE_IP:$NODE_PORT
+```
+
+##### Fluent Bit (daemonset)
+
+[Stable helm Chart](https://hub.kubeapps.com/charts/stable/fluent-bit)
+
+Install **Fluent Bit** helm chart
+
+    helm install --name fluentbit --namespace logging --set backend.type=es,backend.es.host=elasticsearch-client,service.logLevel=info,filter.mergeJSONLog=false stable/fluent-bit
+
+Output, after installing the chart.
+
+```bash
+NOTES:
+fluent-bit is now running.
+
+It will forward all container logs to the svc named elasticsearch-client on port: 9200
+
+```
+
+> To verify the installation, check if the pods are connected to the backend (elasticsearch) via logs. `kubectl logs -n logging pods/fluentbit-fluent-bit-wjhsr`
+
+#### Local DNS
+
+- Get the `External IP` assigned to the desired ingress service
+
+        kubectl get services --all-namespaces
+
+  ```bash
+  NAMESPACE     NAME                            TYPE           CLUSTER-IP            EXTERNAL-IP                                                                    PORT(S)                                     AGE
+  kube-system   tiller-deploy                   ClusterIP           172.20.224.93    <none>                                                                         44134/TCP                                   1h
+  kube-system   traefik-ingress                 LoadBalancer        172.20.158.115        a4844b62951fa11e99e960a076ad3b79-1619440693.eu-west-1.elb.amazonaws.com        80:30499/TCP,443:31978/TCP,8080:31284/TCP   1h
+  ```
+
+
+- Get the **IP Addresses** assigned the load-balancer created by the ingress controller, using the command `host`
+
+      host a4844b62951fa11e99e960a076ad3b79-1619440693.eu-west-1.elb.amazonaws.com
+
+    ```bash
+    a4844b62951fa11e99e960a076ad3b79-1619440693.eu-west-1.elb.amazonaws.com     has address 52.212.18.149
+    a4844b62951fa11e99e960a076ad3b79-1619440693.eu-west-1.elb.amazonaws.com     has address 54.77.108.214
+    a4844b62951fa11e99e960a076ad3b79-1619440693.eu-west-1.elb.amazonaws.com     has address 34.243.105.205
+    ```
+
+- Create or modify the entries into the local host file `/etc/hosts`
+
+  ```bash
+  52.212.18.149 grafana.eks-lab.com
+  52.212.18.149 prometheus.eks-lab.com
+  52.212.18.149 alertmanager.eks-lab.com
+  52.212.18.149 elasticsearch.eks-lab.com
+  52.212.18.149 kibana.eks-lab.com
+  ```
 
 ## References
 
 - [Naming conventions](http://lloydholman.co.uk/in-the-wild-aws-iam-naming-conventions/)
 - [Traefik and Services](https://www.jeffgeerling.com/blog/2018/fixing-503-service-unavailable-and-endpoints-not-available-traefik-ingress-kubernetes)
+- [Amazon EKS Ingress Guide](https://medium.com/@dmaas/amazon-eks-ingress-guide-8ec2ec940a70)

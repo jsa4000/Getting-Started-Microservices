@@ -17,12 +17,12 @@ module "vpc" {
   name                 = "${var.cluster_name}"
   cidr                 = "${var.cidr_block}"
   azs                  = ["${data.aws_availability_zones.available.names[0]}", "${data.aws_availability_zones.available.names[1]}", "${data.aws_availability_zones.available.names[2]}"]
-  private_subnets      = [
+ public_subnets      = [
     "${cidrsubnet(var.cidr_block, var.cidr_subnet_bits, 0)}", 
     "${cidrsubnet(var.cidr_block, var.cidr_subnet_bits, 1)}", 
     "${cidrsubnet(var.cidr_block, var.cidr_subnet_bits, 2)}"
   ]
-  public_subnets       = [
+  private_subnets       = [
     "${cidrsubnet(var.cidr_block, var.cidr_subnet_bits, local.network_count)}", 
     "${cidrsubnet(var.cidr_block, var.cidr_subnet_bits, local.network_count + 1)}", 
     "${cidrsubnet(var.cidr_block, var.cidr_subnet_bits, local.network_count + 2)}"
