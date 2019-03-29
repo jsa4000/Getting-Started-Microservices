@@ -4,7 +4,7 @@ variable "owner" {}
 
 variable "cluster_name" {}
 
-variable "sec_group" {}
+variable "vpc_id" {}
 
 variable "subnets" {
   type = "list"

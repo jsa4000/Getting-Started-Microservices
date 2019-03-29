@@ -76,6 +76,50 @@ If using `AWSCLI`, following commands will create an user that can be used with 
         aws-iam-authenticator version
         helm version
 
+## Creating key-pair for SSH
+
+- Create Key Pair
+
+        ssh-keygen -t rsa -b 4096 -C "bastion@gmail.com" -f ~/.ssh/bastion-key
+
+> **Keep** both keys in a secure place!
+
+- Add Key Pair to Terraform setup
+
+        cat ~/.ssh/bastion-key.pub | pbcopy
+
+  *terraform.tfvars*
+
+  ```tf
+  key_name   = "your_key_name"
+  public_key = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDWbz6ur89BKQ+am87EovJsv6g9QpbOiw13lTF7Kw1StbQAmkcGGrNTK2LIWsP3cQf+P+gptRAJbeeB1jQKZ283TwwREIv  +l5AMKrbEkanOF4zsc8a9zitejlOLvVUxtVoMi5ROVYD2dLKjqAbDtqIC9LmMD+hcpqcXLhS6t+HVSVI862dTNVFY1EGukLGQ3IEJfw5v7FDzLn72NsuUiXEeCZu8DtlXLCTYRnqv  +XkJQWVocPdFDUWISSIQ0CTFu+GJvJjdqDyAhYo3it7Eybj6XuSgLDwkQcNU45Eee4Nn7LwV+f4Av8D25m4FZOfpWaj5+q9Fc9nRdIsB7P0oFgj5YoaTngQKy27MJ5UppMO7OOhriurJ/  PBOrGpeqPcftWKLpcHLIGrm3ndoDKQx12R1s0gyYpA4JuNUWHYcxNrFa2rs/6AoFuS7wNUmM+DYB8iTjOl6dT8dS5AgMxGoZ3NepMPYilw1gf  +gw9Ft3pHs2IMfDfqwZpXga8KdYwxBmRakpHdA7Nzje8ufvP/TBawsqVcW7z5gG9uPhYtfnYYezSIxv56PMSWEfqchkz  +raPsElzIGtPcC1snncQlau95utV25r88BzXhCMJwNy9aDNEfSrm5SORlA97xicroCOuRjw2PnQyIXKvWDZtyqX5799x37K/HDYpJnvcgwpTlDZQ== your_email@example.com"
+  ```
+
+- Edit your local `~/.ssh/config` file and add the following:
+
+  ```bash
+  Host bastion
+    Hostname ec2-35-178-181-167.eu-west-2.compute.amazonaws.com
+    User ubuntu
+    ForwardAgent yes
+  ```
+
+- Finally we can `ssh` onto the **bastion**:
+
+        ssh -i ~/.ssh/bastion-key ubuntu@ec2-35-178-181-167.eu-west-2.compute.amazonaws.com
+
+        # If created `~/.ssh/config` file
+        ssh -i ~/.ssh/your_key_name bastion
+
+- Or using `ssh-agent`
+
+        ssh-add -K ~/.ssh/bastion-key
+        ssh bastion
+
+- Once you are inside the bastion, you can connect to other networks (eks nodes)
+
+        ssh ec2-user@ip-10-10-3-169.eu-west-2.compute.internal
+
 ## Terraform
 
 - Add your aws credentials to the environment variables.
@@ -88,7 +132,6 @@ If using `AWSCLI`, following commands will create an user that can be used with 
 
 - Once we have terraform IAM account created we can proceed to next step creating dedicated `S3 bucket` to keep terraform state files (`.tfstate`)
 
-        aws s3 mb s3://terraform-state-lab
         aws s3 mb s3://terraform-state-lab --region eu-west-1
 
 - Enable versioning on the newly created bucket
@@ -101,15 +144,15 @@ If using `AWSCLI`, following commands will create an user that can be used with 
 
 - Delete bucket
 
-        aws s3 rm s3://terra-state-bucket --recursive
+        aws s3 rm s3://terraform-state-lab --recursive
 
-        aws s3api put-bucket-versioning --bucket terra-state-bucket --versioning-configuration Status=Suspended
+        aws s3api put-bucket-versioning --bucket terraform-state-lab --versioning-configuration Status=Suspended
 
-        aws s3api delete-objects --bucket terra-state-bucket --delete \
-        "$(aws s3api list-object-versions --bucket terra-state-bucket | \
+        aws s3api delete-objects --bucket terraform-state-lab --delete \
+        "$(aws s3api list-object-versions --bucket terraform-state-lab | \
         jq '{Objects: [.Versions[] | {Key:.Key, VersionId : .VersionId}], Quiet: false}')"
 
-        aws s3 rb s3://terra-state-bucket --force
+        aws s3 rb s3://terraform-state-lab --force
 
 ## Terragrunt
 
@@ -273,13 +316,44 @@ Helm is a tool for managing Kubernetes charts. Charts are packages of pre-config
 
         helm reset --force
 
+#### Traefik Ingress
+
+**Traefik** is a modern HTTP reverse proxy and load balancer that makes deploying microservices easy. Traefik integrates with your existing infrastructure components (Docker, Swarm mode, Kubernetes, Marathon, Consul, Etcd, Rancher, Amazon ECS, ...) and configures itself automatically and dynamically. Pointing Traefik at your orchestrator should be the only configuration step you need.
+
+- Install `traefik` for ingress controller using helm
+
+        helm install --name traefik-ingress --namespace kube-system --set dashboard.enabled=true,metrics.prometheus.enabled=true,rbac.enabled=true stable/traefik
+
+  ```bash
+  NOTES:
+
+  1. Get Traefik's load balancer IP/hostname:
+
+  NOTE: It may take a few minutes for this to become available.
+
+  You can watch the status by running:
+
+          $ kubectl get svc traefik-ingress --namespace kube-system -w
+
+  Once 'EXTERNAL-IP' is no longer '<pending>':
+
+          $ kubectl describe svc traefik-ingress --namespace kube-system | grep Ingress | awk '{print $3}'
+
+  1. Configure DNS records corresponding to Kubernetes ingres  resources to point to the load balancer IP/hostname found in step 1
+  ```
+
+- Check the configuration for `traefik-ingress`
+
+      kubectl describe svc traefik-ingress --namespace kube-system
+      kubectl get pod,svc --all-namespaces
+
 #### Nginx Ingress
 
 - Install `nginx-ingress` for ingress controller using helm
 
         helm install stable/nginx-ingress --name nginx-ingress --set controller.stats.enabled=true,controller.metrics.enabled=true
 
-  ```baSH
+  ```bash
   NOTES:
   The nginx-ingress controller has been installed.
   It may take a few minutes for the LoadBalancer IP to be available.
@@ -326,37 +400,6 @@ Helm is a tool for managing Kubernetes charts. Charts are packages of pre-config
 
         kubectl --namespace default get services -o wide -w nginx-ingress-controller
 
-#### Traefik Ingress
-
-**Traefik** is a modern HTTP reverse proxy and load balancer that makes deploying microservices easy. Traefik integrates with your existing infrastructure components (Docker, Swarm mode, Kubernetes, Marathon, Consul, Etcd, Rancher, Amazon ECS, ...) and configures itself automatically and dynamically. Pointing Traefik at your orchestrator should be the only configuration step you need.
-
-- Install `traefik` for ingress controller using helm
-
-        helm install --name traefik-ingress --namespace kube-system --set dashboard.enabled=true,metrics.prometheus.enabled=true,rbac.enabled=true stable/traefik
-
-  ```bash
-  NOTES:
-
-  1. Get Traefik's load balancer IP/hostname:
-
-  NOTE: It may take a few minutes for this to become available.
-
-  You can watch the status by running:
-
-          $ kubectl get svc traefik-ingress --namespace kube-system -w
-
-  Once 'EXTERNAL-IP' is no longer '<pending>':
-
-          $ kubectl describe svc traefik-ingress --namespace kube-system | grep Ingress | awk '{print $3}'
-
-  1. Configure DNS records corresponding to Kubernetes ingres  resources to point to the load balancer IP/hostname found in step 1
-  ```
-
-- Check the configuration for `traefik-ingress`
-
-      kubectl describe svc traefik-ingress --namespace kube-system
-      kubectl get services --all-namespaces
-
 #### Prometheus and Grafana
 
 - Install `Prometheus`
@@ -398,13 +441,22 @@ Install **Elastic Search** cluster, with only 1 replica and 2 clients.
 
     helm install --name elasticsearch --namespace logging --set client.ingress.enabled=true,client.ingress.annotations."kubernetes\.io/ingress\.class"=traefik,client.ingress.hosts={elasticsearch.eks-lab.com},client.replicas=1,master.replicas=2,data.replicas=1,cluster.env.MINIMUM_MASTER_NODES=2 stable/elasticsearch
 
-> It is needed to increase the number `max file descriptors`. https://forums.aws.amazon.com/thread.jspa?threadID=205170
+> The official [troubleshooting](https://github.com/bitnami/kube-prod-runtime/blob/master/docs/troubleshooting.md#troubleshooting-elasticsearch
+) explicitly says to increase the number of `max file descriptors` in EKS.
 
-####################
-> sed -i -e 's/1024:4096/65536:65536/g' /etc/sysconfig/docker
-> https://github.com/bitnami/kube-prod-runtime/pull/430
-> https://github.com/bitnami/kube-prod-runtime/blob/master/docs/troubleshooting.md#troubleshooting-elasticsearch
-#####################
+```bash
+sudo sed -i '/"nofile": {/,/}/d' /etc/docker/daemon.json
+sudo sed -i '/OPTIONS/d' /etc/sysconfig/docker
+sudo systemctl restart docker
+```
+
+> To get the number of descriptors use the following command inside a worker node:
+
+        docker run -it --rm ubuntu bash -c "ulimit -n -H"
+
+> Or using kubectl from outside
+
+        kubectl run --generator=run-pod/v1 my-shell --rm -i --tty --image ubuntu -- bash -c "ulimit -n -H"
 
 Output, after installing the chart.
 
@@ -433,7 +485,10 @@ Verify the current client can be accessed from ingress http://elasticsearch.logg
 
 Install **kibana** helm chart
 
-    helm install --name kibana --namespace logging --set ingress.enabled=true,ingress.annotations."kubernetes\.io/ingress\.class"=traefik,ingress.hosts={kibana.eks-lab.com},env.ELASTICSEARCH_URL=http://elasticsearch-client:9200 stable/kibana
+        helm install --name kibana --namespace logging --set ingress.enabled=true,ingress.annotations."kubernetes\.io/ingress\.class"=traefik,ingress.hosts={kibana.eks-lab.com},env.ELASTICSEARCH_URL=http://elasticsearch-client:9200 stable/kibana
+
+        helm install --name kibana --namespace logging --set ingress.enabled=true,ingress.annotations."kubernetes\.io/ingress\.class"=traefik,ingress.hosts={kibana.eks-lab.com},env.ELASTICSEARCH_URL=http://elasticsearch-client:9200,image.tag=6.6.2,service.externalPort=80 stable/kibana
+
 
 Output, after installing the chart.
 
@@ -504,6 +559,15 @@ It will forward all container logs to the svc named elasticsearch-client on port
   52.212.18.149 elasticsearch.eks-lab.com
   52.212.18.149 kibana.eks-lab.com
   ```
+
+- Using sed to replace previous configurations
+
+        # Linux Machines
+        sudo sed -i 's/34.253.164.67/5.176.104.136/g' /etc/hosts
+
+        # In MacOS use gnu-sed instead
+        brew install gnu-sed
+        sudo gsed -i 's/5.176.104.136/35.176.104.136/g' /etc/hosts
 
 ## References
 

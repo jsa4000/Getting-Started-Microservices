@@ -1,0 +1,5 @@
+
+ Host bastion
+    Hostname ec2-35-178-181-167.eu-west-2.compute.amazonaws.com
+    User ubuntu
+    ForwardAgent yes

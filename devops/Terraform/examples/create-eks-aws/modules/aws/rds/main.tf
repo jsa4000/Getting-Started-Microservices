@@ -22,7 +22,7 @@ module "db" {
   password                  = "${var.password}"
   port                      = "${var.port}"
 
-  vpc_security_group_ids    = ["${var.sec_group}"]
+  vpc_security_group_ids    = ["${aws_security_group.database_sec_group.id}"]
   subnet_ids                = ["${var.subnets}"]
 
   storage_encrypted         = false
@@ -37,4 +37,28 @@ module "db" {
   deletion_protection       = false
 
   tags                      = "${local.tags}"
+}
+
+resource "aws_security_group" "database_sec_group" {
+  name_prefix             = "db-sec-group"
+  description             = "Security to be applied to database"
+  vpc_id                  = "${var.vpc_id}"
+
+  ingress {
+    from_port             = "${var.port}"
+    to_port               = "${var.port}"
+    protocol              = "tcp"
+    # cidr_blocks         = ["${var.vpc_cidr_block}"]
+    cidr_blocks           = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port             = "${var.port}"
+    to_port               = "${var.port}"
+    protocol              = "tcp"
+    # cidr_blocks         = ["${var.vpc_cidr_block}"]
+    cidr_blocks           = ["0.0.0.0/0"]
+  }
+
+  tags                    = "${merge(local.tags, map("Name", "${var.cluster_name}-database_sec_group"))}"        
 }

@@ -6,14 +6,15 @@ variable "cluster_name" {}
 
 variable "vpc_id" {}
 
-variable "sec_group" {
+variable "instance_type" {
+  default = "t2.micro"
 }
-
-variable "instance_type" {}
 
 variable "subnets" {
   type = "list"
 }
+
+variable "key_name" {}
 
 variable "asg_desired_capacity" {
   default = 2

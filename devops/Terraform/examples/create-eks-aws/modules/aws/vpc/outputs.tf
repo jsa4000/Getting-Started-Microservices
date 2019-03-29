@@ -23,13 +23,3 @@ output "nat_public_ips" {
   description = "List of public Elastic IPs created for AWS NAT Gateway"
   value       = ["${module.vpc.nat_public_ips}"]
 }
-
-output "database_sec_group" {
-  description = "database security group"
-  value       = "${aws_security_group.database_sec_group.id}"
-}
-
-output "eks_sec_group" {
-  description = "SSecurity to be applied for eks nodes"
-  value       = "${aws_security_group.eks_sec_group.id}"
-}

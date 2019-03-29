@@ -1,3 +1,4 @@
+
 output "eks_cluster_endpoint" {
   description = "Endpoint for EKS control plane."
   value       = "${module.eks.cluster_endpoint}"
@@ -18,3 +19,6 @@ output "eks_config_map_aws_auth" {
   value       = "${module.eks.config_map_aws_auth}"
 }
 
+output "bastion_public_ip" {
+  value = "${module.bastion.public_ip}"
+}

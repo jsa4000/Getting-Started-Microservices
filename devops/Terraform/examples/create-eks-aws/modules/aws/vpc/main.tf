@@ -11,13 +11,24 @@ locals {
   }
 }
 
+resource "aws_route53_zone" "hosted_zone" {
+  name      = "eks-lab.com"
+  comment   = "Private hosted zone for eks cluster"
+
+  vpc {
+    vpc_id  = "${module.vpc.vpc_id}"
+  }
+
+  tags      = "${local.tags}"
+}
+
 module "vpc" {
   source               = "terraform-aws-modules/vpc/aws"
   version              = "1.60.0"
   name                 = "${var.cluster_name}"
   cidr                 = "${var.cidr_block}"
   azs                  = ["${data.aws_availability_zones.available.names[0]}", "${data.aws_availability_zones.available.names[1]}", "${data.aws_availability_zones.available.names[2]}"]
- public_subnets      = [
+  public_subnets      = [
     "${cidrsubnet(var.cidr_block, var.cidr_subnet_bits, 0)}", 
     "${cidrsubnet(var.cidr_block, var.cidr_subnet_bits, 1)}", 
     "${cidrsubnet(var.cidr_block, var.cidr_subnet_bits, 2)}"
@@ -39,45 +50,4 @@ module "vpc" {
   tags                 = "${merge(local.tags, map("kubernetes.io/cluster/${var.cluster_name}", "shared"))}"
 }
 
-resource "aws_security_group" "database_sec_group" {
-  name_prefix             = "db-sec-group"
-  description             = "Security to be applied to database"
-  vpc_id                  = "${module.vpc.vpc_id}"
-
-  ingress {
-    from_port             = "${var.db_port}"
-    to_port               = "${var.db_port}"
-    protocol              = "tcp"
-    # cidr_blocks         = ["${var.vpc_cidr_block}"]
-    cidr_blocks           = ["0.0.0.0/0"]
-  }
-
-  egress {
-    from_port             = "${var.db_port}"
-    to_port               = "${var.db_port}"
-    protocol              = "tcp"
-    # cidr_blocks         = ["${var.vpc_cidr_block}"]
-    cidr_blocks           = ["0.0.0.0/0"]
-  }
-
-  tags                    = "${merge(local.tags, map("Name", "${var.cluster_name}-database_sec_group"))}"        
-}
-
-resource "aws_security_group" "eks_sec_group" {
-  name_prefix             = "eks-sec-group"
-  description             = "Security to be applied for eks nodes"
-  vpc_id                  = "${module.vpc.vpc_id}"
-  
-  ingress {
-    from_port             = 22
-    to_port               = 22
-    protocol              = "tcp"
-    cidr_blocks           = [
-      "10.0.0.0/8",
-      "172.16.0.0/12",
-      "192.168.0.0/16",
-    ]
-  }
-  tags                    = "${merge(local.tags, map("Name", "${var.cluster_name}-database_sec_group"))}"      
-}
 

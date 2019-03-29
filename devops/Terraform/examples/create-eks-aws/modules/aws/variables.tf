@@ -75,6 +75,18 @@ variable "eks_asg_spot_desired_capacity" {
    description = "Desired capacity for auto-scaling spot fleet workers"
 }
 
+variable "bastion_instance_type" {
+  description = "Instance type used for the bastion ec2"
+  default = "t2.micro"
+}
 
+variable "bastion_ami" {
+    description = "Image used for the bastion ec2"
+    default = "ami-969ab1f6"
+}
+
+variable "bastion_key_name" {}
+
+variable "bastion_public_key" {}
 
 
