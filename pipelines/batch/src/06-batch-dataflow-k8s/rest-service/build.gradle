@@ -34,8 +34,8 @@ jib {
 		image = 'openjdk:8u201-jre-alpine'
 	}
 	to {
-		//image = project.name
-		image = "registry.hub.docker.com/jsa4000/${project.name}"
+		image = project.name
+		//image = "registry.hub.docker.com/jsa4000/${project.name}"
 		credHelper = 'osxkeychain'
 		tags = [version, 'latest']
 	}
@@ -45,8 +45,8 @@ jib {
 					'-XX:+HeapDumpOnOutOfMemoryError',
 					'-XX:MaxRAMFraction=2']
 		ports = ['8080']
-		labels = [ownerName: 'jsa4000', 
-				  projectName: project.name, 
+		labels = [ownerName: 'jsa4000',
+				  projectName: project.name,
 				  creationDate: System.nanoTime().toString()]
 		//format = 'OCI'
 	}
