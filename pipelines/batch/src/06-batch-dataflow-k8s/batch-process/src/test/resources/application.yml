@@ -1,0 +1,25 @@
+server:
+  port: 8080
+
+spring:
+  batch:
+    job.enabled: false
+    initialize-schema: always
+
+app:
+  datasource:
+    first:
+      initialization-mode: always
+      url: jdbc:h2:file:~/dbTest
+      username: sa
+      password:
+      driver-class-name: org.h2.Driver
+    second:
+      initialization-mode: always
+      url: jdbc:h2:file:~/dbTest
+      username: sa
+      password:
+      driver-class-name: org.h2.Driver
+
+batch:
+  resource: ${BATCH_RESOURCE:file:D:/DEVELOPMENT/Github/Getting-Started-Microservices/pipelines/batch/src/02-batch-resilience/batch-process/src/main/resources/sample-data.csv}

@@ -1,0 +1,30 @@
+spring:
+  application:
+    name: batchJobTask
+  batch:
+    #job.enabled: false
+    initialize-schema: always
+
+#logging.level.org.springframework.cloud.task: DEBUG
+#maven.remoteRepositories.springRepo.url: https://repo.spring.io/libs-snapshot
+
+batch:
+  max-threads: 4
+  inputFile: /Users/jsantosa/Downloads/sample-data.zip
+  resourcesPath: /Users/jsantosa/Downloads/data
+  filePattern: "*.csv"
+  departmentsUri: http://localhost:8081/departments
+  worker-app: maven://com.example:batch-process:0.0.1-SNAPSHOT
+  datasource:
+    first:
+      #initialization-mode: always
+      url: jdbc:mysql://dockerhost:3306/db
+      username: root
+      password: password
+      driver-class-name: com.mysql.cj.jdbc.Driver
+    second:
+      #initialization-mode: always
+      url: jdbc:postgresql://dockerhost:5432/db
+      username: postgres
+      password: password
+      driver-class-name: org.postgresql.Driver

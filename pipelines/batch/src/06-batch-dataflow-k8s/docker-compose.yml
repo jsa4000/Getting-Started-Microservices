@@ -1,0 +1,27 @@
+version: '3.1'
+
+services:
+  postgres:
+    image: postgres:10.7-alpine
+    restart: always
+    environment:
+      POSTGRES_DB: db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    ports:
+      - 5432:5432
+
+  minio:
+    image: minio/minio:RELEASE.2019-03-27T22-35-21Z
+    command: server /data
+    environment:
+      MINIO_ACCESS_KEY: minio
+      MINIO_SECRET_KEY: password
+    ports:
+      - 9001:9000
+
+  rest-service:
+    image: jsa4000/rest-service
+    ports:
+      - 8080:8080
+
