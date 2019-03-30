@@ -6,7 +6,7 @@ spring:
 
 logging:
   level:
-    root: DEBUG
+    root: WARN
     org.springframework.web: INFO
     com.example: DEBUG
 
