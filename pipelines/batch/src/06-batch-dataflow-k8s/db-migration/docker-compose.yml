@@ -1,0 +1,18 @@
+version: '3.5'
+
+services:
+  postgres:
+    image: db-migration
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/db
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: password
+      SPRING_DATASOURCE_DRIVER-CLASS-NAME: org.postgresql.Driver
+    networks:
+      - dataflow-network
+
+networks:
+  dataflow-network:
+    external:
+      name: dataflow-network

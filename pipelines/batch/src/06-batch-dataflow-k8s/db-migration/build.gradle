@@ -1,5 +1,6 @@
 plugins {
 	id 'org.springframework.boot' version '2.1.3.RELEASE'
+	id 'com.google.cloud.tools.jib' version '1.0.2'
 	id 'java'
 }
 
@@ -26,4 +27,26 @@ dependencies {
 	runtimeOnly 'mysql:mysql-connector-java'
 	runtimeOnly 'org.postgresql:postgresql'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+}
+
+//tasks.build.dependsOn tasks.jib
+
+jib.container.useCurrentTimestamp = true
+
+jib {
+	from {
+		image = 'openjdk:8u201-jre-alpine'
+	}
+	to {
+		//image = project.name
+		image = "registry.hub.docker.com/jsa4000/${project.name}"
+		credHelper = 'osxkeychain'
+		tags = [version, 'latest']
+	}
+	container {
+		labels = [ownerName: 'jsa4000',
+				  projectName: project.name,
+				  creationDate: System.nanoTime().toString()]
+		//format = 'OCI'
+	}
 }

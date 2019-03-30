@@ -1,6 +1,35 @@
 spring:
+  profiles:
+      active: docker
+  application:
+    name: db-migration
+
+logging:
+  level:
+    root: DEBUG
+    org.springframework.web: INFO
+    com.example: DEBUG
+
+management:
+  endpoints:
+    web.exposure.include: health,beans,env,info
+
+---
+
+spring:
+  profiles: local
   datasource:
     url: jdbc:postgresql://dockerhost:5432/db
     username: postgres
     password: password
     driver-class-name: org.postgresql.Driver
+
+---
+spring:
+  profiles: docker
+  datasource:
+    url: jdbc:postgresql://postgres:5432/db
+    username: postgres
+    password: password
+    driver-class-name: org.postgresql.Driver
+

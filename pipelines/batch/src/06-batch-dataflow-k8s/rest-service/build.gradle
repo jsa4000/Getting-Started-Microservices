@@ -45,7 +45,9 @@ jib {
 					'-XX:+HeapDumpOnOutOfMemoryError',
 					'-XX:MaxRAMFraction=2']
 		ports = ['8080']
-		labels = [ownerName: 'jsa4000', projectName: project.name, creationDate: System.nanoTime().toString()]
+		labels = [ownerName: 'jsa4000', 
+				  projectName: project.name, 
+				  creationDate: System.nanoTime().toString()]
 		//format = 'OCI'
 	}
 }

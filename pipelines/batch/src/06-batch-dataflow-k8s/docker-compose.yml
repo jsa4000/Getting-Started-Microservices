@@ -1,4 +1,4 @@
-version: '3.1'
+version: '3.5'
 
 services:
   postgres:
@@ -10,6 +10,8 @@ services:
       POSTGRES_PASSWORD: password
     ports:
       - 5432:5432
+    networks:
+      - dataflow-network
 
   minio:
     image: minio/minio:RELEASE.2019-03-27T22-35-21Z
@@ -19,9 +21,16 @@ services:
       MINIO_SECRET_KEY: password
     ports:
       - 9001:9000
+    networks:
+      - dataflow-network
 
   rest-service:
     image: jsa4000/rest-service
     ports:
       - 8080:8080
+    networks:
+      - dataflow-network
 
+networks:
+  dataflow-network:
+    name: dataflow-network
