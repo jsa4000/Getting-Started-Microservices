@@ -52,6 +52,20 @@ services:
     networks:
       - dataflow-network
 
+  db-migration:
+    image: jsa4000/dataflow-db-migration
+    depends_on:
+      - createbuckets
+      - postgres
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/db
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: password
+      SPRING_DATASOURCE_DRIVER-CLASS-NAME: org.postgresql.Driver
+    networks:
+      - dataflow-network
+
 networks:
   dataflow-network:
     name: dataflow-network

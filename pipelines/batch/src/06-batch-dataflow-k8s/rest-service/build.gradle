@@ -27,8 +27,6 @@ dependencies {
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }
 
-jib.container.useCurrentTimestamp = true
-
 jib {
 	from {
 		image = 'openjdk:8u201-jre-alpine'
@@ -44,6 +42,7 @@ jib {
 					'-XX:+HeapDumpOnOutOfMemoryError',
 					'-XX:MaxRAMFraction=2']
 		ports = ['8080']
+		useCurrentTimestamp = true
 		labels = [ownerName: 'jsa4000',
 				  projectName: project.name,
 				  creationDate: System.nanoTime().toString()]

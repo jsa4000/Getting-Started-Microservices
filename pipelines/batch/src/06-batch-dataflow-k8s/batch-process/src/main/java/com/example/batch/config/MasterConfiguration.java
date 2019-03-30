@@ -103,7 +103,7 @@ public class MasterConfiguration {
                 .incrementer(new RunIdIncrementer())
                 .listener(listener)
                 .start(preProcessStep(null,null))
-                .next(masterStep( null, null, null))
+                //.next(masterStep( null, null, null))
                 .next(postProcessStep(null,null))
                 .build();
     }
