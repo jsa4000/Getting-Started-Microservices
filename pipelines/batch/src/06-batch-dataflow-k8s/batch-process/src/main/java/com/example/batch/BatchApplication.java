@@ -18,7 +18,6 @@ public class BatchApplication {
 
     public static void main(String[] args) {
         Properties properties = System.getProperties();
-        properties.put("spring.profiles.active", "master");
         HashMap<String, String> commands = SimpleCommandArgsParser.parse(args);
         if (commands.containsKey("--inputFile")) {
             properties.put("batch.inputFile", commands.get("--inputFile"));

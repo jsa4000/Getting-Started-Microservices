@@ -1,7 +1,9 @@
 package com.example.batch.config;
 
+import com.example.batch.batch.DownloadProcessTasklet;
 import com.example.batch.batch.PostProcessTasklet;
-import com.example.batch.batch.PreProcessTasklet;
+import com.example.batch.batch.UnzipProcessTasklet;
+import com.example.batch.batch.UploadProcessTasklet;
 import com.example.batch.listener.JobCompletionListener;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.Job;
@@ -90,9 +92,25 @@ public class MasterConfiguration {
     }
 
     @Bean
-    public Step preProcessStep(StepBuilderFactory stepBuilderFactory, PreProcessTasklet tasklet) {
+    public Step downloadProcessStep(StepBuilderFactory stepBuilderFactory, DownloadProcessTasklet tasklet) {
         return stepBuilderFactory
-                .get("preProcessStep")
+                .get("downloadProcessStep")
+                .tasklet(tasklet)
+                .build();
+    }
+
+    @Bean
+    public Step unzipProcessStep(StepBuilderFactory stepBuilderFactory, UnzipProcessTasklet tasklet) {
+        return stepBuilderFactory
+                .get("unzipProcessStep")
+                .tasklet(tasklet)
+                .build();
+    }
+
+    @Bean
+    public Step uploadProcessStep(StepBuilderFactory stepBuilderFactory, UploadProcessTasklet tasklet) {
+        return stepBuilderFactory
+                .get("uploadProcessStep")
                 .tasklet(tasklet)
                 .build();
     }
@@ -102,7 +120,9 @@ public class MasterConfiguration {
         return jobBuilderFactory.get("job")
                 .incrementer(new RunIdIncrementer())
                 .listener(listener)
-                .start(preProcessStep(null,null))
+                .start(downloadProcessStep(null,null))
+                .next(unzipProcessStep(null,null))
+                .next(uploadProcessStep(null,null))
                 //.next(masterStep( null, null, null))
                 .next(postProcessStep(null,null))
                 .build();

@@ -13,20 +13,23 @@ import java.io.IOException;
 
 @Slf4j
 @Component
-public class PreProcessTasklet implements Tasklet {
+public class UnzipProcessTasklet implements Tasklet {
 
-    @Value("${batch.inputFile:sample-data.zip}")
+    @Value("${batch.inputFile:dataflow-bucket:sample-data.zip}")
     String filename;
 
-    @Value("${batch.resourcesPath:src/main/resources/data}")
-    String resourcesPath;
+    @Value("${batch.tempPath:/tmp/data}")
+    String tempPath;
 
     @Override
     public RepeatStatus execute(StepContribution stepContribution, ChunkContext chunkContext) throws IOException {
         log.info("Started Pre-Processing");
 
+        String[] parts = filename.split(":");
+        String objectName = parts[1];
+
         log.info("Uncompressing Content to Process");
-        int files = Zip.unZip(filename, resourcesPath );
+        int files = Zip.unZip(tempPath + "/" + objectName, tempPath );
         log.info("Files uncompressed " + files);
 
         log.info("Finished Pre-Processing");
