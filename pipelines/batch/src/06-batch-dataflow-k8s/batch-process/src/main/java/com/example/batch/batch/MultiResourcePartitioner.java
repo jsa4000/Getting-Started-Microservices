@@ -20,40 +20,45 @@ import java.util.Map;
 public class MultiResourcePartitioner implements Partitioner {
 
     private static final String FILENAME_KEY = "fileName";
+    private static final String SOURCE_KEY = "sourceKey";
     private static final String PARTITION_KEY = "partition";
 
     @Autowired
     ResourcePatternResolver resourcePatternResolver;
 
-    @Value("${batch.resourcesPath}")
+    @Value("${batch.inputFile:dataflow-bucket:sample-data.zip}")
+    String filename;
+
+    @Value("${batch.tempPath:/tmp/data}")
+    String tempPath;
+
+    @Value("${batch.resourcesPath:dataflow-bucket}")
     String resourcesPath;
 
     @Value("${batch.filePattern:*.csv}")
     String filePattern;
 
-
     @Override
     public Map<String, ExecutionContext> partition(int gridSize) {
         log.info("Creating the partitions. gridSize=" + gridSize);
+
         Resource[] resources;
         try {
-            resources = resourcePatternResolver.getResources("file:" + resourcesPath + "/" + filePattern);
-            log.info("Current files to process are: " + resources.length);
+            resources = resourcePatternResolver.getResources("file:" + tempPath + "/" + filePattern);
+            log.info("Current files to partition are: " + resources.length);
         } catch (IOException e) {
             throw new RuntimeException("I/O problems when resolving" + " the input file pattern.", e);
         }
+
         Map<String, ExecutionContext> map = new HashMap<>(gridSize);
         int i = 0;
         for (Resource resource : resources) {
-            try {
-                ExecutionContext context = new ExecutionContext();
-                log.info("Adding " + resource.getFile().getAbsolutePath() + " file to partition");
-                context.putString(FILENAME_KEY, "file:" + resource.getFile().getAbsolutePath());
-                map.put(PARTITION_KEY + i, context);
-                i++;
-            } catch (IOException ex) {
-                log.error("Error getting the file ");
-            }
+            ExecutionContext context = new ExecutionContext();
+            log.info("Adding " + resourcesPath + ":" + resource.getFilename() + " file to partition");
+            context.putString(FILENAME_KEY, resourcesPath + ":" + resource.getFilename());
+            context.putString(SOURCE_KEY, filename);
+            map.put(PARTITION_KEY + i, context);
+            i++;
         }
         return map;
     }

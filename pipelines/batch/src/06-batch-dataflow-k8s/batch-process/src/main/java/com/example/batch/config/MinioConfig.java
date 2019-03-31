@@ -11,9 +11,9 @@ import org.springframework.context.annotation.Configuration;
 public class MinioConfig {
 
     @Bean
-    public MinioClient client(@Value("${storage.url}") String url,
-                              @Value("${storage.accessKey}") String accessKey,
-                              @Value("${storage.secretKey}") String secretKey)
+    public MinioClient client(@Value("${batch.storage.url}") String url,
+                              @Value("${batch.storage.accessKey}") String accessKey,
+                              @Value("${batch.storage.secretKey}") String secretKey)
             throws InvalidPortException, InvalidEndpointException {
         return new MinioClient(url, accessKey, secretKey);
     }

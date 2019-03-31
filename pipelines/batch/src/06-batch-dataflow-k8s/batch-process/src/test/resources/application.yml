@@ -2,24 +2,44 @@ server:
   port: 8080
 
 spring:
+  profiles:
+    active: local, master
+  application:
+    name: batchJobTask
   batch:
     job.enabled: false
     initialize-schema: always
 
-app:
+batch:
+  max-threads: 1
+  max-workers: 1
+  inputFile: dataflow-bucket:sample-data.zip
+  resourcesPath: dataflow-bucket
+  tempPath: /tmp/data
+  filePattern: "*.csv"
+  departmentsUri: http://dockerhost:8080/departments
+  worker-app: maven://com.example:batch-process:0.0.1-SNAPSHOT
   datasource:
     first:
-      initialization-mode: always
       url: jdbc:h2:file:~/dbTest
       username: sa
       password:
       driver-class-name: org.h2.Driver
     second:
-      initialization-mode: always
       url: jdbc:h2:file:~/dbTest
       username: sa
       password:
       driver-class-name: org.h2.Driver
+  storage:
+    url: http://dockerhost:9001
+    accessKey: minio
+    secretKey: password
 
-batch:
-  resource: ${BATCH_RESOURCE:file:D:/DEVELOPMENT/Github/Getting-Started-Microservices/pipelines/batch/src/02-batch-resilience/batch-process/src/main/resources/sample-data.csv}
+logging:
+  level:
+    root: WARN
+    org.springframework.cloud.task: DEBUG
+    org.springframework.web: INFO
+    com.example: DEBUG
+
+

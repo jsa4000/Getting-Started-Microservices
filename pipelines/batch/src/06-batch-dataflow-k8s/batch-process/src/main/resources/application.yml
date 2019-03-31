@@ -1,6 +1,6 @@
 spring:
   profiles:
-    active: local, master
+    active: local,master
   application:
     name: batchJobTask
   batch:
@@ -8,14 +8,16 @@ spring:
 
 batch:
   max-threads: 1
+  max-workers: 1
   inputFile: dataflow-bucket:sample-data.zip
   resourcesPath: dataflow-bucket
   tempPath: /tmp/data
   filePattern: "*.csv"
 
+
 logging:
   level:
-    root: WARN
+    root: INFO
     org.springframework.cloud.task: DEBUG
     org.springframework.web: INFO
     com.example: DEBUG
@@ -29,7 +31,8 @@ spring:
   profiles: local
 
 batch:
-  max-threads: 4
+  max-threads: 2
+  max-workers: 2
   departmentsUri: http://dockerhost:8080/departments
   worker-app: maven://com.example:batch-process:0.0.1-SNAPSHOT
   datasource:
@@ -43,11 +46,10 @@ batch:
       username: postgres
       password: password
       driver-class-name: org.postgresql.Driver
-
-storage:
-  url: http://dockerhost:9001
-  accessKey: minio
-  secretKey: password
+  storage:
+    url: http://dockerhost:9001
+    accessKey: minio
+    secretKey: password
 
 ---
 spring:
@@ -55,6 +57,7 @@ spring:
 
 batch:
   max-threads: 4
+  max-workers: 1
   departmentsUri: http://rest-service:8080/departments
   worker-app: maven://com.example:batch-process:0.0.1-SNAPSHOT
   datasource:
@@ -68,8 +71,7 @@ batch:
       username: postgres
       password: password
       driver-class-name: org.postgresql.Driver
-
-storage:
-  url: http://minio:9000
-  accessKey: minio
-  secretKey: password
+  storage:
+    url: http://minio:9000
+    accessKey: minio
+    secretKey: password

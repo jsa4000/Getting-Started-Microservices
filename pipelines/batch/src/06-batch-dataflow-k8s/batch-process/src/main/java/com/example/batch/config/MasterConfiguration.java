@@ -37,16 +37,8 @@ import java.util.List;
 @Configuration
 public class MasterConfiguration {
 
-    //@Bean
-    public Partitioner partitioner(ResourcePatternResolver resourcePatternResolver,
-                                   @Value("${batch.resourcesPath}") String resourcesPath,
-                                   @Value("${batch.filePattern:*.csv}") String pattern) throws IOException {
-        Resource[] resources = resourcePatternResolver.getResources("file:" + resourcesPath + "/" + pattern);
-        log.info("Current files to process are: " + resources.length);
-        MultiResourcePartitioner partitioner = new MultiResourcePartitioner();
-        partitioner.setResources(resources);
-        return partitioner;
-    }
+    @Value("${batch.max-workers:1}")
+    private int maxWorkers;
 
     @Bean
     public Step masterStep(StepBuilderFactory stepBuilderFactory,
@@ -61,6 +53,7 @@ public class MasterConfiguration {
     @Bean
     public DeployerPartitionHandler partitionHandler(@Value("${batch.worker-app}") String resourceLocation,
                                                      @Value("${spring.application.name}") String applicationName,
+                                                     @Value("${spring.profiles.active}") String activeProfile,
                                                      ApplicationContext context,
                                                      TaskLauncher taskLauncher,
                                                      JobExplorer jobExplorer,
@@ -70,14 +63,16 @@ public class MasterConfiguration {
         DeployerPartitionHandler partitionHandler = new DeployerPartitionHandler(taskLauncher,
                 jobExplorer,resource,"slaveStep");
 
+        log.info("Worker spring profile: " + activeProfile.replace("master","worker"));
+
         List<String> commandLineArgs = new ArrayList<>(3);
-        commandLineArgs.add("--spring.profiles.active=worker");
+        commandLineArgs.add("--spring.profiles.active=" + activeProfile.replace("master","worker"));
         commandLineArgs.add("--spring.cloud.task.initialize.enable=false");
         commandLineArgs.add("--spring.batch.initializer.enabled=false");
 
         partitionHandler.setCommandLineArgsProvider(new PassThroughCommandLineArgsProvider(commandLineArgs));
         partitionHandler.setEnvironmentVariablesProvider(new NoOpEnvironmentVariablesProvider());
-        partitionHandler.setMaxWorkers(1);
+        partitionHandler.setMaxWorkers(maxWorkers);
         partitionHandler.setApplicationName(applicationName);
 
         return partitionHandler;
@@ -123,7 +118,7 @@ public class MasterConfiguration {
                 .start(downloadProcessStep(null,null))
                 .next(unzipProcessStep(null,null))
                 .next(uploadProcessStep(null,null))
-                //.next(masterStep( null, null, null))
+                .next(masterStep( null, null, null))
                 .next(postProcessStep(null,null))
                 .build();
     }
