@@ -11,6 +11,8 @@ import java.util.concurrent.TimeUnit;
 @Data
 public class Person implements Rower {
 
+    static private Faker faker = new Faker();
+
     private String id;
 
     private Name name;
@@ -36,7 +38,6 @@ public class Person implements Rower {
     private Date endDate;
 
     public Person() {
-        Faker faker = new Faker();
         id = faker.idNumber().valid();
         name = faker.name();
         gender = faker.name().title();

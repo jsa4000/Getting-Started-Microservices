@@ -40,8 +40,7 @@ public class Application implements CommandLineRunner {
         Writer outputFile  = new FileWriter(path.toString());
         CSVWriter writer = new CSVWriter(outputFile);
         for (int i = 0; i < count; i++) {
-            Rower item = new Person();
-            writer.writeNext(item.row());
+            writer.writeNext(new Person().row());
         }
         writer.close();
     }
