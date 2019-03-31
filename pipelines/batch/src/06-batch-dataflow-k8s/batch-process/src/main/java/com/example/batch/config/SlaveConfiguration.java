@@ -2,9 +2,7 @@ package com.example.batch.config;
 
 import com.example.batch.batch.PersonEnrichProcessor;
 import com.example.batch.model.Person;
-import com.google.common.io.Resources;
 import io.minio.MinioClient;
-import io.minio.errors.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
@@ -30,12 +28,12 @@ import org.springframework.core.io.ResourceLoader;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.web.client.RestTemplate;
-import org.xmlpull.v1.XmlPullParserException;
 
 import javax.sql.DataSource;
-import java.io.*;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 @Slf4j
 @Profile("worker")

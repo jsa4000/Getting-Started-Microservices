@@ -1,6 +1,7 @@
 include 'batch-process'
 include 'rest-service'
 include 'db-migration'
+include 'csv-generator'
 
 
 
