@@ -1,4 +1,4 @@
-package com.example.generator;
+package com.example.generator.model;
 
 import com.github.javafaker.Address;
 import com.github.javafaker.Faker;
@@ -11,6 +11,8 @@ import java.util.concurrent.TimeUnit;
 
 @Data
 public class PersonBean {
+
+    private static Faker faker = new Faker();
 
     @CsvBindByPosition(position = 0)
     @CsvBindByName
@@ -89,7 +91,6 @@ public class PersonBean {
     private Date endDate;
 
     public PersonBean() {
-        Faker faker = new Faker();
         id = faker.idNumber().valid();
         firstName = faker.name().firstName();
         lastName = faker.name().lastName();

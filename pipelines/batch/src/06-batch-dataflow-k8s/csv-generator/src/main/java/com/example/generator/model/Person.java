@@ -1,5 +1,6 @@
-package com.example.generator;
+package com.example.generator.model;
 
+import com.example.generator.writer.Rower;
 import com.github.javafaker.Address;
 import com.github.javafaker.Faker;
 import com.github.javafaker.Name;

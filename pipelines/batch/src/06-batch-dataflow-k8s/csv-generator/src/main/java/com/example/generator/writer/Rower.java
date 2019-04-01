@@ -1,4 +1,4 @@
-package com.example.generator;
+package com.example.generator.writer;
 
 public interface Rower {
     String[] row();

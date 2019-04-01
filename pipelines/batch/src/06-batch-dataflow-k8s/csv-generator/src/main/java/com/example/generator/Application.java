@@ -1,16 +1,12 @@
 package com.example.generator;
 
-import com.opencsv.CSVWriter;
-import com.opencsv.bean.StatefulBeanToCsv;
-import com.opencsv.bean.StatefulBeanToCsvBuilder;
+import com.example.generator.writer.CsvWriter;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-import java.io.FileWriter;
-import java.io.Writer;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 
 @Slf4j
@@ -21,47 +17,28 @@ public class Application implements CommandLineRunner {
         SpringApplication.run(Application.class, args);
     }
 
-    public void writeCsvFromBean(Path path, long count) throws Exception {
-        Writer writer  = new FileWriter(path.toString());
-
-        StatefulBeanToCsv<PersonBean> sbc = new StatefulBeanToCsvBuilder<PersonBean>(writer)
-                .withSeparator(CSVWriter.DEFAULT_SEPARATOR)
-                .build();
-
-        for (int i = 0; i < count; i++) {
-            PersonBean person = new PersonBean();
-            sbc.write(person);
-            i++;
-        }
-        writer.close();
-    }
-
-    public void writeCsv(Path path, long count) throws Exception {
-        Writer outputFile  = new FileWriter(path.toString());
-        CSVWriter writer = new CSVWriter(outputFile);
-        for (int i = 0; i < count; i++) {
-            writer.writeNext(new Person().row());
-        }
-        writer.close();
-    }
+    @Autowired
+    CsvWriter writer;
 
     @Override
-    public void run(String... args) {
+    public void run(String... args){
         log.info("Starting CSV Generator");
 
         String pathString = "/tmp/bigfile.csv";
-        long count = 100000;
-
-        long startTime = System.nanoTime();
+        long count = 5000;
 
         try {
-            writeCsv(Paths.get(pathString),count);
-        } catch (Exception ex) {
-           log.error("Error during the generation of the csv file",ex);
+            for (int i = 0; i < 3; i ++) {
+                writer.writeOpenCsv(Paths.get(pathString),count);
+
+                writer.writeCsv(Paths.get("/tmp/bigfile1.csv"),count);
+
+                writer.writeCsvFromBean(Paths.get("/tmp/bigfile2.csv"),count);
+            }
+        } catch (Throwable ex) {
+            log.error("Error during the generation of the csv file",ex);
         }
 
-        long duration = (System.nanoTime() - startTime) / 1000000;
-
-        log.info("CSV Finished in " + duration + "ms");
+        log.info("Application Finished");
     }
 }
