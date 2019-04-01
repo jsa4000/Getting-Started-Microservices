@@ -1,21 +1,11 @@
-apiVersion: extensions/v1beta1
-kind: Deployment
+apiVersion: batch/v1
+kind: Job
 metadata:
-  annotations:
-    kompose.cmd: kompose convert
-    kompose.version: 1.18.0 (06a2e56)
-  creationTimestamp: null
   labels:
-    io.kompose.service: db-migration
+    app: db-migration
   name: db-migration
 spec:
-  replicas: 1
-  strategy: {}
   template:
-    metadata:
-      creationTimestamp: null
-      labels:
-        io.kompose.service: db-migration
     spec:
       containers:
       - env:
@@ -24,7 +14,7 @@ spec:
         - name: SPRING_DATASOURCE_PASSWORD
           value: password
         - name: SPRING_DATASOURCE_URL
-          value: jdbc:postgresql://postgres:5432/db
+          value: jdbc:postgresql://postgres.default.svc.cluster.local:5432/db
         - name: SPRING_DATASOURCE_USERNAME
           value: postgres
         - name: SPRING_PROFILES_ACTIVE
@@ -32,5 +22,5 @@ spec:
         image: jsa4000/dataflow-db-migration
         name: db-migration
         resources: {}
-      restartPolicy: Always
-status: {}
+      restartPolicy: Never
+
