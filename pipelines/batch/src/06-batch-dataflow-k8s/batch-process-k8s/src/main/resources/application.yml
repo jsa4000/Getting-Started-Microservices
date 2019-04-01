@@ -1,0 +1,77 @@
+spring:
+  profiles:
+    active: local,master
+  application:
+    name: batchJobTask
+  batch:
+    initialize-schema: always
+
+batch:
+  max-threads: 1
+  max-workers: 1
+  inputFile: dataflow-bucket:sample-data.zip
+  resourcesPath: dataflow-bucket
+  tempPath: /tmp/data
+  filePattern: "*.csv"
+
+
+logging:
+  level:
+    root: INFO
+    org.springframework.cloud.task: DEBUG
+    org.springframework.web: INFO
+    com.example: DEBUG
+
+management:
+  endpoints:
+    web.exposure.include: health,beans,env,info
+
+---
+spring:
+  profiles: local
+
+batch:
+  max-threads: 2
+  max-workers: 2
+  departmentsUri: http://dockerhost:8080/departments
+  worker-app: maven://com.example:batch-process:0.0.1-SNAPSHOT
+  datasource:
+    first:
+      url: jdbc:postgresql://dockerhost:5432/dataflow
+      username: postgres
+      password: password
+      driver-class-name: org.postgresql.Driver
+    second:
+      url: jdbc:postgresql://dockerhost:5432/db
+      username: postgres
+      password: password
+      driver-class-name: org.postgresql.Driver
+  storage:
+    url: http://dockerhost:9001
+    accessKey: minio
+    secretKey: password
+
+---
+spring:
+  profiles: docker
+
+batch:
+  max-threads: 4
+  max-workers: 1
+  departmentsUri: http://rest-service:8080/departments
+  worker-app: maven://com.example:batch-process:0.0.1-SNAPSHOT
+  datasource:
+    first:
+      url: jdbc:postgresql://postgres:5432/dataflow
+      username: postgres
+      password: password
+      driver-class-name: org.postgresql.Driver
+    second:
+      url: jdbc:postgresql://postgres:5432/db
+      username: postgres
+      password: password
+      driver-class-name: org.postgresql.Driver
+  storage:
+    url: http://minio:9000
+    accessKey: minio
+    secretKey: password

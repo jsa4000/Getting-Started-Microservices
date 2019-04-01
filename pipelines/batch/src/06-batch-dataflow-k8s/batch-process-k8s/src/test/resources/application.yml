@@ -1,0 +1,45 @@
+server:
+  port: 8080
+
+spring:
+  profiles:
+    active: local, master
+  application:
+    name: batchJobTask
+  batch:
+    job.enabled: false
+    initialize-schema: always
+
+batch:
+  max-threads: 1
+  max-workers: 1
+  inputFile: dataflow-bucket:sample-data.zip
+  resourcesPath: dataflow-bucket
+  tempPath: /tmp/data
+  filePattern: "*.csv"
+  departmentsUri: http://dockerhost:8080/departments
+  worker-app: maven://com.example:batch-process:0.0.1-SNAPSHOT
+  datasource:
+    first:
+      url: jdbc:h2:file:~/dbTest
+      username: sa
+      password:
+      driver-class-name: org.h2.Driver
+    second:
+      url: jdbc:h2:file:~/dbTest
+      username: sa
+      password:
+      driver-class-name: org.h2.Driver
+  storage:
+    url: http://dockerhost:9001
+    accessKey: minio
+    secretKey: password
+
+logging:
+  level:
+    root: WARN
+    org.springframework.cloud.task: DEBUG
+    org.springframework.web: INFO
+    com.example: DEBUG
+
+

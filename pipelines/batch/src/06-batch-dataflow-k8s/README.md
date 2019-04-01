@@ -53,7 +53,43 @@
         --inputFile=dataflow-bucket:sample-data.zip
         --resourcesPath=dataflow-bucket 
 
+### Kubernetes
 
+#### Minikube
 
+- Install `minikube` and `kubectl` following the instructions for the OS.
+- Start `minikube`
 
+   > Use settings to configure the memory, cpu, and other features.
+   
+        minikube start
+    
+- Verify the installation of `minikube`
+    
+        kubectl config current-context
+        kubectl get nodes
+        kubectl get pods,svc --all-namespaces
 
+- Install `helm`
+
+        # Install Helm
+        curl https://raw.githubusercontent.com/helm/helm/master/scripts/get | bash
+        # Init Helm
+        helm init
+        helm version
+         
+- Install `kompose`
+
+        # Linux
+        curl -L https://github.com/kubernetes/kompose/releases/download/v1.18.0/kompose-linux-amd64 -o kompose
+        # macOS
+        curl -L https://github.com/kubernetes/kompose/releases/download/v1.18.0/kompose-darwin-amd64 -o kompose
+        
+        chmod +x kompose
+        sudo mv ./kompose /usr/local/bin/kompose
+        
+#### Kommpose
+
+Create the services needed to deploy the same initial services we have in previous environment using docker-compose`
+
+``

@@ -1,32 +1,73 @@
 version: '3.5'
 
 services:
-  db-migration:
-    image: jsa4000/dataflow-batch-process
+  postgres:
+    image: postgres:10.7-alpine
+    restart: always
     environment:
-      SPRING_PROFILES_ACTIVE: default,master
-      BATCH_MAX-WORKERS: 1
-      BATCH_MAX-THREADS: 1
-      BATCH_DEPARTMENTSURI: http://rest-service:8080/departments
-      BATCH_WORKER-APP: maven://com.example:batch-process:0.0.1-SNAPSHOT
+      POSTGRES_MULTIPLE_DATABASES: dataflow,db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    ports:
+      - 5432:5432
+    volumes:
+      - ${PWD}/files:/docker-entrypoint-initdb.d
+    networks:
+      - dataflow-network
 
-      BATCH_DATASOURCE_FIRST_URL: jdbc:postgresql://postgres:5432/dataflow
-      BATCH_DATASOURCE_FIRST_USERNAME: postgres
-      BATCH_DATASOURCE_FIRST_PASSWORD: password
-      BATCH_DATASOURCE_FIRST_DRIVER-CLASS-NAME: org.postgresql.Driver
+  minio:
+    image: minio/minio:RELEASE.2019-03-27T22-35-21Z
+    command: server /data
+    environment:
+      MINIO_ACCESS_KEY: minio
+      MINIO_SECRET_KEY: password
+    ports:
+      - 9001:9000
+    networks:
+      - dataflow-network
 
-      BATCH_DATASOURCE_SECOND_URL: jdbc:postgresql://postgres:5432/db
-      BATCH_DATASOURCE_SECOND_USERNAME: postgres
-      BATCH_DATASOURCE_SECOND_PASSWORD: password
-      BATCH_DATASOURCE_SECOND_DRIVER-CLASS-NAME: org.postgresql.Driver
+  createbuckets:
+    image: minio/mc
+    depends_on:
+      - minio
+    entrypoint: >
+      /bin/sh -c "
+      while ! nc -z minio 9000; do echo 'Wait minio to startup...'; sleep 0.1; done;
+      sleep 5;
+      /usr/bin/mc config host add data http://minio:9000 minio password;
+      /usr/bin/mc rm -r --force data/dataflow-bucket;
+      /usr/bin/mc mb data/dataflow-bucket;
+      /usr/bin/mc policy download data/dataflow-bucket;
+      ls -la /sample-data;
+      /usr/bin/mc cp /sample-data/sample-data.zip data/dataflow-bucket;
+      exit 0;
+      "
+    volumes:
+      - ${PWD}/src/main/resources/:/sample-data/
+    networks:
+      - dataflow-network
 
-      BATCH_STORAGE_URL: http://minio:9000
-      BATCH_STORAGE_ACCESSKEY: minio
-      BATCH_STORAGE_SECRETKEY: password
+  rest-service:
+    image: jsa4000/dataflow-rest-service
+    ports:
+      - 8080:8080
+    networks:
+      - dataflow-network
+
+  db-migration:
+    image: jsa4000/dataflow-db-migration
+    depends_on:
+      - createbuckets
+      - postgres
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/db
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: password
+      SPRING_DATASOURCE_DRIVER-CLASS-NAME: org.postgresql.Driver
     networks:
       - dataflow-network
 
 networks:
   dataflow-network:
-    external:
-      name: dataflow-network
+    name: dataflow-network
