@@ -2,7 +2,7 @@ version: '3.5'
 
 services:
   db-migration:
-    image: jsa4000/dataflow-batch-process
+    image: jsa4000/dataflow-batch-process-k8s
     environment:
       SPRING_PROFILES_ACTIVE: default,master
       BATCH_MAX-WORKERS: 1

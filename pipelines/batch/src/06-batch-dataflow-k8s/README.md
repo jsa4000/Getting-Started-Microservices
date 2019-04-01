@@ -92,4 +92,17 @@
 
 Create the services needed to deploy the same initial services we have in previous environment using docker-compose`
 
-``
+
+#### Spring Batch DataFlow Task
+
+In order to work are necessary some changes to be done.
+
+- Use `Spring-cloud-deployer-kubernetes` as dependency instead using local.
+- Use a docker image as the resource representing the worker. 
+- Remove the passing of the environment variables to the worker (more on that in a moment).
+
+
+#### References
+
+- [Spring Cloud Deployer Kubernetes](https://github.com/spring-cloud/spring-cloud-deployer-kubernetes)
+- [Routine Jobs with Kubernetes,](https://medium.com/pismolabs/routine-jobs-with-kubernetes-spring-cloud-dataflow-and-spring-cloud-task-d943bf107a8)
