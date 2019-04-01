@@ -36,8 +36,8 @@ public class CsvWriter {
                 .build();
 
         for (int i = 0; i < count; i++) {
-            PersonBean person = new PersonBean();
-            sbc.write(person);
+            PersonBean bean = new PersonBean();
+            sbc.write(bean);
         }
         writer.close();
     }
@@ -48,8 +48,8 @@ public class CsvWriter {
         Writer outputFile  = new FileWriter(path.toString());
         com.opencsv.CSVWriter writer = new com.opencsv.CSVWriter(outputFile);
         for (int i = 0; i < count; i++) {
-            Person person = new Person();
-            writer.writeNext(person.row());
+            Rower r = new Person();
+            writer.writeNext(r.row());
         }
         writer.close();
     }
@@ -60,8 +60,8 @@ public class CsvWriter {
         Writer outputFile  = new FileWriter(path.toString());
         PrintWriter writer = new PrintWriter(outputFile);
         for (int i = 0; i < count; i++) {
-            Person person = new Person();
-            writer.println(String.join(",",person.row()));
+            Rower r = new Person();
+            writer.println(String.join(",",r.row()));
         }
         writer.close();
     }
