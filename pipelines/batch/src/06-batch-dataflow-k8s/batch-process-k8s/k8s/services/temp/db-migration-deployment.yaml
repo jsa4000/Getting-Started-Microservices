@@ -1,0 +1,36 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert
+    kompose.version: 1.18.0 (06a2e56)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: db-migration
+  name: db-migration
+spec:
+  replicas: 1
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        io.kompose.service: db-migration
+    spec:
+      containers:
+      - env:
+        - name: SPRING_DATASOURCE_DRIVER-CLASS-NAME
+          value: org.postgresql.Driver
+        - name: SPRING_DATASOURCE_PASSWORD
+          value: password
+        - name: SPRING_DATASOURCE_URL
+          value: jdbc:postgresql://postgres:5432/db
+        - name: SPRING_DATASOURCE_USERNAME
+          value: postgres
+        - name: SPRING_PROFILES_ACTIVE
+          value: docker
+        image: jsa4000/dataflow-db-migration
+        name: db-migration
+        resources: {}
+      restartPolicy: Always
+status: {}

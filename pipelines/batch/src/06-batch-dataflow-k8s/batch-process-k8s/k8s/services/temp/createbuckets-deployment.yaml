@@ -1,0 +1,42 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert
+    kompose.version: 1.18.0 (06a2e56)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: createbuckets
+  name: createbuckets
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        io.kompose.service: createbuckets
+    spec:
+      containers:
+      - command:
+        - /bin/sh
+        - -c
+        - ' while ! nc -z minio 9000; do echo ''Wait minio to startup...''; sleep
+          0.1; done; sleep 5; /usr/bin/mc config host add data http://minio:9000 minio
+          password; /usr/bin/mc rm -r --force data/dataflow-bucket; /usr/bin/mc mb
+          data/dataflow-bucket; /usr/bin/mc policy download data/dataflow-bucket;
+          ls -la /sample-data; /usr/bin/mc cp /sample-data/sample-data.zip data/dataflow-bucket;
+          exit 0; '
+        image: minio/mc
+        name: createbuckets
+        resources: {}
+        volumeMounts:
+        - mountPath: /sample-data/
+          name: createbuckets-claim0
+      restartPolicy: Always
+      volumes:
+      - name: createbuckets-claim0
+        persistentVolumeClaim:
+          claimName: createbuckets-claim0
+status: {}

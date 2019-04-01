@@ -1,0 +1,35 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    appe: postgres
+  name: postgres
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: postgres
+    spec:
+      containers:
+      - env:
+        - name: POSTGRES_MULTIPLE_DATABASES
+          value: dataflow,db
+        - name: POSTGRES_PASSWORD
+          value: password
+        - name: POSTGRES_USER
+          value: postgres
+        image: postgres:10.7-alpine
+        name: postgres
+        volumeMounts:
+          - name: postgres-volume
+            mountPath: /docker-entrypoint-initdb.d
+        resources: {}
+      restartPolicy: Always
+
+      volumes:
+        - name: postgres-volume
+          configMap:
+            name: postgres-configmap

@@ -1,0 +1,62 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: scdf-server
+  labels:
+    app: scdf-server
+spec:
+  selector:
+    matchLabels:
+      app: scdf-server
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: scdf-server
+    spec:
+      containers:
+      - name: scdf-server
+        image: springcloud/spring-cloud-dataflow-server:2.0.0.BUILD-SNAPSHOT
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 80
+        resources:
+          limits:
+            cpu: 1.0
+            memory: 2048Mi
+          requests:
+            cpu: 0.5
+            memory: 1024Mi
+        env:
+        - name: KUBERNETES_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: "metadata.namespace"
+        - name: SERVER_PORT
+          value: '80'
+        - name: SPRING_CLOUD_CONFIG_ENABLED
+          value: 'false'
+        - name: SPRING_CLOUD_DATAFLOW_FEATURES_ANALYTICS_ENABLED
+          value: 'true'
+        - name: SPRING_CLOUD_DATAFLOW_FEATURES_SCHEDULES_ENABLED
+          value: 'true'
+        - name: SPRING_CLOUD_DEPLOYER_KUBERNETES_CREATE_DEPLOYMENT
+          value: 'true'
+        - name: SPRING_CLOUD_DEPLOYER_KUBERNETES_MEMORY
+          value: 1024Mi
+        - name: SPRING_CLOUD_DEPLOYER_KUBERNETES_READINESS_PROBE_DELAY
+          value: '90'
+        - name: SPRING_CLOUD_DEPLOYER_KUBERNETES_LIVENESS_PROBE_DELAY
+          value: '90'
+        - name: SPRING_CLOUD_KUBERNETES_SECRETS_ENABLE_API
+          value: 'true'
+        - name: SPRING_DATASOURCE_URL
+          value: 'jdbc:postgresql://postgres.default.svc.cluster.local:5432/dataflow'
+        - name: SPRING_DATASOURCE_USERNAME
+          value: 'postgres'
+        - name: SPRING_DATASOURCE_PASSWORD
+          value: 'password'
+        - name: SPRING_DATASOURCE_DRIVER-CLASS-NAME
+          value: 'org.postgresql.Driver'
+
+      serviceAccountName: scdf-sa
