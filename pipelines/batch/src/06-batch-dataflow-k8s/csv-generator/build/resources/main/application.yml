@@ -1,1 +1,2 @@
-
+pathString: /tmp/bigfile.csv
+count: 1000000
