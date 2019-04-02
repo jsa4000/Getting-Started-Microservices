@@ -33,6 +33,7 @@ public class NotificatorApplication implements CommandLineRunner {
 
         StringBuilder builder = new StringBuilder();
         builder.append("This is a test message.\n");
+        builder.append(args.toString());
         if (commands.containsKey("--inputFile")) {
            builder.append("--inputFile==" + commands.get("--inputFile") + "\n");
         }

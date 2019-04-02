@@ -161,6 +161,37 @@ In order to work are necessary some changes to be done.
 
         task destroy --name task-test
         
+        
+#### Composed Tasks
+
+Firstly add following app inside Spring Data-flow server;
+
+- Name: composed-task-runner	
+- Type: task
+- Docker: docker:springcloudtask/composedtaskrunner-task:2.1.0.RELEASE
+- [LOCAL] Maven: maven://org.springframework.cloud.task.app:composedtaskrunner-task:2.1.0.RELEASE
+
+Create the composition task from the previous two already created, plus the `composed-task-runner`
+
+    Importation-Node: import-batch-app 'FAILED'->Notifier-fail: notifier-app 'COMPLETED'->notifier-true: notifier-app 
+
+Launch the task with the following arguments:
+ 
+ > It muts be **specified** the URL where data-flow server is located.
+
+    task launch --name composed-task --arguments "--dataflow-server-uri=http://scdf-server.default.svc.cluster.local:80"
+
+Also, specify other values specific for the inputs:
+
+        --inputFile=dataflow-bucket:sample-data.zip
+        --resourcesPath=dataflow-bucket
+        --dataflow-server-uri=http://scdf-server.default.svc.cluster.local:80
+        
+        --inputFile=dataflow-bucket:sample-data.zip --resourcesPath=dataflow-bucket --dataflow-server-uri=http://scdf-server.default.svc.cluster.local:80
+      
+      
+TOCHECK: Argumens vs Parameters      
+   
 #### Known issues
 
 - Too many connections in PostgreSQL
