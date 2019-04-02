@@ -14,7 +14,11 @@ spec:
         app: postgres
     spec:
       containers:
-      - env:
+      - args:
+        - postgres
+        - -c
+        - max_connections=1000
+        env:
         - name: POSTGRES_MULTIPLE_DATABASES
           value: dataflow,db
         - name: POSTGRES_PASSWORD

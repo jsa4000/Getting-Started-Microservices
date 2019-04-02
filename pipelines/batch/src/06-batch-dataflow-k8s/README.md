@@ -126,6 +126,13 @@ In order to work are necessary some changes to be done.
 - Remove the passing of the environment variables to the worker (more on that in a moment).
 - Check kubernetes is used for default launcher in [Spring data-flow server](http://localhost:32247/management/info)        
 
+
+#### SETUP
+
+- Create a new bucket into **minio**: `dataflow-bucket`
+- Add file into previous bucket: `sample-data.zip`
+
+
 #### Launching Task
 
 - Perform a single test prior to launch the example to verify everything is working as expected
@@ -153,11 +160,28 @@ In order to work are necessary some changes to be done.
 
 - Too many connections in PostgreSQL
 
-```sqlñ
+```sql
 SELECT *
 FROM   pg_settings
 WHERE  name = 'max_connections';
 ```
+
+```yml
+version: '2'
+services:
+  postgres:
+    image: postgres:10.3-alpine
+    command: postgres -c 'max_connections=200'
+    environment:
+      POSTGRES_DB: pgdb
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_USER: postgres
+    stdin_open: true
+    tty: true
+    ports:
+    - 5432:5432/tcp
+WHERE  name = 'max_connections';
+```    
      
 #### References
 

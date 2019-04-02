@@ -33,7 +33,7 @@ spring:
 batch:
   max-threads: 2
   max-workers: 2
-  departmentsUri: http://dockerhost:8080/departments
+  departmentsUri: http://rest-service.default.svc.cluster.local:8080/departments
   worker-app: docker:jsa4000/dataflow-batch-process-k8s:0.0.1-SNAPSHOT
   datasource:
     first:
