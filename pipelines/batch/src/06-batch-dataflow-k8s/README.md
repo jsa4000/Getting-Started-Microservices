@@ -88,10 +88,34 @@
         chmod +x kompose
         sudo mv ./kompose /usr/local/bin/kompose
         
-#### Kommpose
+#### Kompose
 
 Create the services needed to deploy the same initial services we have in previous environment using docker-compose`
 
+
+#### Deployment
+
+Deploy previous services and deployments
+
+- Create the services, with the requirements for dataflow 
+
+        kubectl apply -f .
+
+- Create datasource and dependencies (except database, previously deployed)
+
+        kubectl apply -f .
+
+- Perform some migration and bootstrapping
+
+        kubectl apply -f db-migration-job.yaml --force=true
+        
+- Verify pods are successfully deployed
+
+        kubectl get pods,svc
+        
+- Check if dataflow dashboard is accessible
+        
+        http://localhost:32247/dashboard
 
 #### Spring Batch DataFlow Task
 
@@ -100,8 +124,31 @@ In order to work are necessary some changes to be done.
 - Use `Spring-cloud-deployer-kubernetes` as dependency instead using local.
 - Use a docker image as the resource representing the worker. 
 - Remove the passing of the environment variables to the worker (more on that in a moment).
+- Check kubernetes is used for default launcher in [Spring data-flow server](http://localhost:32247/management/info)        
 
+#### Launching Task
 
+- Perform a single test prior to launch the example to verify everything is working as expected
+
+        app register --type task --name timestamp --uri docker:springcloudtask/timestamp-task:2.0.0.RELEASE --metadata-uri maven://org.springframework.cloud.task.app:timestamp-task:jar:metadata:2.0.0.RELEASE
+        task create task1 --definition "timestamp"
+        task launch task1
+
+- Create a new application, using the generated docker image
+
+        app register --type task --name batch-process-test --uri docker:jsa4000/dataflow-batch-process-k8s:0.0.1-SNAPSHOT
+        task create task-test --definition "batch-process-test"
+        task launch task-test
+        
+- Use the following parameters to launch the task
+
+        --inputFile=dataflow-bucket:sample-data.zip
+        --resourcesPath=dataflow-bucket 
+
+- Destroy the task
+
+        task destroy --name task-test
+        
 #### References
 
 - [Spring Cloud Deployer Kubernetes](https://github.com/spring-cloud/spring-cloud-deployer-kubernetes)

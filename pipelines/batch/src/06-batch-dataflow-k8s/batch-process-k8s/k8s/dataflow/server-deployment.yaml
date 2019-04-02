@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: scdf-server
-        image: springcloud/spring-cloud-dataflow-server:2.0.0.BUILD-SNAPSHOT
+        image: springcloud/spring-cloud-dataflow-server:2.0.0.RELEASE
         imagePullPolicy: Always
         ports:
         - containerPort: 80
@@ -50,13 +50,6 @@ spec:
           value: '90'
         - name: SPRING_CLOUD_KUBERNETES_SECRETS_ENABLE_API
           value: 'true'
-        - name: SPRING_DATASOURCE_URL
-          value: 'jdbc:postgresql://postgres.default.svc.cluster.local:5432/dataflow'
-        - name: SPRING_DATASOURCE_USERNAME
-          value: 'postgres'
-        - name: SPRING_DATASOURCE_PASSWORD
-          value: 'password'
-        - name: SPRING_DATASOURCE_DRIVER-CLASS-NAME
-          value: 'org.postgresql.Driver'
-
+        - name: SPRING_CLOUD_KUBERNETES_CONFIG_NAME
+          value: scdf-server
       serviceAccountName: scdf-sa

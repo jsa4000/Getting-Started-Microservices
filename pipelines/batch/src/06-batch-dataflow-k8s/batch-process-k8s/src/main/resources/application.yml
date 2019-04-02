@@ -34,7 +34,7 @@ batch:
   max-threads: 2
   max-workers: 2
   departmentsUri: http://dockerhost:8080/departments
-  worker-app: jsa4000/dataflow-batch-process-k8s
+  worker-app: docker:jsa4000/dataflow-batch-process-k8s:0.0.1-SNAPSHOT
   datasource:
     first:
       url: jdbc:postgresql://postgres.default.svc.cluster.local:5432/dataflow
