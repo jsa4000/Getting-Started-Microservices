@@ -1,0 +1,55 @@
+spring:
+  profiles:
+    active: local
+  application:
+    name: NotificatorTask
+  batch:
+    initialize-schema: always
+
+logging:
+  level:
+    root: INFO
+    org.springframework.cloud.task: DEBUG
+    org.springframework.web: INFO
+    com.example: DEBUG
+
+mail:
+  username: jsantosa.minsait@gmail.com
+  password: Aa00__00aA
+  smtp:
+    auth: true
+    starttls-enabled: true
+    host: smtp.gmail.com
+    port: 587
+    ssl-trust: smtp.gmail.com
+
+management:
+  endpoints:
+    web.exposure.include: health,beans,env,info
+
+---
+spring:
+  profiles: local
+  datasource:
+      url: jdbc:postgresql://dockerhost:5432/dataflow
+      username: postgres
+      password: password
+      driver-class-name: org.postgresql.Driver
+
+---
+spring:
+  profiles: docker
+  datasource:
+    url: jdbc:postgresql://postgres:5432/dataflow
+    username: postgres
+    password: password
+    driver-class-name: org.postgresql.Driver
+
+---
+spring:
+  profiles: k8s
+  datasource:
+    url: jdbc:postgresql://postgres.default.svc.cluster.local:5432/dataflow
+    username: postgres
+    password: password
+    driver-class-name: org.postgresql.Driver

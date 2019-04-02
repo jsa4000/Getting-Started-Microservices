@@ -1,0 +1,39 @@
+spring:
+  profiles:
+    active: test
+  application:
+    name: NotificatorTask
+  batch:
+    initialize-schema: always
+
+logging:
+  level:
+    root: INFO
+    org.springframework.cloud.task: DEBUG
+    org.springframework.web: INFO
+    com.example: DEBUG
+
+mail:
+  username: mail@example.com
+  password: pass
+  smtp:
+    auth: true
+    starttls-enabled: true
+    host: smtp.gmail.com
+    port: 587
+    ssl-trust: smtp.gmail.com
+
+management:
+  endpoints:
+    web.exposure.include: health,beans,env,info
+
+---
+spring:
+  profiles: test
+  datasource:
+    url: jdbc:h2:file:~/dbTest
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+
+

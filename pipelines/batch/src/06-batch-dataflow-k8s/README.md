@@ -143,11 +143,16 @@ In order to work are necessary some changes to be done.
 
 - Create a new application, using the generated docker image
 
-        app register --type task --name batch-process-test --uri docker:jsa4000/dataflow-batch-process-k8s:0.0.1-SNAPSHOT
-        task create task-test --definition "batch-process-test"
-        task launch task-test
+        app register --type task --name batch-process-app --uri docker:jsa4000/dataflow-batch-process-k8s:0.0.1-SNAPSHOT
+        app register --type task --name notifier-app --uri docker:jsa4000/dataflow-task-notifier:0.0.1-SNAPSHOT
         
-- Use the following parameters to launch the task
+        task create batch-process-task --definition "batch-process-app"
+        task create notifier-task --definition "notifier-app"
+          
+        task launch batch-process-task      
+        task launch notifier-task 
+        
+- Use the following parameters to launch the task (`create batch-process-task`)
 
         --inputFile=dataflow-bucket:sample-data.zip
         --resourcesPath=dataflow-bucket 
