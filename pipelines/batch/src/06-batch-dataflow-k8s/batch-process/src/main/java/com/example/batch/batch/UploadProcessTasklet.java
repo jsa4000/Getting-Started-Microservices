@@ -56,7 +56,7 @@ public class UploadProcessTasklet implements Tasklet {
         for (Resource resource : resources) {
             log.debug("File Name: " + resource.getFilename());
             log.debug("File Path: " + resource.getFile().getAbsolutePath());
-            client.putObject(resourcesPath, resource.getFilename(), resource.getFile().getAbsolutePath());
+            client.putObject(resourcesPath.trim(), resource.getFilename(), resource.getFile().getAbsolutePath());
         }
 
         log.info("Files uploaded: " + resources.length);

@@ -61,7 +61,7 @@ public class PostProcessTasklet implements Tasklet {
                 .collect(Collectors.toList());
 
         log.info("Objects buckets to remove are: " + objectNames.size());
-        for (Result<DeleteError> errorResult: client.removeObjects(resourcesPath, objectNames)) {
+        for (Result<DeleteError> errorResult: client.removeObjects(resourcesPath.trim(), objectNames)) {
             DeleteError error = errorResult.get();
             log.error("Failed to remove '" + error.objectName() + "'. Error:" + error.message());
         }

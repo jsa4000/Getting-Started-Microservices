@@ -76,9 +76,14 @@ public class SlaveConfiguration {
 
         String slaveTempPath = tempPath + "/slave_data";
         File destDir = new File(slaveTempPath);
-        if (!destDir.exists()) {
-            destDir.mkdir();
+
+        log.info("Creating the temp directory.");
+
+        if (!destDir.exists() && !destDir.mkdirs()) {
+            throw new Exception("Folder cannot be created: " + slaveTempPath);
         }
+
+        log.info("Fetching the file to process locally.");
 
         InputStream inStream = client.getObject(bucketName, objectName);
         File targetFile = new File(slaveTempPath + "/" + objectName);
@@ -93,7 +98,6 @@ public class SlaveConfiguration {
         outStream.close();
 
         Resource resource = resourceLoader.getResource("file:"  + targetFile);
-
         return new FlatFileItemReaderBuilder<Person>()
                 .name("personItemReader")
                 .linesToSkip(1)

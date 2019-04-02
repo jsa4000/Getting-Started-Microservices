@@ -66,8 +66,8 @@ public class SlaveConfiguration {
         log.info("Slave processing the file: " + source );
 
         String[] parts = source.split(":");
-        String bucketName = parts[0];
-        String objectName = parts[1];
+        String bucketName = parts[0].trim();
+        String objectName = parts[1].trim();
 
         log.debug("Bucket Name: " + bucketName);
         log.debug("Object Name: " + objectName);

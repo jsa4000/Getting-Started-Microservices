@@ -26,7 +26,7 @@ public class UnzipProcessTasklet implements Tasklet {
         log.info("Started Pre-Processing");
 
         String[] parts = filename.split(":");
-        String objectName = parts[1];
+        String objectName = parts[1].trim();
 
         log.info("Uncompressing Content to Process");
         int files = Zip.unZip(tempPath + "/" + objectName, tempPath );

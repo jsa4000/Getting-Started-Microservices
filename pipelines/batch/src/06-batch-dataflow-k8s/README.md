@@ -149,6 +149,16 @@ In order to work are necessary some changes to be done.
 
         task destroy --name task-test
         
+#### Known issues
+
+- Too many connections in PostgreSQL
+
+```sqlñ
+SELECT *
+FROM   pg_settings
+WHERE  name = 'max_connections';
+```
+     
 #### References
 
 - [Spring Cloud Deployer Kubernetes](https://github.com/spring-cloud/spring-cloud-deployer-kubernetes)
