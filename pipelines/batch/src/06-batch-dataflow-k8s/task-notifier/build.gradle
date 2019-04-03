@@ -23,13 +23,13 @@ repositories {
 }
 
 dependencies {
-	implementation 'org.springframework.boot:spring-boot-starter-batch'
 	implementation 'org.springframework.boot:spring-boot-starter-aop'
+	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+	implementation 'org.springframework.boot:spring-boot-starter-mail'
 	implementation 'org.springframework.batch:spring-batch-integration'
 	implementation 'org.springframework.cloud:spring-cloud-starter-task:2.1.1.RELEASE'
     implementation 'org.springframework.cloud:spring-cloud-task-dependencies:2.1.1.RELEASE'
-	implementation 'org.springframework.cloud:spring-cloud-deployer-local:2.0.0.RELEASE'
-    implementation 'javax.mail:mail:1.4.7'
+	implementation 'com.microsoft.ews-java-api:ews-java-api:2.0'
 	runtimeOnly 'org.postgresql:postgresql'
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'

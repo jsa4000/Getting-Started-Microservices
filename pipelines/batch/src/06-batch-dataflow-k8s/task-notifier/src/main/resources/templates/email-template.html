@@ -1,0 +1,21 @@
+<!DOCTYPE HTML>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+</head>
+<body>
+
+    <h1 th:text="${title}"></h1>
+
+    <h3 th:text="'InputFile: ' + ${inputFile}"></h3>
+    <h3 th:text="'resourcesPath: ' + ${resourcesPath}"></h3>
+
+    <ol>
+        <li th:each="arg : ${args}" th:text="${arg}"></li>
+    </ol>
+
+</main>
+
+
+</body>
+</html>

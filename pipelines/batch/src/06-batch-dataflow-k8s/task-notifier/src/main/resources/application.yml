@@ -5,6 +5,8 @@ spring:
     name: NotificatorTask
   batch:
     initialize-schema: always
+  thymeleaf:
+    cache: false
 
 logging:
   level:
@@ -14,8 +16,11 @@ logging:
     com.example: DEBUG
 
 mail:
-  username: jsantosa.minsait@gmail.com
-  password: Aa00__00aA
+  auth:
+    username: em ail@expleam.com
+    password: password
+  exchange:
+    url:  https://outlook.office365.com/EWS/Exchange.asmx
   smtp:
     auth: true
     starttls-enabled: true
@@ -32,6 +37,7 @@ spring:
   profiles: local
   datasource:
       url: jdbc:postgresql://dockerhost:5432/dataflow
+      #url: jdbc:postgresql://dockerhost:30570/dataflow  # Test with k8s
       username: postgres
       password: password
       driver-class-name: org.postgresql.Driver

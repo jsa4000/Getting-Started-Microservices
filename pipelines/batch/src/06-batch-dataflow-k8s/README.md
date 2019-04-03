@@ -177,7 +177,7 @@ Create the composition task from the previous two already created, plus the `com
 
 Launch the task with the following arguments:
  
- > It muts be **specified** the URL where data-flow server is located.
+ > It must be **specified** the URL where data-flow server is located.
 
     task launch --name composed-task --arguments "--dataflow-server-uri=http://scdf-server.default.svc.cluster.local:80"
 

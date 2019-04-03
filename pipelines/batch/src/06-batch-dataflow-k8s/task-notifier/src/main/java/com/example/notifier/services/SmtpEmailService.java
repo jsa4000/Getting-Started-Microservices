@@ -5,7 +5,6 @@ import com.example.notifier.properties.SmtpProperties;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
 
 import javax.mail.*;
 import javax.mail.internet.InternetAddress;
@@ -15,8 +14,7 @@ import javax.mail.internet.MimeMultipart;
 import java.util.Properties;
 
 @Slf4j
-@Service
-public class EmailServiceImpl implements EmailService{
+public class SmtpEmailService implements EmailService{
 
     @Autowired
     private SmtpProperties smtpProperties;

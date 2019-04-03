@@ -9,8 +9,11 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.task.configuration.EnableTask;
 import org.springframework.retry.annotation.EnableRetry;
+import org.thymeleaf.context.Context;
+import org.thymeleaf.spring5.SpringTemplateEngine;
 
 import java.util.HashMap;
+import java.util.Map;
 
 @Slf4j
 @EnableTask
@@ -25,23 +28,39 @@ public class NotificatorApplication implements CommandLineRunner {
     @Autowired
     EmailService service;
 
+    @Autowired
+    private SpringTemplateEngine templateEngine;
+
     @Override
-    public void run(String... args) throws Exception {
+    public void run(String... args) {
         log.info("Notifier Task has started");
 
         HashMap<String, String> commands = SimpleCommandArgsParser.parse(args);
 
-        StringBuilder builder = new StringBuilder();
-        builder.append("This is a test message.\n");
-        builder.append(args.toString());
+        String title = "Notification Email";
+        String inputFile ="Unknown";
+        String resourcesPath ="Unknown";
+
         if (commands.containsKey("--inputFile")) {
-           builder.append("--inputFile==" + commands.get("--inputFile") + "\n");
+            inputFile = commands.get("--inputFile");
         }
         if (commands.containsKey("--resourcesPath")) {
-            builder.append("--resourcesPath==" + commands.get("--resourcesPath") + "\n");
+            resourcesPath = commands.get("--resourcesPath");
         }
-        builder.append("End.\n");
-        service.sendMail("jsantosa.minsait@gmail.com","jsantosa@minsait.com","Task Notifier",builder.toString());
+
+        Map<String, Object> model = new HashMap<>();
+        model.put("title", title);
+        model.put("inputFile", inputFile);
+        model.put("resourcesPath", resourcesPath);
+        model.put("args", args);
+
+        Context context = new Context();
+        context.setVariables(model);
+        String html = templateEngine.process("email-template", context);
+
+        log.debug(html);
+
+        service.sendMail("jsantosa@minsait.com", "jsantosa.minsait@gmail.com","Task Notifier", html);
         log.info("Notifier Task has finished");
     }
 }
