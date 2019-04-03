@@ -1,0 +1,46 @@
+spring:
+  profiles:
+    active: local
+  application:
+    name: LauncherTask
+  batch:
+    initialize-schema: always
+
+logging:
+  level:
+    root: INFO
+    org.springframework.cloud.task: DEBUG
+    org.springframework.web: INFO
+    com.example: DEBUG
+
+management:
+  endpoints:
+    web.exposure.include: health,beans,env,info
+
+---
+spring:
+  profiles: local
+  datasource:
+      #url: jdbc:postgresql://dockerhost:5432/dataflow
+      url: jdbc:postgresql://dockerhost:30570/dataflow  # Test with k8s
+      username: postgres
+      password: password
+      driver-class-name: org.postgresql.Driver
+
+---
+spring:
+  profiles: docker
+  datasource:
+    url: jdbc:postgresql://postgres:5432/dataflow
+    username: postgres
+    password: password
+    driver-class-name: org.postgresql.Driver
+
+---
+spring:
+  profiles: k8s
+  datasource:
+    url: jdbc:postgresql://postgres.default.svc.cluster.local:5432/dataflow
+    username: postgres
+    password: password
+    driver-class-name: org.postgresql.Driver

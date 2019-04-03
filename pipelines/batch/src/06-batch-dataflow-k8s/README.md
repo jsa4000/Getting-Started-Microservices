@@ -199,6 +199,10 @@ Also, specify other values specific for the inputs:
         
         --inputFile=dataflow-bucket:sample-data.zip --resourcesPath=dataflow-bucket --dataflow-server-uri=http://scdf-server.default.svc.cluster.local:80
 
+- Useful commandos:
+
+        max-wait-time: 
+
 ![Parameters to configure tasks](images/parameters-to-composite-tasks.png)   
 
 Links:
@@ -233,6 +237,10 @@ services:
     - 5432:5432/tcp
 WHERE  name = 'max_connections';
 ```    
+     
+- To enter into a container currently running.
+
+        kubectl exec batchjobtask-394317zg6p -i -t -- sh     
      
 #### References
 

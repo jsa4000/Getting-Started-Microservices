@@ -1,6 +1,7 @@
 include 'batch-process'
 include 'batch-process-k8s'
 include 'task-notifier'
+include 'task-launcher'
 include 'rest-service'
 include 'db-migration'
 include 'csv-generator'

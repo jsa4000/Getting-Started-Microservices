@@ -1,7 +1,7 @@
-package com.example.notifier.config;
+package com.example.launcher.config;
 
-import com.example.notifier.services.EmailService;
-import com.example.notifier.services.ExchangeEmailService;
+import com.example.launcher.services.EmailService;
+import com.example.launcher.services.ExchangeEmailService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 

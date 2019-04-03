@@ -1,7 +1,7 @@
-package com.example.notifier;
+package com.example.launcher;
 
-import com.example.notifier.services.EmailService;
-import com.example.notifier.utils.SimpleCommandArgsParser;
+import com.example.launcher.services.EmailService;
+import com.example.launcher.utils.SimpleCommandArgsParser;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
 import org.springframework.beans.factory.annotation.Autowired;

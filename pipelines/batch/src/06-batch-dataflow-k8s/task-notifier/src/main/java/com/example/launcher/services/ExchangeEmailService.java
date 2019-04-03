@@ -1,4 +1,4 @@
-package com.example.notifier.services;
+package com.example.launcher.services;
 
 
 import lombok.extern.slf4j.Slf4j;

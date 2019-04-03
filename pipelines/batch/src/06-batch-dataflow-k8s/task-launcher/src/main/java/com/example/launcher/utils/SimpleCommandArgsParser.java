@@ -1,4 +1,4 @@
-package com.example.notifier.utils;
+package com.example.launcher.utils;
 
 import java.util.HashMap;
 
