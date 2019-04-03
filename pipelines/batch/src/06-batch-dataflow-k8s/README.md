@@ -156,6 +156,8 @@ In order to work are necessary some changes to be done.
 
         --inputFile=dataflow-bucket:sample-data.zip
         --resourcesPath=dataflow-bucket 
+        
+        --inputFile=dataflow-bucket:sample-data.zip --resourcesPath=dataflow-bucket
 
 - Destroy the task
 
@@ -247,3 +249,4 @@ WHERE  name = 'max_connections';
 - [Spring data flow with kubernetes](https://labnotes.panderalabs.com/spring-cloud-data-flow-and-docker-kubernetes-99a19f2dbab3)
 - [Spring Cloud Deployer Kubernetes](https://github.com/spring-cloud/spring-cloud-deployer-kubernetes)
 - [Routine Jobs with Kubernetes,](https://medium.com/pismolabs/routine-jobs-with-kubernetes-spring-cloud-dataflow-and-spring-cloud-task-d943bf107a8)
+http://what-when-how.com/Tutorial/topic-194n8n2/Spring-Batch-54.html
