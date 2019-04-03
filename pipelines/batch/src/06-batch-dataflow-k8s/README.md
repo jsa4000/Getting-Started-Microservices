@@ -161,7 +161,6 @@ In order to work are necessary some changes to be done.
 
         task destroy --name task-test
         
-        
 #### Composed Tasks
 
 Firstly add following app inside Spring Data-flow server;
@@ -177,10 +176,12 @@ Create the composition task from the previous two already created, plus the `com
 
 Launch the task with the following arguments:
  
- > It must be **specified** the URL where data-flow server is located.
+ > It must be **specified** the URL where data-flow server is located. 
+ 
+  task launch --name composed-task --arguments "--dataflow-server-uri=http://scdf-server.default.svc.cluster.local:80"
 
-    task launch --name composed-task --arguments "--dataflow-server-uri=http://scdf-server.default.svc.cluster.local:80"
-
+ > It can be specified also at server side within the env variable `SPRING_CLOUD_DATAFLOW_SERVER_URI`
+   
 Also, specify other values specific for the inputs:
 
         --inputFile=dataflow-bucket:sample-data.zip

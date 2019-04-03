@@ -17,7 +17,7 @@ logging:
 
 mail:
   auth:
-    username: em ail@expleam.com
+    username: example@email.com
     password: password
   exchange:
     url:  https://outlook.office365.com/EWS/Exchange.asmx

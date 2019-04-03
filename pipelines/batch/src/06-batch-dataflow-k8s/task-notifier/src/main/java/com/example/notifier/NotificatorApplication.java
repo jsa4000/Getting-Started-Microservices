@@ -3,6 +3,7 @@ package com.example.notifier;
 import com.example.notifier.services.EmailService;
 import com.example.notifier.utils.SimpleCommandArgsParser;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -18,6 +19,7 @@ import java.util.Map;
 @Slf4j
 @EnableTask
 @EnableRetry
+@EnableBatchProcessing
 @SpringBootApplication
 public class NotificatorApplication implements CommandLineRunner {
 
