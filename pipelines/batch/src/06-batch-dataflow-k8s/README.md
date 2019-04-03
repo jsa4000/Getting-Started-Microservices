@@ -163,6 +163,10 @@ In order to work are necessary some changes to be done.
         
 #### Composed Tasks
 
+In Spring Cloud Data Flow it can be created composite tasks.
+
+![Parameters to configure tasks](images/composite-tasks.png)   
+   
 Firstly add following app inside Spring Data-flow server;
 
 - Name: composed-task-runner	
@@ -189,9 +193,8 @@ Also, specify other values specific for the inputs:
         --dataflow-server-uri=http://scdf-server.default.svc.cluster.local:80
         
         --inputFile=dataflow-bucket:sample-data.zip --resourcesPath=dataflow-bucket --dataflow-server-uri=http://scdf-server.default.svc.cluster.local:80
-      
-      
-TOCHECK: Argumens vs Parameters      
+
+![Parameters to configure tasks](images/parameters-to-composite-tasks.png)   
    
 #### Known issues
 
