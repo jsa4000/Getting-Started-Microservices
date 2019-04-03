@@ -163,10 +163,13 @@ In order to work are necessary some changes to be done.
         
 #### Composed Tasks
 
-In Spring Cloud Data Flow it can be created composite tasks.
+Spring Cloud Data Flow allows a user to create a directed graph where each node of the graph is a task application. This is done by using the DSL for composed tasks. A composed task can be created via the RESTful API, the Spring Cloud Data Flow Shell, or the Spring Cloud Data Flow UI.
 
 ![Parameters to configure tasks](images/composite-tasks.png)   
-   
+
+
+Out of the box the Composed Task Runner application is not registered with Spring Cloud Data Flow. So, to launch composed tasks we must first register the Composed Task Runner as an application with Spring Cloud Data Flow as follows:
+
 Firstly add following app inside Spring Data-flow server;
 
 - Name: composed-task-runner	
@@ -190,12 +193,20 @@ Also, specify other values specific for the inputs:
 
         --inputFile=dataflow-bucket:sample-data.zip
         --resourcesPath=dataflow-bucket
+        
+        # If not included at Spring Cloud Dataflow server
         --dataflow-server-uri=http://scdf-server.default.svc.cluster.local:80
         
         --inputFile=dataflow-bucket:sample-data.zip --resourcesPath=dataflow-bucket --dataflow-server-uri=http://scdf-server.default.svc.cluster.local:80
 
 ![Parameters to configure tasks](images/parameters-to-composite-tasks.png)   
-   
+
+Links:
+
+  - [Official Github repository](https://github.com/spring-cloud-task-app-starters/composed-task-runner/blob/master/spring-cloud-starter-task-composedtaskrunner/README.adoc)
+  - [Reference Composed Task](https://docs.spring.io/spring-cloud-dataflow/docs/1.2.0.RELEASE/reference/html/spring-cloud-dataflow-composed-tasks.html)
+  - [Docs Composited Tasks](http://docs.spring.io/spring-cloud-dataflow/docs/1.2.0.BUILD-SNAPSHOT/reference/htmlsingle/#spring-cloud-dataflow-composed-tasks)  
+  
 #### Known issues
 
 - Too many connections in PostgreSQL
