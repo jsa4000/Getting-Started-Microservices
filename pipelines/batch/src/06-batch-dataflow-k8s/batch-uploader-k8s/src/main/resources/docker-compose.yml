@@ -1,0 +1,32 @@
+version: '3.5'
+
+services:
+  db-migration:
+    image: jsa4000/dataflow-batch-process-k8s
+    environment:
+      SPRING_PROFILES_ACTIVE: default,master
+      BATCH_MAX-WORKERS: 1
+      BATCH_MAX-THREADS: 1
+      BATCH_DEPARTMENTSURI: http://rest-service:8080/departments
+      BATCH_WORKER-APP: maven://com.example:batch-process:0.0.1-SNAPSHOT
+
+      BATCH_DATASOURCE_FIRST_URL: jdbc:postgresql://postgres:5432/dataflow
+      BATCH_DATASOURCE_FIRST_USERNAME: postgres
+      BATCH_DATASOURCE_FIRST_PASSWORD: password
+      BATCH_DATASOURCE_FIRST_DRIVER-CLASS-NAME: org.postgresql.Driver
+
+      BATCH_DATASOURCE_SECOND_URL: jdbc:postgresql://postgres:5432/db
+      BATCH_DATASOURCE_SECOND_USERNAME: postgres
+      BATCH_DATASOURCE_SECOND_PASSWORD: password
+      BATCH_DATASOURCE_SECOND_DRIVER-CLASS-NAME: org.postgresql.Driver
+
+      BATCH_STORAGE_URL: http://minio:9000
+      BATCH_STORAGE_ACCESSKEY: minio
+      BATCH_STORAGE_SECRETKEY: password
+    networks:
+      - dataflow-network
+
+networks:
+  dataflow-network:
+    external:
+      name: dataflow-network

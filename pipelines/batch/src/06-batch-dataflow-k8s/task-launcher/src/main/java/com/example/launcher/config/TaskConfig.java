@@ -26,20 +26,16 @@ public class TaskConfig {
     @Bean
     @StepScope
     public Tasklet launcherTasklet() {
-        return new Tasklet() {
-            @Override
-            public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) {
+        return (StepContribution contribution, ChunkContext chunkContext) -> {
                 log.info("This is a simple Job running.");
                 return RepeatStatus.FINISHED;
-            }
         };
     }
 
     @Bean
     public Job job() {
         return jobBuilderFactory.get("job")
-                .start(stepBuilderFactory
-                        .get("jobStep1")
+                .start(stepBuilderFactory.get("jobStep1")
                         .tasklet(launcherTasklet()).build())
                 .build();
     }
