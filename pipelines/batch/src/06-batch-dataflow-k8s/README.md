@@ -250,3 +250,4 @@ WHERE  name = 'max_connections';
 - [Spring Cloud Deployer Kubernetes](https://github.com/spring-cloud/spring-cloud-deployer-kubernetes)
 - [Routine Jobs with Kubernetes,](https://medium.com/pismolabs/routine-jobs-with-kubernetes-spring-cloud-dataflow-and-spring-cloud-task-d943bf107a8)
 http://what-when-how.com/Tutorial/topic-194n8n2/Spring-Batch-54.html
+https://github.com/spring-cloud-task-app-starters/timestamp-batch

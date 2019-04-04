@@ -1,5 +1,6 @@
 package com.example.uploader.config;
 
+import com.example.uploader.batch.ResourceLoaderResolver;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
@@ -10,7 +11,6 @@ import org.springframework.batch.core.launch.support.RunIdIncrementer;
 import org.springframework.batch.core.partition.PartitionHandler;
 import org.springframework.batch.core.partition.support.Partitioner;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.cloud.deployer.resource.docker.DockerResourceLoader;
 import org.springframework.cloud.deployer.spi.task.TaskLauncher;
 import org.springframework.cloud.task.batch.partition.DeployerPartitionHandler;
 import org.springframework.cloud.task.batch.partition.NoOpEnvironmentVariablesProvider;
@@ -20,6 +20,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.io.Resource;
+import org.springframework.core.io.ResourceLoader;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -48,8 +49,9 @@ public class MasterConfiguration {
                                                      @Value("${spring.profiles.active}") String activeProfile,
                                                      ApplicationContext context,
                                                      TaskLauncher taskLauncher,
-                                                     JobExplorer jobExplorer) {
-        DockerResourceLoader resourceLoader = new DockerResourceLoader();
+                                                     JobExplorer jobExplorer,
+                                                     ResourceLoaderResolver resolver) {
+        ResourceLoader resourceLoader = resolver.get(resourceLocation);
         Resource resource = resourceLoader.getResource(resourceLocation);
         DeployerPartitionHandler partitionHandler = new DeployerPartitionHandler(taskLauncher,
                 jobExplorer,resource,"slaveStep");

@@ -43,7 +43,7 @@ services:
       exit 0;
       "
     volumes:
-      - ${PWD}/src/main/resources/:/sample-data/
+      - ${PWD}/batch-process/src/main/resources/:/sample-data/
     networks:
       - dataflow-network
 

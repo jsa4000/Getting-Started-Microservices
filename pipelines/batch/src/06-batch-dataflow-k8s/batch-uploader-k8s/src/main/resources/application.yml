@@ -28,7 +28,7 @@ management:
 spring:
   profiles: local
   datasource:
-    url: jdbc:postgresql://postgres.default.svc.cluster.local:5432/dataflow
+    url: jdbc:postgresql://dockerhost:5432/dataflow
     username: postgres
     password: password
     driver-class-name: org.postgresql.Driver
@@ -36,9 +36,9 @@ spring:
 batch:
   max-threads: 2
   max-workers: 2
-  worker-app: docker:jsa4000/dataflow-batch-uploader-k8s:0.0.1-SNAPSHOT
+  worker-app: maven://com.example:batch-uploader-k8s:0.0.1-SNAPSHOT
   storage:
-    url: http://minio.default.svc.cluster.local:9000
+    url: http://dockerhost:9000
     accessKey: minio
     secretKey: password
 
@@ -57,5 +57,23 @@ batch:
   worker-app: docker:jsa4000/dataflow-batch-uploader-k8s:0.0.1-SNAPSHOT
   storage:
     url: http://minio:9000
+    accessKey: minio
+    secretKey: password
+
+---
+spring:
+  profiles: k8s
+  datasource:
+    url: jdbc:postgresql://postgres.default.svc.cluster.local:5432/dataflow
+    username: postgres
+    password: password
+    driver-class-name: org.postgresql.Driver
+
+batch:
+  max-threads: 2
+  max-workers: 2
+  worker-app: docker:jsa4000/dataflow-batch-uploader-k8s:0.0.1-SNAPSHOT
+  storage:
+    url: http://minio.default.svc.cluster.local:9000
     accessKey: minio
     secretKey: password
