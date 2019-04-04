@@ -39,20 +39,34 @@
         wget http://repo.spring.io/milestone/org/springframework/cloud/spring-cloud-dataflow-server-local/1.7.4.RELEASE/spring-cloud-dataflow-server-local-1.7.4.RELEASE.jar
 
         # Download command shell to use with datfalow
-        wget http://repo.spring.io/milestone/org/springframework/cloud/spring-cloud-dataflow-shell/2.0.1.RELEASE/spring-cloud-dataflow-shell-2.0.1.RELEASE.jar
+        wget http://repo.spring.io/milestone/org/springframework/cloud/spring-cloud-dataflow-shell/1.7.4.RELEASE/spring-cloud-dataflow-shell-1.7.4.RELEASE.jar
 
         # Launch dataflow server using the same postgreSQL connection previously deployed
         java -jar spring-cloud-dataflow-server-local-1.7.4.RELEASE.jar --spring.datasource.url=jdbc:postgresql://dockerhost:5432/dataflow --spring.datasource.username=postgres --spring.datasource.password=password --spring.datasource.driver-class-name=org.postgresql.Driver
 
+        # Launch the integrated shell
+        java -jar spring-cloud-dataflow-shell-1.7.4.RELEASE.jar --dataflow.uri=http://dockerhost:9393
+
 1. Server runs at [Data flow server dashboard](http://localhost:9393/dashboard)
 
-1. Add the task Application. `maven://com.example:batch-process:0.0.1-SNAPSHOT`
+1. Add the task Applications:
+
+  - maven://com.example:batch-process:0.0.1-SNAPSHOT
+  - maven://com.example:task-notifier:0.0.1-SNAPSHOT
+  - maven://com.example:batch-uploader-k8s:0.0.1-SNAPSHOT
+    
 1. Crate Task from app definition (task type)
-2. Using the dashboard is needed to pass the initial paremeters as key value pair
+1. Using the dashboard is needed to pass the initial paremeters as key value pair
     
         --inputFile=dataflow-bucket:sample-data.zip
-        --resourcesPath=dataflow-bucket 
+        --resourcesPath=dataflow-bucket
+        
+1. Add following app inside Spring Data-flow server, to support composite tasks
 
+    - Name: composed-task-runner	
+    - Type: task
+    - Maven: maven://org.springframework.cloud.task.app:composedtaskrunner-task:2.1.0.RELEASE
+                     
 ### Kubernetes
 
 #### Minikube
@@ -246,8 +260,10 @@ WHERE  name = 'max_connections';
      
 #### References
 
+- [Spring Cloud Dataflow releases](http://repo.spring.io/milestone/org/springframework/cloud/)
 - [Spring data flow with kubernetes](https://labnotes.panderalabs.com/spring-cloud-data-flow-and-docker-kubernetes-99a19f2dbab3)
 - [Spring Cloud Deployer Kubernetes](https://github.com/spring-cloud/spring-cloud-deployer-kubernetes)
 - [Routine Jobs with Kubernetes,](https://medium.com/pismolabs/routine-jobs-with-kubernetes-spring-cloud-dataflow-and-spring-cloud-task-d943bf107a8)
 http://what-when-how.com/Tutorial/topic-194n8n2/Spring-Batch-54.html
 https://github.com/spring-cloud-task-app-starters/timestamp-batch
+https://repo.spring.io/release/org/springframework/cloud/
