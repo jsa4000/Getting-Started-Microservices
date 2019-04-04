@@ -51,21 +51,51 @@
 
 1. Add the task Applications:
 
-  - maven://com.example:batch-process:0.0.1-SNAPSHOT
-  - maven://com.example:task-notifier:0.0.1-SNAPSHOT
-  - maven://com.example:batch-uploader-k8s:0.0.1-SNAPSHOT
+   - maven://com.example:batch-process:0.0.1-SNAPSHOT
+   - maven://com.example:task-notifier:0.0.1-SNAPSHOT
+   - maven://com.example:batch-uploader-k8s:0.0.1-SNAPSHOT
+  
+   ```bash
+    app register --name composed-task-runner --type task --uri maven://org.springframework.cloud.task.app:composedtaskrunner-task:2.1.0.RELEASE
+    app register --name batch-process-app --type task --uri maven://com.example:batch-process:0.0.1-SNAPSHOT
+    app register --name task-notifier-app --type task --uri maven://com.example:task-notifier:0.0.1-SNAPSHOT
+    app register --name batch-uploader-app --type task --uri maven://com.example:batch-uploader-k8s:0.0.1-SNAPSHOT
+  
+    app list
+    ```
     
 1. Crate Task from app definition (task type)
+
+    ```bash
+    task create --name batch-process-task --definition "batch-process-app"
+    task create --name task-notifier-task --definition "task-notifier-app"
+    task create --name batch-uploader-task --definition "batch-uploader-app"
+    ```bash
+
 1. Using the dashboard is needed to pass the initial paremeters as key value pair
     
         --inputFile=dataflow-bucket:sample-data.zip
         --resourcesPath=dataflow-bucket
         
+         task launch --name batch-process-task --arguments "--inputFile=dataflow-bucket:sample-data.zip --resourcesPath=dataflow-bucket"
+            
 1. Add following app inside Spring Data-flow server, to support composite tasks
 
     - Name: composed-task-runner	
     - Type: task
     - Maven: maven://org.springframework.cloud.task.app:composedtaskrunner-task:2.1.0.RELEASE
+    
+> Current version of server and composedtaskrunner is necessary to pass the following parameter to the composite task runner.
+
+    --spring.cloud.dataflow.server.uri=http://localhost:9393
+    --spring.datasource.url=jdbc:postgresql://dockerhost:5432/dataflow 
+    --spring.datasource.username=postgres 
+    --spring.datasource.password=password 
+    --spring.datasource.driver-class-name=org.postgresql.Driver
+    
+    
+    task launch --name composite-task --arguments "--spring.jpa.database-platform=org.hibernate.dialect.PostgreSQL9Dialect --spring.jpa.properties.hibernate.temp.use_jdbc_metadata_defaults=false --spring.cloud.dataflow.server.uri=http://localhost:9393 --spring.datasource.url=jdbc:postgresql://dockerhost:5432/dataflow --spring.datasource.username=postgres --spring.datasource.password=password --spring.datasource.driver-class-name=org.postgresql.Driver"
+    
                      
 ### Kubernetes
 
@@ -183,7 +213,6 @@ Spring Cloud Data Flow allows a user to create a directed graph where each node 
 
 ![Parameters to configure tasks](images/composite-tasks.png)   
 
-
 Out of the box the Composed Task Runner application is not registered with Spring Cloud Data Flow. So, to launch composed tasks we must first register the Composed Task Runner as an application with Spring Cloud Data Flow as follows:
 
 Firstly add following app inside Spring Data-flow server;
@@ -201,7 +230,7 @@ Launch the task with the following arguments:
  
  > It must be **specified** the URL where data-flow server is located. 
  
-  task launch --name composed-task --arguments "--dataflow-server-uri=http://scdf-server.default.svc.cluster.local:80"
+    task launch --name composed-task --arguments "--dataflow-server-uri=http://scdf-server.default.svc.cluster.local:80"
 
  > It can be specified also at server side within the env variable `SPRING_CLOUD_DATAFLOW_SERVER_URI`
    
@@ -211,7 +240,7 @@ Also, specify other values specific for the inputs:
         --resourcesPath=dataflow-bucket
         
         # If not included at Spring Cloud Dataflow server
-        --dataflow-server-uri=http://scdf-server.default.svc.cluster.local:80
+            --dataflow-server-uri=http://scdf-server.default.svc.cluster.local:80
         
         --inputFile=dataflow-bucket:sample-data.zip --resourcesPath=dataflow-bucket --dataflow-server-uri=http://scdf-server.default.svc.cluster.local:80
 
@@ -264,6 +293,7 @@ WHERE  name = 'max_connections';
 - [Spring data flow with kubernetes](https://labnotes.panderalabs.com/spring-cloud-data-flow-and-docker-kubernetes-99a19f2dbab3)
 - [Spring Cloud Deployer Kubernetes](https://github.com/spring-cloud/spring-cloud-deployer-kubernetes)
 - [Routine Jobs with Kubernetes,](https://medium.com/pismolabs/routine-jobs-with-kubernetes-spring-cloud-dataflow-and-spring-cloud-task-d943bf107a8)
-http://what-when-how.com/Tutorial/topic-194n8n2/Spring-Batch-54.html
-https://github.com/spring-cloud-task-app-starters/timestamp-batch
-https://repo.spring.io/release/org/springframework/cloud/
+- http://what-when-how.com/Tutorial/topic-194n8n2/Spring-Batch-54.html
+- https://github.com/spring-cloud-task-app-starters/timestamp-batch
+- https://repo.spring.io/release/org/springframework/cloud/
+- https://stackoverflow.com/questions/54627261/spring-cloud-task-app-composed-task-runner-doesnt-shutdown
