@@ -43,7 +43,7 @@ services:
       exit 0;
       "
     volumes:
-      - ${PWD}/../batch-process/src/main/resources/:/sample-data/
+      - ${PWD}/files/:/sample-data/
     networks:
       - dataflow-network
 
@@ -65,6 +65,34 @@ services:
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: password
       SPRING_DATASOURCE_DRIVER-CLASS-NAME: org.postgresql.Driver
+    networks:
+      - dataflow-network
+
+  dataflow-server:
+    image: springcloud/spring-cloud-dataflow-server:2.0.1.RELEASE
+    container_name: dataflow-server
+    ports:
+      - 9393:9393
+    environment:
+      - spring.datasource.url=jdbc:postgresql://postgres:5432/dataflow
+      - spring.datasource.username=postgres
+      - spring.datasource.password=password
+      - spring.datasource.driver-class-name=org.postgresql.Driver
+      - spring.cloud.dataflow.server.uri=http://dockerhost:9393
+      - spring.cloud.skipper.client.serverUri=http://skipper-server:7577/api
+    depends_on:
+      - db-migration
+    volumes:
+      - /Users/jsantosa/.m2/repository/:/root/.m2/repository/
+    networks:
+      - dataflow-network
+
+  skipper-server:
+    image: springcloud/spring-cloud-skipper-server:2.0.1.RELEASE
+    container_name: skipper
+    ports:
+      - 7577:7577
+      - 9010-9020:9000-9010
     networks:
       - dataflow-network
 

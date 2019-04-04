@@ -33,19 +33,22 @@
     - [Minio Server](http://dockerhost:9001/minio/dataflow-bucket/)
     - [Rest Service Server](http://dockerhost:8080/departments/1)
 
-1. Download and Start Data Flow Server locally
+1. Download and Start Data Flow Server locally (if not deployed in docker-compose)
 
         # Download local dataflow server
         wget http://repo.spring.io/milestone/org/springframework/cloud/spring-cloud-dataflow-server-local/1.7.4.RELEASE/spring-cloud-dataflow-server-local-1.7.4.RELEASE.jar
+        ## There is no jar for versions > 1.7.4, compile github or use docker version (local) instead
 
         # Download command shell to use with datfalow
         wget http://repo.spring.io/milestone/org/springframework/cloud/spring-cloud-dataflow-shell/1.7.4.RELEASE/spring-cloud-dataflow-shell-1.7.4.RELEASE.jar
+        wget http://repo.spring.io/milestone/org/springframework/cloud/spring-cloud-dataflow-shell/2.0.1.RELEASE/spring-cloud-dataflow-shell-2.0.1.RELEASE.jar
 
         # Launch dataflow server using the same postgreSQL connection previously deployed
         java -jar spring-cloud-dataflow-server-local-1.7.4.RELEASE.jar --spring.datasource.url=jdbc:postgresql://dockerhost:5432/dataflow --spring.datasource.username=postgres --spring.datasource.password=password --spring.datasource.driver-class-name=org.postgresql.Driver --spring.cloud.dataflow.server.uri=http://dockerhost:9393
 
         # Launch the integrated shell
-        java -jar spring-cloud-dataflow-shell-1.7.4.RELEASE.jar --dataflow.uri=http://dockerhost:9393
+        java -jar spring-cloud-dataflow-shell-2.0.1.RELEASE.jar --dataflow.uri=http://dockerhost:9393
+        docker exec -it dataflow-server java -jar shell.jar
 
 1. Server runs at [Data flow server dashboard](http://localhost:9393/dashboard)
 
@@ -76,8 +79,13 @@
     
         --inputFile=dataflow-bucket:sample-data.zip
         --resourcesPath=dataflow-bucket
-        
+                
+1. Launch the task
+
+         # Using local server (jar)
          task launch --name batch-process-task --arguments "--inputFile=dataflow-bucket:sample-data.zip --resourcesPath=dataflow-bucket"
+         # Using docker
+         task launch --name batch-process-task --arguments "--inputFile=dataflow-bucket:sample-data.zip --resourcesPath=dataflow-bucket --spring.profiles.active=docker,master"
             
 1. Add following app inside Spring Data-flow server, to support composite tasks
 
@@ -85,17 +93,10 @@
     - Type: task
     - Maven: maven://org.springframework.cloud.task.app:composedtaskrunner-task:2.1.0.RELEASE
     
-> Current version of server and composedtaskrunner is necessary to pass the following parameter to the composite task runner.
-
-    --dataflow.server.uri=http://localhost:9393
-    --spring.datasource.url=jdbc:postgresql://dockerhost:5432/dataflow 
-    --spring.datasource.username=postgres 
-    --spring.datasource.password=password 
-    --spring.datasource.driver-class-name=org.postgresql.Driver
-   
-    task create composite-task --definition "batch-process-app && batch-uploader-app"
+    
+    task create composite-task --definition "batch-process-app --spring.profiles.active=docker,master && batch-uploader-app"
         
-    task launch --name composite-task --arguments "--spring.jpa.database-platform=org.hibernate.dialect.PostgreSQL9Dialect --spring.jpa.properties.hibernate.temp.use_jdbc_metadata_defaults=false --spring.cloud.dataflow.server.uri=http://localhost:9393 --spring.datasource.url=jdbc:postgresql://dockerhost:5432/dataflow --spring.datasource.username=postgres --spring.datasource.password=password --spring.datasource.driver-class-name=org.postgresql.Driver"
+    task launch --name composite-task --arguments "--inputFile=dataflow-bucket:sample-data.zip --resourcesPath=dataflow-bucket"
                       
 ### Kubernetes
 
@@ -297,3 +298,4 @@ WHERE  name = 'max_connections';
 - https://github.com/spring-cloud-task-app-starters/timestamp-batch
 - https://repo.spring.io/release/org/springframework/cloud/
 - https://stackoverflow.com/questions/54627261/spring-cloud-task-app-composed-task-runner-doesnt-shutdown
+- https://spring.io/blog/2019/03/06/spring-cloud-data-flow-and-skipper-2-0-ga-released
