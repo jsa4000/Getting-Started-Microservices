@@ -42,7 +42,7 @@
         wget http://repo.spring.io/milestone/org/springframework/cloud/spring-cloud-dataflow-shell/1.7.4.RELEASE/spring-cloud-dataflow-shell-1.7.4.RELEASE.jar
 
         # Launch dataflow server using the same postgreSQL connection previously deployed
-        java -jar spring-cloud-dataflow-server-local-1.7.4.RELEASE.jar --spring.datasource.url=jdbc:postgresql://dockerhost:5432/dataflow --spring.datasource.username=postgres --spring.datasource.password=password --spring.datasource.driver-class-name=org.postgresql.Driver
+        java -jar spring-cloud-dataflow-server-local-1.7.4.RELEASE.jar --spring.datasource.url=jdbc:postgresql://dockerhost:5432/dataflow --spring.datasource.username=postgres --spring.datasource.password=password --spring.datasource.driver-class-name=org.postgresql.Driver --spring.cloud.dataflow.server.uri=http://dockerhost:9393
 
         # Launch the integrated shell
         java -jar spring-cloud-dataflow-shell-1.7.4.RELEASE.jar --dataflow.uri=http://dockerhost:9393
@@ -87,16 +87,16 @@
     
 > Current version of server and composedtaskrunner is necessary to pass the following parameter to the composite task runner.
 
-    --spring.cloud.dataflow.server.uri=http://localhost:9393
+    --dataflow.server.uri=http://localhost:9393
     --spring.datasource.url=jdbc:postgresql://dockerhost:5432/dataflow 
     --spring.datasource.username=postgres 
     --spring.datasource.password=password 
     --spring.datasource.driver-class-name=org.postgresql.Driver
-    
-    
+   
+    task create composite-task --definition "batch-process-app && batch-uploader-app"
+        
     task launch --name composite-task --arguments "--spring.jpa.database-platform=org.hibernate.dialect.PostgreSQL9Dialect --spring.jpa.properties.hibernate.temp.use_jdbc_metadata_defaults=false --spring.cloud.dataflow.server.uri=http://localhost:9393 --spring.datasource.url=jdbc:postgresql://dockerhost:5432/dataflow --spring.datasource.username=postgres --spring.datasource.password=password --spring.datasource.driver-class-name=org.postgresql.Driver"
-    
-                     
+                      
 ### Kubernetes
 
 #### Minikube
