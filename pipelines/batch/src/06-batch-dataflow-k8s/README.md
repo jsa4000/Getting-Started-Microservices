@@ -214,7 +214,7 @@ In order to work are necessary some changes to be done.
           
         # Launch task individually
         task launch notifier-task --arguments "--mail.auth.username= --mail.auth.password="
-        task launch batch-uploader-task --arguments "--spring.profiles.active=k8s,master"
+            task launch batch-uploader-task --arguments "--spring.profiles.active=k8s,master"
         task launch batch-process-task  
 
         # Get the result
@@ -327,3 +327,4 @@ WHERE  name = 'max_connections';
 - https://github.com/spring-cloud-task-app-starters/timestamp-batch
 - https://stackoverflow.com/questions/54627261/spring-cloud-task-app-composed-task-runner-doesnt-shutdown
 - https://spring.io/blog/2019/03/06/spring-cloud-data-flow-and-skipper-2-0-ga-released
+- https://github.com/shahbour/task-k8s/tree/master/task-request/src/main/java/com/shahbour

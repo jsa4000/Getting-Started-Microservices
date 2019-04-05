@@ -9,9 +9,6 @@ spring:
 batch:
   max-threads: 1
   max-workers: 1
-  resourcesPath: dataflow-bucket
-  tempPath: /tmp/data
-  filePattern: "*.csv"
 
 logging:
   level:
@@ -19,10 +16,6 @@ logging:
     org.springframework.cloud.task: DEBUG
     org.springframework.web: INFO
     com.example: DEBUG
-
-management:
-  endpoints:
-    web.exposure.include: health,beans,env,info
 
 ---
 spring:
