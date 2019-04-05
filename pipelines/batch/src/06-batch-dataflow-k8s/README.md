@@ -92,7 +92,7 @@
     - Name: composed-task-runner	
     - Type: task
     - Maven: maven://org.springframework.cloud.task.app:composedtaskrunner-task:2.1.0.RELEASE
-    
+
     
     task create composite-task --definition "batch-process-app --spring.profiles.active=docker,master && batch-uploader-app"
         
@@ -171,14 +171,22 @@ In order to work are necessary some changes to be done.
 - Remove the passing of the environment variables to the worker (more on that in a moment).
 - Check kubernetes is used for default launcher in [Spring data-flow server](http://localhost:32247/management/info)        
 
-
 #### SETUP
 
 - Create a new bucket into **minio**: `dataflow-bucket`
 - Add file into previous bucket: `sample-data.zip`
 
-
 #### Launching Task
+
+- Connect to dataflow server via shecll or dashboard
+
+    # Using pods alterady deployed (use 'kubectl get pods' to get the pod id)
+    kubectl exec scdf-server-58cb976466-9gqrv -it -- java -jar shell.jar
+    # Since the pods is deployed in port 80, override default configuration
+    server-unknown:> dataflow config server http://localhost:80
+    
+    # Using compiled version locally (recommended in production environments)
+    java -jar spring-cloud-dataflow-shell-2.0.1.RELEASE.jar --dataflow.uri=http://dockerhost:9393
 
 - Perform a single test prior to launch the example to verify everything is working as expected
 
@@ -188,14 +196,23 @@ In order to work are necessary some changes to be done.
 
 - Create a new application, using the generated docker image
 
+        # Resgister apps
+        app register --type task --name composed-task-runner --uri docker:springcloudtask/composedtaskrunner-task:2.1.0.RELEASE
         app register --type task --name batch-process-app --uri docker:jsa4000/dataflow-batch-process-k8s:0.0.1-SNAPSHOT
+        app register --type task --name batch-uploader-app --uri docker:jsa4000/dataflow-batch-uploader-k8s:0.0.1-SNAPSHOT
         app register --type task --name notifier-app --uri docker:jsa4000/dataflow-task-notifier:0.0.1-SNAPSHOT
         
+        app list
+        
+        # Create task with previous app
         task create batch-process-task --definition "batch-process-app"
+        task create batch-uploader-task --definition "batch-uploader-app"
         task create notifier-task --definition "notifier-app"
           
-        task launch batch-process-task      
-        task launch notifier-task 
+        # Launch task individually
+        task launch batch-process-task  
+        task launch batch-uploader-task --arguments "--spring.profiles.active=k8s,master"
+        task launch notifier-task --arguments "--mail.auth.username= --mail.auth.password="
         
 - Use the following parameters to launch the task (`create batch-process-task`)
 
@@ -290,12 +307,15 @@ WHERE  name = 'max_connections';
      
 #### References
 
-- [Spring Cloud Dataflow releases](http://repo.spring.io/milestone/org/springframework/cloud/)
+- [Spring Cloud Dataflow releases version matrix](https://github.com/spring-cloud/spring-cloud-dataflow/releases)
+- [Spring Cloud Dataflow kubernetes deployer releases](https://github.com/spring-cloud/spring-cloud-deployer-kubernetes/releases)
+- [Spring App Starters Composed Task Runner releases](https://github.com/spring-cloud-task-app-starters/composed-task-runner/releases)
+- [Spring Cloud Dataflow repository](http://repo.spring.io/milestone/org/springframework/cloud/)
 - [Spring data flow with kubernetes](https://labnotes.panderalabs.com/spring-cloud-data-flow-and-docker-kubernetes-99a19f2dbab3)
 - [Spring Cloud Deployer Kubernetes](https://github.com/spring-cloud/spring-cloud-deployer-kubernetes)
 - [Routine Jobs with Kubernetes,](https://medium.com/pismolabs/routine-jobs-with-kubernetes-spring-cloud-dataflow-and-spring-cloud-task-d943bf107a8)
+- [Spring Cloud Dataflow Shell](https://docs.spring.io/spring-cloud-dataflow/docs/current/reference/htmlsingle/#shell)
 - http://what-when-how.com/Tutorial/topic-194n8n2/Spring-Batch-54.html
 - https://github.com/spring-cloud-task-app-starters/timestamp-batch
-- https://repo.spring.io/release/org/springframework/cloud/
 - https://stackoverflow.com/questions/54627261/spring-cloud-task-app-composed-task-runner-doesnt-shutdown
 - https://spring.io/blog/2019/03/06/spring-cloud-data-flow-and-skipper-2-0-ga-released

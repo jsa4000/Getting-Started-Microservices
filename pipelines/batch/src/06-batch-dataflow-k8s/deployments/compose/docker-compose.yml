@@ -83,7 +83,7 @@ services:
     depends_on:
       - db-migration
     volumes:
-      - /Users/jsantosa/.m2/repository/:/root/.m2/repository/
+      - ${HOME}/.m2/repository/:/root/.m2/repository/
     networks:
       - dataflow-network
 
