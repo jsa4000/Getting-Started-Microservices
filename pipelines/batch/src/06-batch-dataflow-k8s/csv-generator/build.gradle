@@ -22,6 +22,7 @@ repositories {
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter'
 	implementation 'org.springframework.boot:spring-boot-starter-aop'
+	implementation 'org.springframework.boot:spring-boot-starter-batch'
 	compile 'com.github.javafaker:javafaker:0.17.2'
 	compile 'com.opencsv:opencsv:4.5'
 	compileOnly 'org.projectlombok:lombok'

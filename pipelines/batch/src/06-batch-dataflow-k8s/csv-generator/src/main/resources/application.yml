@@ -1,2 +1,7 @@
+spring:
+  batch:
+    job:
+      enabled: false
+
 pathString: /tmp/smallfile.csv
 count: 1000
