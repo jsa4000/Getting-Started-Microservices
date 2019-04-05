@@ -21,9 +21,8 @@ import org.springframework.context.annotation.Profile;
 public class SlaveConfiguration {
 
     @Bean
-    public DeployerStepExecutionHandler stepExecutionHandler(ApplicationContext context,
-                                                             JobExplorer jobExplorer,
-                                                             JobRepository jobRepository) {
+    public DeployerStepExecutionHandler stepExecutionHandler(ApplicationContext context,JobExplorer jobExplorer,
+                                                             JobRepository jobRepository ) {
         return new DeployerStepExecutionHandler(context, jobExplorer, jobRepository);
     }
 
