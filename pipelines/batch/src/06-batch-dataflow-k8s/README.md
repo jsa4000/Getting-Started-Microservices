@@ -142,15 +142,15 @@ Create the services needed to deploy the same initial services we have in previo
 
 Deploy previous services and deployments
 
-- Create the services, with the requirements for dataflow 
+- Create the services, with the requirements for dataflow (`deployments/k8s/services`)
 
         kubectl apply -f .
 
-- Create datasource and dependencies (except database, previously deployed)
+- Create dataflow, roles and dependencies (`deployments/k8s/dataflow`)
 
         kubectl apply -f .
 
-- Perform some migration and bootstrapping
+- Perform some migration and bootstrapping (`deployments/k8s/services/migration`)
 
         kubectl apply -f db-migration-job.yaml --force=true
         
@@ -193,6 +193,9 @@ In order to work are necessary some changes to be done.
         app register --type task --name timestamp --uri docker:springcloudtask/timestamp-task:2.0.0.RELEASE --metadata-uri maven://org.springframework.cloud.task.app:timestamp-task:jar:metadata:2.0.0.RELEASE
         task create task1 --definition "timestamp"
         task launch task1
+        
+        # Get the result
+        task execution list
 
 - Create a new application, using the generated docker image
 
@@ -210,10 +213,15 @@ In order to work are necessary some changes to be done.
         task create notifier-task --definition "notifier-app"
           
         # Launch task individually
-        task launch batch-process-task  
-        task launch batch-uploader-task --arguments "--spring.profiles.active=k8s,master"
         task launch notifier-task --arguments "--mail.auth.username= --mail.auth.password="
-        
+        task launch batch-uploader-task --arguments "--spring.profiles.active=k8s,master"
+        task launch batch-process-task  
+
+        # Get the result
+        task execution list
+        job execution list
+        job execution display --id 1
+       
 - Use the following parameters to launch the task (`create batch-process-task`)
 
         --inputFile=dataflow-bucket:sample-data.zip
