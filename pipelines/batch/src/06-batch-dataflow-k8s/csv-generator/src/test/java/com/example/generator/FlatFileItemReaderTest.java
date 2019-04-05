@@ -1,6 +1,6 @@
 package com.example.generator;
 
-import com.example.generator.model.PersonBean;
+import com.example.generator.model.PersonUnitTest;
 import org.junit.Test;
 import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.item.file.FlatFileItemReader;
@@ -16,16 +16,16 @@ public class FlatFileItemReaderTest {
 
     @Test
     public void testSimpleFixedLength() throws Exception {
-        FlatFileItemReader<PersonBean> reader = new FlatFileItemReaderBuilder<PersonBean>()
+        FlatFileItemReader<PersonUnitTest> reader = new FlatFileItemReaderBuilder<PersonUnitTest>()
                 .name("personReader")
                 .resource(getResource("1234,John,Mc Gregor"))
                 .delimited()
                 .names(new String[]{"id","firstName", "lastName"})
-                .targetType(PersonBean.class)
+                .targetType(PersonUnitTest.class)
                 .build();
 
         reader.open(new ExecutionContext());
-        PersonBean item = reader.read();
+        PersonUnitTest item = reader.read();
         assertEquals("1234", item.getId());
         assertEquals("John", item.getFirstName());
         assertEquals("Mc Gregor", item.getLastName());
@@ -35,5 +35,4 @@ public class FlatFileItemReaderTest {
     private Resource getResource(String contents) {
         return new ByteArrayResource(contents.getBytes());
     }
-
 }
