@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: scdf-server
-        image: springcloud/spring-cloud-dataflow-server:2.0.0.RELEASE
+        image: springcloud/spring-cloud-dataflow-server:2.0.1.RELEASE
         imagePullPolicy: Always
         ports:
         - containerPort: 80
@@ -43,6 +43,7 @@ spec:
         - name: SPRING_CLOUD_DATAFLOW_FEATURES_SCHEDULES_ENABLED
           value: 'true'
         - name: SPRING_CLOUD_DEPLOYER_KUBERNETES_CREATE_DEPLOYMENT
+        #- name: SPRING_CLOUD_DEPLOYER_KUBERNETES_CREATE_JOB
           value: 'true'
         - name: SPRING_CLOUD_DEPLOYER_KUBERNETES_MEMORY
           value: 1024Mi

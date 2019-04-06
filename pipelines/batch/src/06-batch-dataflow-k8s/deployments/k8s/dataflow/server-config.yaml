@@ -28,8 +28,11 @@ data:
               kubernetes:
                 accounts:
                   default:
+                    livenessProbeDelay: 90
+                    livenessProbePeriod: 90
                     limits:
                       memory: 1024Mi
+                      #cpu: 500m
       datasource:
         url: jdbc:postgresql://postgres.default.svc.cluster.local:5432/dataflow
         username: postgres

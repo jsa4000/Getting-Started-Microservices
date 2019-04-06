@@ -184,6 +184,8 @@ In order to work are necessary some changes to be done.
     kubectl exec scdf-server-58cb976466-9gqrv -it -- java -jar shell.jar
     # Since the pods is deployed in port 80, override default configuration
     server-unknown:> dataflow config server http://localhost:80
+    # Or Simply join the previous two statements
+    kubectl exec scdf-server-58cb976466-9gqrv -it -- java -jar shell.jar --dataflow.uri=http://localhost:80
     
     # Using compiled version locally (recommended in production environments)
     java -jar spring-cloud-dataflow-shell-2.0.1.RELEASE.jar --dataflow.uri=http://dockerhost:9393
@@ -214,7 +216,7 @@ In order to work are necessary some changes to be done.
           
         # Launch task individually
         task launch notifier-task --arguments "--mail.auth.username= --mail.auth.password="
-            task launch batch-uploader-task --arguments "--spring.profiles.active=k8s,master"
+        task launch batch-uploader-task --arguments "--spring.profiles.active=k8s,master"
         task launch batch-process-task  
 
         # Get the result
