@@ -1,0 +1,50 @@
+spring:
+  profiles:
+    active: local,master
+  application:
+    name: PartitionedBatchJobTask
+  #batch:
+  #  initialize-schema: always
+  cloud:
+    task:
+      # Not available yet
+      #closecontext:
+      #  enabled: true
+      closecontextEnabled: true
+    deployer:
+      kubernetes:
+        #createJob: true
+
+logging:
+  level:
+    root: INFO
+    org.springframework.cloud.task: DEBUG
+    org.springframework.web: INFO
+    com.example: DEBUG
+
+---
+spring:
+  profiles: local
+  datasource:
+    url: jdbc:postgresql://dockerhost:5432/dataflow
+    username: postgres
+    password: password
+    driver-class-name: org.postgresql.Driver
+
+---
+spring:
+  profiles: docker
+  datasource:
+    url: jdbc:postgresql://postgres:5432/dataflow
+    username: postgres
+    password: password
+    driver-class-name: org.postgresql.Driver
+
+---
+spring:
+  profiles: k8s
+  datasource:
+    url: jdbc:postgresql://postgres.default.svc.cluster.local:5432/dataflow
+    username: postgres
+    password: password
+    driver-class-name: org.postgresql.Driver
