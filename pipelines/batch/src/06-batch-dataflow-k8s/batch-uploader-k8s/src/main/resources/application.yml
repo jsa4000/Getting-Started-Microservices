@@ -3,8 +3,14 @@ spring:
     active: local,master
   application:
     name: UploaderJobTask
-  batch:
-    initialize-schema: always
+  #batch:
+    #initialize-schema: always
+  cloud:
+    task:
+      # Not available yet
+      #closecontext:
+      #  enabled: true
+      closecontextEnabled: true
 
 batch:
   max-threads: 1

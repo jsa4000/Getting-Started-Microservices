@@ -3,8 +3,14 @@ spring:
     active: local,master
   application:
     name: batchJobTask
-  batch:
-    initialize-schema: always
+  #batch:
+    #initialize-schema: always
+  cloud:
+    task:
+      # Not available yet
+      #closecontext:
+      #  enabled: true
+      closecontextEnabled: true
 
 batch:
   max-threads: 1
@@ -13,7 +19,6 @@ batch:
   resourcesPath: dataflow-bucket
   tempPath: /tmp/data
   filePattern: "*.csv"
-
 
 logging:
   level:
@@ -33,21 +38,21 @@ spring:
 batch:
   max-threads: 2
   max-workers: 2
-  departmentsUri: http://rest-service.default.svc.cluster.local:8080/departments
-  worker-app: docker:jsa4000/dataflow-batch-process-k8s:0.0.1-SNAPSHOT
+  departmentsUri: http://dockerhost:8080/departments
+  worker-app: maven://com.example:batch-process-k8s:0.0.1-SNAPSHOT
   datasource:
     first:
-      url: jdbc:postgresql://postgres.default.svc.cluster.local:5432/dataflow
+      url: jdbc:postgresql://dockerhost:5432/dataflow
       username: postgres
       password: password
       driver-class-name: org.postgresql.Driver
     second:
-      url: jdbc:postgresql://postgres.default.svc.cluster.local:5432/db
+      url: jdbc:postgresql://dockerhost:5432/db
       username: postgres
       password: password
       driver-class-name: org.postgresql.Driver
   storage:
-    url: http://minio.default.svc.cluster.local:9000
+    url: http://dockerhost:9000
     accessKey: minio
     secretKey: password
 
@@ -73,5 +78,30 @@ batch:
       driver-class-name: org.postgresql.Driver
   storage:
     url: http://minio:9000
+    accessKey: minio
+    secretKey: password
+
+---
+spring:
+  profiles: k8s
+
+batch:
+  max-threads: 2
+  max-workers: 2
+  departmentsUri: http://rest-service.default.svc.cluster.local:8080/departments
+  worker-app: docker:jsa4000/dataflow-batch-process-k8s:0.0.1-SNAPSHOT
+  datasource:
+    first:
+      url: jdbc:postgresql://postgres.default.svc.cluster.local:5432/dataflow
+      username: postgres
+      password: password
+      driver-class-name: org.postgresql.Driver
+    second:
+      url: jdbc:postgresql://postgres.default.svc.cluster.local:5432/db
+      username: postgres
+      password: password
+      driver-class-name: org.postgresql.Driver
+  storage:
+    url: http://minio.default.svc.cluster.local:9000
     accessKey: minio
     secretKey: password

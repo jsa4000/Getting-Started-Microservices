@@ -217,7 +217,7 @@ In order to work are necessary some changes to be done.
         # Launch task individually
         task launch notifier-task --arguments "--mail.auth.username= --mail.auth.password="
         task launch batch-uploader-task --arguments "--spring.profiles.active=k8s,master"
-        task launch batch-process-task  
+        task launch batch-process-task --arguments "--spring.profiles.active=k8s,master --inputFile=dataflow-bucket:sample-data.zip --resourcesPath=dataflow-bucket"
 
         # Get the result
         task execution list
@@ -234,6 +234,16 @@ In order to work are necessary some changes to be done.
 - Destroy the task
 
         task destroy --name task-test
+        
+- Check resources in kubernetes
+
+        kubectl get svc,pods,job,deployments
+        
+- Remove completed Jobs/Pods
+
+        kubectl get jobs | awk '$4 ~ /[2-9]d$/ || $3 ~ 1' | awk '{print $1}' | xargs kubectl delete job        
+        kubectl get pods | awk '$2 ~ 0/1 && $3 ~ "Completed"' | awk '{print $1}' | xargs kubectl delete pod
+        kubectl get pods | awk '$2 ~ 0/1 && $3 ~ "Error"' | awk '{print $1}' | xargs kubectl delete pod
         
 #### Composed Tasks
 

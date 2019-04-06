@@ -1,0 +1,15 @@
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: cleanup-pods
+spec:
+  schedule: "*/30 * * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+            - name: kubectl-runner
+              image: wernight/kubectl
+              command: ["sh", "-c", "kubectl get pods | awk '$2 ~ 0/1 | awk '{print $1}' | xargs kubectl delete pod"]
+          restartPolicy: Never
