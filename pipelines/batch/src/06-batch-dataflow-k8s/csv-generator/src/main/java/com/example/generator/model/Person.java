@@ -6,12 +6,16 @@ import com.github.javafaker.Faker;
 import com.github.javafaker.Name;
 import lombok.Data;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 @Data
 public class Person implements Rower {
 
+    static DateFormat dateFormat = new SimpleDateFormat("yyyy-mm-dd hh:mm:ss");
     static private Faker faker = new Faker();
 
     private String id;
@@ -39,7 +43,7 @@ public class Person implements Rower {
     private Date endDate;
 
     public Person() {
-        id = faker.idNumber().valid();
+        id = UUID.randomUUID().toString();
         name = faker.name();
         gender = faker.name().title();
         email = faker.internet().emailAddress();
@@ -47,7 +51,7 @@ public class Person implements Rower {
         birth = faker.date().birthday(0,65);
         address = faker.address();
         company = faker.company().name();
-        creditCardNumber = faker.idNumber().ssnValid();
+        creditCardNumber = faker.idNumber().invalid();
         jobTitle = faker.job().title();
         startDate = faker.date().past(1000, TimeUnit.DAYS);
         endDate = faker.date().past(25, TimeUnit.HOURS);
@@ -62,7 +66,7 @@ public class Person implements Rower {
                 gender,
                 email,
                 phone,
-                birth.toString(),
+                dateFormat.format(birth),
                 address.fullAddress(),
                 address.streetName(),
                 address.cityName(),
@@ -72,8 +76,8 @@ public class Person implements Rower {
                 company,
                 creditCardNumber,
                 jobTitle,
-                startDate.toString(),
-                endDate.toString()
+                dateFormat.format(startDate),
+                dateFormat.format(endDate)
         };
     }
 }

@@ -7,6 +7,7 @@ import com.opencsv.bean.CsvBindByPosition;
 import lombok.Data;
 
 import java.util.Date;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 @Data
@@ -91,7 +92,7 @@ public class PersonBean {
     private Date endDate;
 
     public PersonBean() {
-        id = faker.idNumber().valid();
+        id = UUID.randomUUID().toString();
         firstName = faker.name().firstName();
         lastName = faker.name().lastName();
         fullName = faker.name().fullName();
@@ -109,7 +110,7 @@ public class PersonBean {
         state = addr.state();
 
         company = faker.company().name();
-        creditCardNumber = faker.idNumber().ssnValid();
+        creditCardNumber = faker.idNumber().invalid();
         jobTitle = faker.job().title();
         startDate = faker.date().past(1000, TimeUnit.DAYS);
         endDate = faker.date().past(25, TimeUnit.HOURS);

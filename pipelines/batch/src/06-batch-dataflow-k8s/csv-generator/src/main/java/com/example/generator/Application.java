@@ -38,6 +38,8 @@ public class Application implements CommandLineRunner {
     public void benchmark(long count) {
         try {
             for (int i = 0; i < 3; i ++) {
+                writer.writeNoRandomCsv(Paths.get("/tmp/NoRandomfile.csv"),count);
+
                 writer.writeOpenCsv(Paths.get("/tmp/bigfile.csv"),count);
 
                 writer.writeCsv(Paths.get("/tmp/bigfile1.csv"),count);
@@ -55,7 +57,7 @@ public class Application implements CommandLineRunner {
 
         try {
             writer.writeOpenCsv(Paths.get(pathString),count);
-
+            //benchmark(count);
         } catch (Throwable ex) {
             log.error("Error during the generation of the csv file",ex);
         }

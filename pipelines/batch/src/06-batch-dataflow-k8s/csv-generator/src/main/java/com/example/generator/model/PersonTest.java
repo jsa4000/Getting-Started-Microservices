@@ -14,7 +14,17 @@ public class PersonTest implements Rower {
 
     private String gender;
 
-    private String address;
+    private String fullAddress;
+
+    private String streetName;
+
+    private String cityName;
+
+    private String zipCode;
+
+    private String country;
+
+    private String state;
 
     private String email;
 
@@ -36,7 +46,12 @@ public class PersonTest implements Rower {
         id = "Sample";
         name = "NAme";
         gender = "Sample";
-        address = "Sample";
+        fullAddress = "Sample";
+        streetName = "Sample";
+        cityName = "Sample";
+        zipCode = "Sample";
+        country = "Sample";
+        state = "Sample";
         email = "Sample";
         phone = "Sample";
         birth = new Date();
@@ -56,7 +71,12 @@ public class PersonTest implements Rower {
                 email,
                 phone,
                 birth.toString(),
-                address,
+                fullAddress ,
+                streetName,
+                cityName,
+                zipCode ,
+                country ,
+                state,
                 company,
                 creditCardNumber,
                 jobTitle,

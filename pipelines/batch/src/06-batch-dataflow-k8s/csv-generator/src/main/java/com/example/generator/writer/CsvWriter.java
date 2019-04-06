@@ -3,6 +3,8 @@ package com.example.generator.writer;
 import com.example.generator.aop.LogExecutionTime;
 import com.example.generator.model.Person;
 import com.example.generator.model.PersonBean;
+import com.example.generator.model.PersonTest;
+import com.opencsv.CSVWriter;
 import com.opencsv.bean.StatefulBeanToCsv;
 import com.opencsv.bean.StatefulBeanToCsvBuilder;
 import lombok.extern.slf4j.Slf4j;
@@ -32,7 +34,8 @@ public class CsvWriter {
         Writer writer  = new FileWriter(path.toString());
 
         StatefulBeanToCsv<PersonBean> sbc = new StatefulBeanToCsvBuilder<PersonBean>(writer)
-                .withSeparator(com.opencsv.CSVWriter.DEFAULT_SEPARATOR)
+                .withSeparator(CSVWriter.DEFAULT_SEPARATOR)
+                .withApplyQuotesToAll(false)
                 .build();
 
         for (int i = 0; i < count; i++) {
@@ -43,13 +46,25 @@ public class CsvWriter {
     }
 
     @LogExecutionTime
+    public void writeNoRandomCsv(Path path, long count) throws Throwable {
+        deleteFile(path);
+        Writer outputFile  = new FileWriter(path.toString());
+        CSVWriter writer = new CSVWriter(outputFile);
+        for (int i = 0; i < count; i++) {
+            Rower r = new PersonTest();
+            writer.writeNext(r.row(),false);
+        }
+        writer.close();
+    }
+
+    @LogExecutionTime
     public void writeOpenCsv(Path path, long count) throws Throwable {
         deleteFile(path);
         Writer outputFile  = new FileWriter(path.toString());
-        com.opencsv.CSVWriter writer = new com.opencsv.CSVWriter(outputFile);
+        CSVWriter writer = new CSVWriter(outputFile);
         for (int i = 0; i < count; i++) {
             Rower r = new Person();
-            writer.writeNext(r.row());
+            writer.writeNext(r.row(),false);
         }
         writer.close();
     }

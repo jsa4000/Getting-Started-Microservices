@@ -2,30 +2,40 @@ package com.example.generator.model;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.util.Date;
 
 @Data
 @NoArgsConstructor
 public class PersonUnitTest {
-    private String id;
-    private String firstName;
-    private String lastName;
-    private String fullName;
-    private String gender;
-    private String email;
-    private String phone;
-    private Date birth;
-    private String address;
-    private String street;
-    private String city;
-    private String country;
-    private String state;
-    private String zipCode;
-    private String company;
-    private String creditCardNumber;
-    private String jobTitle;
-    private Date startDate;
-    private Date endDate;
+    protected String id;
+    protected String firstName;
+    protected String lastName;
+    protected String fullName;
+    protected String gender;
+    protected String email;
+    protected String phone;
+    protected Date birth;
+    protected String address;
+    protected String street;
+    protected String city;
+    protected String country;
+    protected String state;
+    protected String zipCode;
+    protected String company;
+    protected String creditCardNumber;
+    protected String jobTitle;
+    protected Date startDate;
+    protected Date endDate;
 
+    @Override
+    public String toString() {
+        return "PersonUnitTest{" +
+                "id='" + id + '\'' +
+                ", firstName='" + firstName + '\'' +
+                ", lastName='" + lastName +
+                '}';
+    }
 }
+
