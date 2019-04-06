@@ -10,7 +10,11 @@ public class PersonTest implements Rower {
 
     private String id;
 
-    private String name;
+    private String firstName;
+
+    private String lastName;
+
+    private String fullName;
 
     private String gender;
 
@@ -44,20 +48,22 @@ public class PersonTest implements Rower {
 
     public PersonTest() {
         id = "Sample";
-        name = "NAme";
-        gender = "Sample";
-        fullAddress = "Sample";
-        streetName = "Sample";
-        cityName = "Sample";
-        zipCode = "Sample";
-        country = "Sample";
-        state = "Sample";
-        email = "Sample";
-        phone = "Sample";
+        firstName= "firstName";
+        lastName= "lastName";
+        fullName= "fullName";
+        gender = "gender";
+        fullAddress = "fullAddress";
+        streetName = "streetName";
+        cityName = "cityName";
+        zipCode = "zipCode";
+        country = "country";
+        state = "state";
+        email = "email";
+        phone = "phone";
         birth = new Date();
-        company = "Sample";
-        creditCardNumber = "Sample";
-        jobTitle = "Sample";
+        company = "company";
+        creditCardNumber = "creditCardNumber";
+        jobTitle = "jobTitle";
         startDate = new Date();
         endDate = new Date();
 
@@ -66,7 +72,9 @@ public class PersonTest implements Rower {
     public String[] row() {
         return new String[]{
                 id,
-                name,
+                firstName,
+                lastName,
+                fullName,
                 gender,
                 email,
                 phone,

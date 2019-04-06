@@ -5,26 +5,30 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.item.file.mapping.FieldSetMapper;
 import org.springframework.batch.item.file.transform.FieldSet;
 
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 
 @Slf4j
 public class RecordFieldSetMapper implements FieldSetMapper<PersonUnitTest> {
 
-    public PersonUnitTest mapFieldSet(FieldSet fieldSet) {
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-mm-dd hh:mm:ss");
-        PersonUnitTest person = new PersonUnitTest();
+    static SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-mm-dd hh:mm:ss");
 
-        person.setId(fieldSet.readString("id"));
-        person.setFirstName(fieldSet.readString("firstName"));
-        person.setLastName(fieldSet.readString("lastName"));
-        String dateString = fieldSet.readString("birth");
+    public PersonUnitTest mapFieldSet(FieldSet fieldSet) {
+        return PersonUnitTest.builder()
+                .id(fieldSet.readString("id"))
+                .firstName(fieldSet.readString("firstName"))
+                .lastName(fieldSet.readString("lastName"))
+                .birth(parseDate(fieldSet.readString("birth")))
+                .build();
+    }
+
+    private static Date parseDate(String date) {
         try {
-            person.setBirth(dateFormat.parse(dateString));
-        } catch (ParseException ex) {
-            log.error("Error parsing the date", ex);
+            return dateFormat.parse(date);
+        } catch (Exception ex) {
+            return new Date();
         }
-        return person;
+
     }
 
 }

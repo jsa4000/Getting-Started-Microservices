@@ -1,13 +1,12 @@
 package com.example.generator.model;
 
+import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
-import org.springframework.format.annotation.DateTimeFormat;
 
 import java.util.Date;
 
 @Data
-@NoArgsConstructor
+@Builder
 public class PersonUnitTest {
     protected String id;
     protected String firstName;
@@ -30,12 +29,6 @@ public class PersonUnitTest {
     protected Date endDate;
 
     @Override
-    public String toString() {
-        return "PersonUnitTest{" +
-                "id='" + id + '\'' +
-                ", firstName='" + firstName + '\'' +
-                ", lastName='" + lastName +
-                '}';
-    }
+    public String toString() { return "PersonUnitTest{" + "id='" + id + '}'; }
 }
 
