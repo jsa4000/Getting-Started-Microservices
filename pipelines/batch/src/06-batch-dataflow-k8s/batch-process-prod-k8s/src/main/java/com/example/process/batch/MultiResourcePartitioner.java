@@ -50,12 +50,16 @@ public class MultiResourcePartitioner implements Partitioner {
             throw new RuntimeException("I/O problems when resolving" + " the input file pattern.", e);
         }
 
+        String[] parts = resourcesPath.split("/");
+        final String bucketName = parts[0];
+        final String objectPath = parts.length > 1 ? parts[1] + "/" : "";
+
         Map<String, ExecutionContext> map = new HashMap<>(gridSize);
         int i = 0;
         for (Resource resource : resources) {
             ExecutionContext context = new ExecutionContext();
-            log.info("Adding " + resourcesPath + ":" + resource.getFilename() + " file to partition");
-            context.putString(FILENAME_KEY, resourcesPath + ":" + resource.getFilename());
+            log.info("Adding " + bucketName + ":" + objectPath + resource.getFilename() + " file to partition");
+            context.putString(FILENAME_KEY, bucketName + ":" + objectPath + resource.getFilename());
             context.putString(SOURCE_KEY, filename);
             map.put(PARTITION_KEY + i, context);
             i++;

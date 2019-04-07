@@ -86,7 +86,9 @@ public class SlaveConfiguration {
         log.info("Fetching the file to process locally.");
 
         InputStream inStream = client.getObject(bucketName, objectName);
-        File targetFile = new File(slaveTempPath + "/" + objectName);
+
+        final String filename = parts[1].split("/")[parts[1].split("/").length - 1];
+        File targetFile = new File(slaveTempPath + "/" + filename);
         OutputStream outStream = new FileOutputStream(targetFile);
 
         byte[] buffer = new byte[16 * 1024];

@@ -16,7 +16,7 @@ batch:
   max-threads: 1
   max-workers: 1
   inputFile: dataflow-bucket:sample-data-prod.zip
-  resourcesPath: dataflow-bucket
+  resourcesPath: dataflow-bucket/sample-data-prod
   tempPath: /tmp/data
   filePattern: "*.csv"
 

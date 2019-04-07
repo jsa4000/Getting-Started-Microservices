@@ -53,10 +53,14 @@ public class UploadProcessTasklet implements Tasklet {
             throw new RuntimeException("I/O problems when resolving" + " the input file pattern.", e);
         }
 
+        String[] parts = resourcesPath.split("/");
+        final String bucketName = parts[0];
+        final String objectPath = parts.length > 1 ? parts[1] + "/" : "";
+
         for (Resource resource : resources) {
             log.debug("File Name: " + resource.getFilename());
             log.debug("File Path: " + resource.getFile().getAbsolutePath());
-            client.putObject(resourcesPath, resource.getFilename(), resource.getFile().getAbsolutePath());
+            client.putObject(bucketName, objectPath + resource.getFilename(), resource.getFile().getAbsolutePath());
         }
 
         log.info("Files uploaded: " + resources.length);

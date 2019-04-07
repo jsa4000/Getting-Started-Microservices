@@ -56,12 +56,16 @@ public class PostProcessTasklet implements Tasklet {
             throw new RuntimeException("I/O problems when resolving" + " the input file pattern.", e);
         }
 
+        String[] parts = resourcesPath.split("/");
+        final String bucketName = parts[0];
+        final String objectPath = parts.length > 1 ? parts[1] + "/" : "";
+
         List<String> objectNames = Arrays.stream(resources)
-                .map(x -> x.getFilename())
+                .map(x -> objectPath + x.getFilename())
                 .collect(Collectors.toList());
 
         log.info("Objects buckets to remove are: " + objectNames.size());
-        for (Result<DeleteError> errorResult: client.removeObjects(resourcesPath, objectNames)) {
+        for (Result<DeleteError> errorResult: client.removeObjects(bucketName, objectNames)) {
             DeleteError error = errorResult.get();
             log.error("Failed to remove '" + error.objectName() + "'. Error:" + error.message());
         }
