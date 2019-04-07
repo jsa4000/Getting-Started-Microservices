@@ -90,7 +90,7 @@ docker run -it -v /tmp/test:/tmp/test busybox /bin/sh
 
 cd /tmp/test
 
-split -l 100000 -a 2 sample-data.csv sample-data-
+time split -l 100000 -a 2 sample-data.csv sample-data-
 
 for file in *; do mv "$file" "${file%}.csv"; done
 
@@ -105,6 +105,111 @@ Parallel split??
 
 The process must generate the `md5sum` in order to verify the integrity of the files split.
 https://askubuntu.com/questions/318530/generate-md5-checksum-for-all-files-in-a-directory
+
+## Compress process
+
+Some compression techniques are going to be tested.
+The file contains 1000000 records ~360MB
+
+### GZip
+
+- Bad compression
+
+        time gzip -1 -k sample-data.csv
+
+> 5.92s user 0.12s system 99% cpu 6.058 total ~186MB
+
+- Mid compression
+
+        time gzip -4 -k sample-data.csv
+
+> 10.70s user 0.18s system 98% cpu 11.004 total ~170MB
+
+- Best compression
+
+        time gzip -9 -k sample-data.csv
+
+> 29.69s user 0.54s system 99% cpu 30.515 total ~165MB
+
+### Zip
+
+- Bad compression
+
+        time zip -1 sample-data.csv.zip sample-data.csv
+
+> 7.58s user 0.35s system 98% cpu 8.020 total ~186MB
+
+- Mid compression
+
+        time zip -4 sample-data.csv.zip sample-data.csv
+
+> 12.44s user 0.35s system 99% cpu 12.863 total ~169MB
+
+- Best compression
+
+        time zip -9 sample-data.csv.zip sample-data.csv
+
+> 21.04s user 0.38s system 99% cpu 21.633 total ~164MB
+
+### Lz4
+
+- Bad compression
+
+        time lz4 -1 sample-data.csv sample-data.csv.lz4
+
+> 0.90s user 0.59s system 98% cpu 1.521 total ~276MB
+
+- Mid compression
+
+        time lz4 -4 sample-data.csv sample-data.csv.lz4
+
+> 7.19s user 0.29s system 99% cpu 7.524 total ~190MB
+
+- Best compression
+
+        time lz4 -9 sample-data.csv sample-data.csv.lz4
+
+> 9.93s user 0.28s system 99% cpu 10.232 total ~188MB
+
+### 7zip (p7zip - lzma2)
+
+- Bad compression
+
+            time 7z a -t7z -m0=lzma2 -mx=1 -mfb=64 -md=32m -ms=on sample-data.csv.7z sample-data.csv
+      
+    > 240.26s user 1.03s system 269% cpu 1:29.66 total ~141MB      
+            
+            time 7z a -t7z -m0=lzma2 -mx=1 -ms=on sample-data.csv.7z sample-data.csv
+            
+    > 51.68s user 0.32s system 1065% cpu 4.878 total ~156MB
+
+
+- Mid compression
+
+            time 7z a -t7z -m0=lzma2 -mx=4 -mfb=64 -md=32m -ms=on sample-data.csv.7z sample-data.csv
+      
+    > 245.62s user 1.31s system 265% cpu 1:33.01 total ~141MB      
+            
+            time 7z a -t7z -m0=lzma2 -mx=4 -ms=on sample-data.csv.7z sample-data.csv
+            
+    > 240.34s user 2.00s system 974% cpu 24.857 total ~144.2MB
+
+- Best compression
+
+            time 7z a -t7z -m0=lzma2 -mx=9 -mfb=64 -md=32m -ms=on sample-data.csv.7z sample-data.csv
+      
+    > 451.18s user 4.51s system 398% cpu 1:54.49 total ~111.5MB      
+            
+            time 7z a -t7z -m0=lzma2 -mx=9 -ms=on sample-data.csv.7z sample-data.csv
+            
+    > 425.21s user 4.18s system 191% cpu 3:43.68 total ~110MB
+
+- Extract compressed file
+
+            7z e sample-data.csv.7z
+
+    > 6.56s user 0.13s system 99% cpu 6.739 total
+
 
 ## References
 
