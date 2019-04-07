@@ -1,7 +1,7 @@
 package com.example.generator;
 
 import com.example.generator.mapper.RecordFieldSetMapper;
-import com.example.generator.model.PersonUnitTest;
+import com.example.generator.model.CustomerUnitTest;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -22,7 +22,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @RunWith(Parameterized.class)
-public class PersonReaderTest {
+public class CustomerReaderTest {
 
     static SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-mm-dd hh:mm:ss");
 
@@ -33,7 +33,7 @@ public class PersonReaderTest {
     public String line;
 
     @Parameterized.Parameter(2)
-    public PersonUnitTest expectedPerson;
+    public CustomerUnitTest expectedCustomer;
 
     @Parameterized.Parameter(3)
     public Class expectedException;
@@ -43,8 +43,8 @@ public class PersonReaderTest {
         return Arrays.asList(new Object[][] {
                 {
                         "All Fields Valid",
-                        "07cb9807-8401-42e1-94aa-4d8423278503,Eldridge,Murazik,Mose Mante,Senior Quality Designer,dewayne.mcglynn@hotmail.com,747.431.2346,1984-48-20 09:48:04,\"Suite 921 26554 Greenfelder Island, Tonettemouth, RI 28215\",Sarita Square,South Mikafurt,23792,Ethiopia,Connecticut,\"Fahey, Klein and Bradtke\",966-82-9132,Mining Orchestrator,2018-03-28 09:03:32,2019-00-06 03:00:55",
-                        PersonUnitTest.builder()
+                        "07cb9807-8401-42e1-94aa-4d8423278503,Eldridge,Murazik,Mose Mante,Senior Quality Designer,dewayne.mcglynn@hotmail.com,747.431.2346,1984-48-20 09:48:04,\"Suite 921 26554 Greenfelder Island, Tonettemouth, RI 28215\",Sarita Square,South Mikafurt,23792,Ethiopia,Connecticut,\"Fahey, Klein and Bradtke\",966-82-9132,Mining Orchestrator,2,2018-03-28 09:03:32,2019-00-06 03:00:55",
+                        CustomerUnitTest.builder()
                                 .id("07cb9807-8401-42e1-94aa-4d8423278503")
                                 .firstName("Eldridge")
                                 .lastName("Murazik")
@@ -62,6 +62,7 @@ public class PersonReaderTest {
                                 .company("Fahey, Klein and Bradtke")
                                 .creditCardNumber("966-82-9132")
                                 .jobTitle("Mining Orchestrator")
+                                .department(2)
                                 .startDate(parseDate("2018-03-28 09:03:32"))
                                 .endDate(parseDate("2019-00-06 03:00:55"))
                                 .build(),
@@ -69,8 +70,8 @@ public class PersonReaderTest {
                 },
                 {
                         "Mixed columns with commas",
-                        "d45adf26-9ad5-4aa9-8fdc-98cde7d6a70a,Jack,Marquardt,Hae Goyette Jr.,Direct Group Administrator,cesar.oconner@hotmail.com,666-085-8946,2006-36-09 04:36:03,\"Suite 746 103 Batz Prairie, Port Raymundo, AL 93784-6906\",Gerhold Isle,West Enriquetashire,12930-9356,India,Texas,White-Blanda,984-30-1288,Mining Executive,2017-56-26 11:56:23,2019-30-05 08:30:52",
-                        PersonUnitTest.builder()
+                        "d45adf26-9ad5-4aa9-8fdc-98cde7d6a70a,Jack,Marquardt,Hae Goyette Jr.,Direct Group Administrator,cesar.oconner@hotmail.com,666-085-8946,2006-36-09 04:36:03,\"Suite 746 103 Batz Prairie, Port Raymundo, AL 93784-6906\",Gerhold Isle,West Enriquetashire,12930-9356,India,Texas,White-Blanda,984-30-1288,Mining Executive,3,2017-56-26 11:56:23,2019-30-05 08:30:52",
+                        CustomerUnitTest.builder()
                                 .id("d45adf26-9ad5-4aa9-8fdc-98cde7d6a70a")
                                 .firstName("Jack")
                                 .lastName("Marquardt")
@@ -88,6 +89,7 @@ public class PersonReaderTest {
                                 .company("White-Blanda")
                                 .creditCardNumber("984-30-1288")
                                 .jobTitle("Mining Executive")
+                                .department(3)
                                 .startDate(parseDate("2017-56-26 11:56:23"))
                                 .endDate(parseDate("2019-30-05 08:30:52"))
                                 .build(),
@@ -101,7 +103,13 @@ public class PersonReaderTest {
                 },
                 {
                         "Incorrect date format",
-                        "d45adf26-9ad5-4aa9-8fdc-98cde7d6a70a,Jack,Marquardt,Hae Goyette Jr.,Direct Group Administrator,cesar.oconner@hotmail.com,666-085-8946,Wrong date!,\"Suite 746 103 Batz Prairie, Port Raymundo, AL 93784-6906\",Gerhold Isle,West Enriquetashire,12930-9356,India,Texas,White-Blanda,984-30-1288,Mining Executive,2017-56-26 11:56:23,2019-30-05 08:30:52",
+                        "d45adf26-9ad5-4aa9-8fdc-98cde7d6a70a,Jack,Marquardt,Hae Goyette Jr.,Direct Group Administrator,cesar.oconner@hotmail.com,666-085-8946,Wrong date!,\"Suite 746 103 Batz Prairie, Port Raymundo, AL 93784-6906\",Gerhold Isle,West Enriquetashire,12930-9356,India,Texas,White-Blanda,984-30-1288,Mining Executive,2,2017-56-26 11:56:23,2019-30-05 08:30:52",
+                        null,
+                        FlatFileParseException.class
+                },
+                {
+                        "Incorrect integer format",
+                        "d45adf26-9ad5-4aa9-8fdc-98cde7d6a70a,Jack,Marquardt,Hae Goyette Jr.,Direct Group Administrator,cesar.oconner@hotmail.com,666-085-8946,Wrong date!,\"Suite 746 103 Batz Prairie, Port Raymundo, AL 93784-6906\",Gerhold Isle,West Enriquetashire,12930-9356,India,Texas,White-Blanda,984-30-1288,Mining Executive,Non Integer!,2017-56-26 11:56:23,2019-30-05 08:30:52",
                         null,
                         FlatFileParseException.class
                 }
@@ -110,8 +118,8 @@ public class PersonReaderTest {
 
     @Test
     public void testSimpleFixedLength() throws Exception {
-        FlatFileItemReader<PersonUnitTest> reader = new FlatFileItemReaderBuilder<PersonUnitTest>()
-                .name("personReader")
+        FlatFileItemReader<CustomerUnitTest> reader = new FlatFileItemReaderBuilder<CustomerUnitTest>()
+                .name("CustomerReader")
                 .resource(getResource(line))
                 .delimited()
                 .names(new String[]{
@@ -132,6 +140,7 @@ public class PersonReaderTest {
                         "company",
                         "creditCardNumber",
                         "jobTitle",
+                        "department",
                         "startDate",
                         "endDate"})
                 .fieldSetMapper(new RecordFieldSetMapper())
@@ -139,8 +148,8 @@ public class PersonReaderTest {
         reader.open(new ExecutionContext());
 
         if (expectedException == null) {
-            PersonUnitTest item = reader.read();
-            assertThat(item).isEqualToComparingFieldByField(expectedPerson);
+            CustomerUnitTest item = reader.read();
+            assertThat(item).isEqualToComparingFieldByField(expectedCustomer);
             assertNull(reader.read());
         } else {
             assertThrows(expectedException, reader::read);

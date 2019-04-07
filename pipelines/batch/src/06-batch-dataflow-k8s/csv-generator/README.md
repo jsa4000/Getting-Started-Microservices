@@ -90,10 +90,9 @@ docker run -it -v /tmp/test:/tmp/test busybox /bin/sh
 
 cd /tmp/test
 
-split -l 100000 -d -a 2 sample-data.csv sample-data-
+split -l 100000 -a 2 sample-data.csv sample-data-
 
-# Finally rename files to .csv
-rename "s/oldExtension/newExtension/" *.csv
+for file in *; do mv "$file" "${file%}.csv"; done
 
 ```
 

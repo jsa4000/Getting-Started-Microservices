@@ -11,7 +11,7 @@ import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 @Data
-public class PersonBean {
+public class CustomerBean {
 
     private static Faker faker = new Faker();
 
@@ -84,14 +84,18 @@ public class PersonBean {
     private String jobTitle;
 
     @CsvBindByPosition(position = 17)
+    @CsvBindByName(column = "department")
+    private int department;
+
+    @CsvBindByPosition(position = 18)
     @CsvBindByName(column = "start_date")
     private Date startDate;
 
-    @CsvBindByPosition(position = 18)
+    @CsvBindByPosition(position = 19)
     @CsvBindByName(column = "end_date")
     private Date endDate;
 
-    public PersonBean() {
+    public CustomerBean() {
         id = UUID.randomUUID().toString();
         firstName = faker.name().firstName();
         lastName = faker.name().lastName();
@@ -112,6 +116,8 @@ public class PersonBean {
         company = faker.company().name();
         creditCardNumber = faker.idNumber().invalid();
         jobTitle = faker.job().title();
+
+        department = faker.random().nextInt(0,10);
         startDate = faker.date().past(1000, TimeUnit.DAYS);
         endDate = faker.date().past(25, TimeUnit.HOURS);
 

@@ -13,7 +13,7 @@ import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 @Data
-public class Person implements Rower {
+public class Customer implements Rower {
 
     static DateFormat dateFormat = new SimpleDateFormat("yyyy-mm-dd hh:mm:ss");
     static private Faker faker = new Faker();
@@ -38,11 +38,13 @@ public class Person implements Rower {
 
     private String jobTitle;
 
+    private int department;
+
     private Date startDate;
 
     private Date endDate;
 
-    public Person() {
+    public Customer() {
         id = UUID.randomUUID().toString();
         name = faker.name();
         title = faker.name().title();
@@ -53,6 +55,7 @@ public class Person implements Rower {
         company = faker.company().name();
         creditCardNumber = faker.idNumber().invalid();
         jobTitle = faker.job().title();
+        department = faker.random().nextInt(0,10);
         startDate = faker.date().past(1000, TimeUnit.DAYS);
         endDate = faker.date().past(25, TimeUnit.HOURS);
     }
@@ -76,6 +79,7 @@ public class Person implements Rower {
                 company,
                 creditCardNumber,
                 jobTitle,
+                String.valueOf(department),
                 dateFormat.format(startDate),
                 dateFormat.format(endDate)
         };

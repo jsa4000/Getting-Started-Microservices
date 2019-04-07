@@ -6,7 +6,7 @@ import lombok.Data;
 import java.util.Date;
 
 @Data
-public class PersonTest implements Rower {
+public class CustomerTest implements Rower {
 
     private String id;
 
@@ -42,11 +42,13 @@ public class PersonTest implements Rower {
 
     private String jobTitle;
 
+    private int department;
+
     private Date startDate;
 
     private Date endDate;
 
-    public PersonTest() {
+    public CustomerTest() {
         id = "Sample";
         firstName= "firstName";
         lastName= "lastName";
@@ -64,6 +66,7 @@ public class PersonTest implements Rower {
         company = "company";
         creditCardNumber = "creditCardNumber";
         jobTitle = "jobTitle";
+        department = 1;
         startDate = new Date();
         endDate = new Date();
 
@@ -88,6 +91,7 @@ public class PersonTest implements Rower {
                 company,
                 creditCardNumber,
                 jobTitle,
+                String.valueOf(department),
                 startDate.toString(),
                 endDate.toString()
         };

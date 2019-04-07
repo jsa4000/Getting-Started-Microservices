@@ -53,3 +53,121 @@ databaseChangeLog:
                   type: varchar(255)
                   constraints:
                     nullable: true
+
+  - changeSet:
+      id: 4
+      author: jsantosa
+      changes:
+        - createTable:
+            tableName: customer
+            columns:
+              - column:
+                  name: customer_id
+                  type: int
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: first_name
+                  type: varchar(255)
+              - column:
+                  name: last_name
+                  type: varchar(255)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: full_name
+                  type: varchar(255)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: title
+                  type: varchar(255)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: email
+                  type: varchar(255)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: phone_number
+                  type: varchar(255)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: birth_date
+                  type: datetime
+                  constraints:
+                    nullable: true
+              - column:
+                  name: address
+                  type: varchar(512)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: street_name
+                  type: varchar(255)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: city
+                  type: varchar(255)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: country
+                  type: varchar(255)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: state
+                  type: varchar(255)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: zip_code
+                  type: varchar(255)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: company_name
+                  type: varchar(255)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: credit_card
+                  type: varchar(255)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: job_title
+                  type: varchar(255)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: department
+                  type: number
+                  constraints:
+                    nullable: true
+              - column:
+                  name: start_date
+                  type: datetime
+                  constraints:
+                    nullable: true
+              - column:
+                  name: end_date
+                  type: datetime
+                  constraints:
+                    nullable: true
+              - column:
+                  name: group_name
+                  type: varchar(255)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: update_time
+                  type: datetime
+                  constraints:
+                    nullable: true

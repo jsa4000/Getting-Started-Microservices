@@ -1,4 +1,4 @@
-package com.example.process.model;
+package com.example.generator.model;
 
 import lombok.Builder;
 import lombok.Data;
@@ -7,8 +7,7 @@ import java.util.Date;
 
 @Data
 @Builder
-public class Person  {
-
+public class CustomerUnitTest {
     private String id;
     private String firstName;
     private String lastName;
@@ -26,12 +25,11 @@ public class Person  {
     private String company;
     private String creditCardNumber;
     private String jobTitle;
+    private int department;
     private Date startDate;
     private Date endDate;
 
-    // Enriched Properties
-    private int department;
-    private String groupName;
-    private Date updateTime;
-
+    @Override
+    public String toString() { return "PersonUnitTest{" + "id='" + id + '}'; }
 }
+

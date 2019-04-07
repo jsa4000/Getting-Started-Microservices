@@ -2,7 +2,7 @@ package com.example.process.config;
 
 import com.example.process.batch.PersonEnrichProcessor;
 import com.example.process.mapper.RecordFieldSetMapper;
-import com.example.process.model.Person;
+import com.example.process.model.Customer;
 import io.minio.MinioClient;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.Step;
@@ -15,7 +15,6 @@ import org.springframework.batch.item.database.JdbcBatchItemWriter;
 import org.springframework.batch.item.database.builder.JdbcBatchItemWriterBuilder;
 import org.springframework.batch.item.file.FlatFileItemReader;
 import org.springframework.batch.item.file.builder.FlatFileItemReaderBuilder;
-import org.springframework.batch.item.file.mapping.BeanWrapperFieldSetMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -62,7 +61,7 @@ public class SlaveConfiguration {
 
     @Bean
     @StepScope
-    public FlatFileItemReader<Person> reader(@Value("#{stepExecutionContext['fileName']}") String source)
+    public FlatFileItemReader<Customer> reader(@Value("#{stepExecutionContext['fileName']}") String source)
             throws Exception {
         log.info("Slave processing the file: " + source );
 
@@ -100,7 +99,7 @@ public class SlaveConfiguration {
 
         Resource resource = resourceLoader.getResource("file:"  + targetFile);
 
-        return new FlatFileItemReaderBuilder<Person>()
+        return new FlatFileItemReaderBuilder<Customer>()
                 .name("personReader")
                 .resource(resource)
                 .delimited()
@@ -122,6 +121,7 @@ public class SlaveConfiguration {
                         "company",
                         "creditCardNumber",
                         "jobTitle",
+                        "department",
                         "startDate",
                         "endDate"})
                 .fieldSetMapper(new RecordFieldSetMapper())
@@ -130,10 +130,13 @@ public class SlaveConfiguration {
 
     @Bean
     @StepScope
-    public JdbcBatchItemWriter<Person> writer(@Qualifier("secondDataSource") DataSource dataSource) {
-        return new JdbcBatchItemWriterBuilder<Person>()
+    public JdbcBatchItemWriter<Customer> writer(@Qualifier("secondDataSource") DataSource dataSource) {
+        return new JdbcBatchItemWriterBuilder<Customer>()
                 .itemSqlParameterSourceProvider(new BeanPropertyItemSqlParameterSourceProvider<>())
-                .sql("INSERT INTO person (first_name, last_name, department, group_name, update_time) VALUES (:firstName, :lastName, :department, :groupName, :updateTime)")
+                .sql("INSERT INTO customer (first_name, last_name, full_name, title, email, phone_number, birth_date, address, street_name, city, country, " +
+                        "state, zip_code, company_name, credit_card, job_title, department, start_date, end_date, group_name, update_time) " +
+                        "VALUES (:firstName, :lastName, :fullName, :title, :email, :phone, :birth, :address, :street, :city, :country, :state, " +
+                        ":zipCode, :company, :creditCardNumber, :jobTitle, :department, :startDate, :endDate, :groupName, :updateTime)")
                 .dataSource(dataSource)
                 .build();
     }
@@ -142,7 +145,7 @@ public class SlaveConfiguration {
     public Step slaveStep(StepBuilderFactory stepBuilderFactory,
                           PersonEnrichProcessor processor) throws Exception {
         return stepBuilderFactory.get("slaveStep")
-                .<Person, Person>chunk(10)
+                .<Customer, Customer>chunk(10)
                 .reader(reader(null))
                 .processor(processor)
                 .writer(writer(null))

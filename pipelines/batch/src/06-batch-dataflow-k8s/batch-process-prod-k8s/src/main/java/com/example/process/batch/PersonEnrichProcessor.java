@@ -1,7 +1,7 @@
 package com.example.process.batch;
 
 import com.example.process.model.Department;
-import com.example.process.model.Person;
+import com.example.process.model.Customer;
 import com.example.process.service.DepartmentService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.item.ItemProcessor;
@@ -18,7 +18,7 @@ import java.util.Random;
 @Slf4j
 @Profile("worker")
 @Component
-public class PersonEnrichProcessor implements ItemProcessor<Person, Person> {
+public class PersonEnrichProcessor implements ItemProcessor<Customer, Customer> {
 
     static Random random = new Random();
 
@@ -26,33 +26,30 @@ public class PersonEnrichProcessor implements ItemProcessor<Person, Person> {
     DepartmentService departmentService;
 
     @Recover
-    public Person fallback(final Person person) {
-        person.setGroupName("Fatal Error retrieving the department");
-        person.setUpdateTime(Calendar.getInstance().getTime());
-        log.info("From Fallback, converting (" + person + ") into (" + person + ")");
-        return person;
+    public Customer fallback(final Customer customer) {
+        customer.setGroupName("Fatal Error retrieving the department");
+        customer.setUpdateTime(Calendar.getInstance().getTime());
+        log.info("From Fallback, converting (" + customer + ") into (" + customer + ")");
+        return customer;
     }
 
     @Override
     @CircuitBreaker(maxAttempts = 2, resetTimeout= 20000, openTimeout = 5000)
-    public Person process(final Person person) throws Exception {
-        // To-Do: temporary randomize the department
-        person.setDepartment(random.nextInt(10));
-        Optional<Department> dep = departmentService.getById(person.getDepartment());
+    public Customer process(final Customer customer) throws Exception {
+        Optional<Department> dep = departmentService.getById(customer.getDepartment());
         if (dep.isPresent()) {
              if (dep.get().getName().toUpperCase().equals("UNKNOWN")) {
-                 log.info("Filtering (" + person + ")");
+                 log.info("Filtering (" + customer + ")");
                 return null;
             }
             log.info("From Rest Service; " + dep.get().getName());
         } else {
             dep = Optional.of(new Department(0, "Error retrieving the department"));
         }
-
-        person.setGroupName(dep.get().getName());
-        person.setUpdateTime(Calendar.getInstance().getTime());
-        log.info("Converting (" + person + ") into (" + person + ")");
-        return person;
+        customer.setGroupName(dep.get().getName());
+        customer.setUpdateTime(Calendar.getInstance().getTime());
+        log.info("Converting (" + customer + ") into (" + customer + ")");
+        return customer;
     }
 
 }
