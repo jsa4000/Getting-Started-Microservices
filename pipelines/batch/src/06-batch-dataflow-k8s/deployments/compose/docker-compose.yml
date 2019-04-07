@@ -22,7 +22,7 @@ services:
       MINIO_ACCESS_KEY: minio
       MINIO_SECRET_KEY: password
     ports:
-      - 9001:9000
+      - 9000:9000
     networks:
       - dataflow-network
 
@@ -40,6 +40,7 @@ services:
       /usr/bin/mc policy download data/dataflow-bucket;
       ls -la /sample-data;
       /usr/bin/mc cp /sample-data/sample-data.zip data/dataflow-bucket;
+      /usr/bin/mc cp /sample-data/sample-data-prod.zip data/dataflow-bucket;
       exit 0;
       "
     volumes:

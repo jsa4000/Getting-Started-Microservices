@@ -47,7 +47,7 @@ batch:
       password: password
       driver-class-name: org.postgresql.Driver
   storage:
-    url: http://dockerhost:9001
+    url: http://dockerhost:9000
     accessKey: minio
     secretKey: password
 

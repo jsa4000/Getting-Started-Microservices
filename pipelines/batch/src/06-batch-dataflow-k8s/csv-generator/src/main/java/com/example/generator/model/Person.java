@@ -22,7 +22,7 @@ public class Person implements Rower {
 
     private Name name;
 
-    private String gender;
+    private String title;
 
     private String email;
 
@@ -45,7 +45,7 @@ public class Person implements Rower {
     public Person() {
         id = UUID.randomUUID().toString();
         name = faker.name();
-        gender = faker.name().title();
+        title = faker.name().title();
         email = faker.internet().emailAddress();
         phone = faker.phoneNumber().cellPhone();
         birth = faker.date().birthday(0,65);
@@ -63,7 +63,7 @@ public class Person implements Rower {
                 name.firstName(),
                 name.lastName(),
                 name.fullName(),
-                gender,
+                title,
                 email,
                 phone,
                 dateFormat.format(birth),

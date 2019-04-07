@@ -1,7 +1,10 @@
 spring:
+  main:
+    # To be added in release Spring Boot 2.2.0.RELEASE
+    lazy-initialization: true
   batch:
     job:
       enabled: false
 
-pathString: /tmp/smallfile.csv
+pathString: /tmp/sample-data.csv
 count: 1000

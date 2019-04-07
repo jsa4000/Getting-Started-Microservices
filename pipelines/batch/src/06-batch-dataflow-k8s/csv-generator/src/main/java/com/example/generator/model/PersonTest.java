@@ -16,7 +16,7 @@ public class PersonTest implements Rower {
 
     private String fullName;
 
-    private String gender;
+    private String title;
 
     private String fullAddress;
 
@@ -51,7 +51,7 @@ public class PersonTest implements Rower {
         firstName= "firstName";
         lastName= "lastName";
         fullName= "fullName";
-        gender = "gender";
+        title = "title";
         fullAddress = "fullAddress";
         streetName = "streetName";
         cityName = "cityName";
@@ -75,7 +75,7 @@ public class PersonTest implements Rower {
                 firstName,
                 lastName,
                 fullName,
-                gender,
+                title,
                 email,
                 phone,
                 birth.toString(),

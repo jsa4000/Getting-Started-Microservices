@@ -32,8 +32,8 @@ public class PersonBean {
     private String fullName;
 
     @CsvBindByPosition(position = 4)
-    @CsvBindByName(column = "gender")
-    private String gender;
+    @CsvBindByName(column = "title")
+    private String title;
 
     @CsvBindByPosition(position = 5)
     @CsvBindByName(column = "email")
@@ -96,7 +96,7 @@ public class PersonBean {
         firstName = faker.name().firstName();
         lastName = faker.name().lastName();
         fullName = faker.name().fullName();
-        gender = faker.name().title();
+        title = faker.name().title();
         email = faker.internet().emailAddress();
         phone = faker.phoneNumber().cellPhone();
         birth = faker.date().birthday(0,65);

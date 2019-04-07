@@ -12,7 +12,7 @@ public class PersonUnitTest {
     protected String firstName;
     protected String lastName;
     protected String fullName;
-    protected String gender;
+    protected String title;
     protected String email;
     protected String phone;
     protected Date birth;
