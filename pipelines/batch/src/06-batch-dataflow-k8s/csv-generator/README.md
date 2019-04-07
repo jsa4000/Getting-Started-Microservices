@@ -111,6 +111,17 @@ https://askubuntu.com/questions/318530/generate-md5-checksum-for-all-files-in-a-
 Some compression techniques are going to be tested.
 The file contains 1000000 records ~360MB
 
+```bash
+
+# Use alpine image container instead
+docker run -it -v /tmp/test:/tmp/test alpine /bin/sh
+
+cd /tmp/test
+
+apk add p7zip
+
+```
+
 ### GZip
 
 - Bad compression
@@ -210,6 +221,35 @@ The file contains 1000000 records ~360MB
 
     > 6.56s user 0.13s system 99% cpu 6.739 total
 
+- Using Docker (alpine image)
+
+    ```bash
+    
+    /tmp/test 
+    
+    time 7z a -t7z -m0=lzma2 -mx=9 -mfb=64 -md=32m -ms=on sample-data.csv.7z sample-data.csv
+    
+    7-Zip [64] 16.02 : Copyright (c) 1999-2016 Igor Pavlov : 2016-05-21
+    p7zip Version 16.02 (locale=C.UTF-8,Utf16=on,HugeFiles=on,64 bits,6 CPUs Intel(R) Core(TM) i7-8750H CPU @ 2.20GHz (906EA),ASM,AES-NI)
+    
+    Scanning the drive:
+    1 file, 359883594 bytes (344 MiB)
+    
+    Creating archive: sample-data.csv.7z
+    
+    Items to compress: 1
+    
+    
+    Files read from disk: 1
+    Archive size: 111543677 bytes (107 MiB)
+    Everything is Ok
+    real	2m 49.45s
+    user	10m 22.02s
+    sys	0m 21.59s
+    
+    ```
+
+    > 6.56s user 0.13s system 99% cpu 6.739 total 115MB
 
 ## References
 
