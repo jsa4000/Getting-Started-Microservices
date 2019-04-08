@@ -38,7 +38,7 @@ public class PostProcessTasklet implements Tasklet {
     @Value("${batch.tempPath:/tmp/data}")
     String tempPath;
 
-    @Value("${batch.filePattern:*.csv}")
+    @Value("${batch.filePattern:*.csv.zip}")
     String filePattern;
 
     @Value("${batch.resourcesPath:dataflow-bucket}")

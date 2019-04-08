@@ -18,7 +18,7 @@ batch:
   inputFile: dataflow-bucket:sample-data-prod.zip
   resourcesPath: dataflow-bucket/sample-data-prod
   tempPath: /tmp/data
-  filePattern: "*.csv"
+  filePattern: "*.csv.zip"
 
 logging:
   level:

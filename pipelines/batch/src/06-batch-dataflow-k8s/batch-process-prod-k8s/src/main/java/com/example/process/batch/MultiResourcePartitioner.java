@@ -35,7 +35,7 @@ public class MultiResourcePartitioner implements Partitioner {
     @Value("${batch.resourcesPath:dataflow-bucket}")
     String resourcesPath;
 
-    @Value("${batch.filePattern:*.csv}")
+    @Value("${batch.filePattern:*.csv.zip}")
     String filePattern;
 
     @Override

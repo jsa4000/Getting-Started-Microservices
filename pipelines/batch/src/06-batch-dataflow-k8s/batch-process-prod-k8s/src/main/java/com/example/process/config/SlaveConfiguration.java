@@ -1,8 +1,10 @@
 package com.example.process.config;
 
 import com.example.process.batch.PersonEnrichProcessor;
+import com.example.process.listener.SlaveListener;
 import com.example.process.mapper.RecordFieldSetMapper;
 import com.example.process.model.Customer;
+import com.example.process.utils.Zip;
 import io.minio.MinioClient;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.Step;
@@ -99,7 +101,14 @@ public class SlaveConfiguration {
         inStream.close();
         outStream.close();
 
-        Resource resource = resourceLoader.getResource("file:"  + targetFile);
+        log.info("Uncompressing Content to Process");
+
+
+        int files = Zip.unZip(targetFile.getAbsolutePath(), targetFile.getParentFile().getAbsolutePath() );
+        log.info("Files uncompressed " + files);
+        log.debug("File Absolute Path: " + targetFile.getAbsolutePath());
+        log.debug("File Parent Path: " + targetFile.getParentFile().getAbsolutePath());
+        Resource resource = resourceLoader.getResource("file:"  + targetFile.getAbsolutePath().replace(".zip",""));
 
         return new FlatFileItemReaderBuilder<Customer>()
                 .name("personReader")
@@ -153,6 +162,7 @@ public class SlaveConfiguration {
                 .writer(writer(null))
                 //.taskExecutor(taskExecutor())
                 //.throttleLimit(20)
+                .listener(new SlaveListener())
                 .build();
     }
 

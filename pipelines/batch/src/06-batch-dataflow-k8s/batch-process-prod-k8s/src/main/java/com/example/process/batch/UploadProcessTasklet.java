@@ -1,5 +1,6 @@
 package com.example.process.batch;
 
+import com.example.process.utils.Zip;
 import io.minio.MinioClient;
 import io.minio.errors.*;
 import lombok.extern.slf4j.Slf4j;
@@ -37,7 +38,7 @@ public class UploadProcessTasklet implements Tasklet {
     @Value("${batch.resourcesPath:dataflow-bucket}")
     String resourcesPath;
 
-    @Value("${batch.filePattern:*.csv}")
+    @Value("${batch.filePattern:*.csv.zip}")
     String filePattern;
 
     @Override
@@ -47,7 +48,8 @@ public class UploadProcessTasklet implements Tasklet {
         log.info("Uploading Content to Process");
         Resource[] resources;
         try {
-            resources = resourcePatternResolver.getResources("file:" + tempPath + "/" + filePattern);
+            log.info("Searching files using " + tempPath + "/" + filePattern.replace(".zip",""));
+            resources = resourcePatternResolver.getResources("file:" + tempPath + "/" + filePattern.replace(".zip",""));
             log.info("Current files to process are: " + resources.length);
         } catch (IOException e) {
             throw new RuntimeException("I/O problems when resolving" + " the input file pattern.", e);
@@ -58,9 +60,18 @@ public class UploadProcessTasklet implements Tasklet {
         final String objectPath = parts.length > 1 ? parts[1] + "/" : "";
 
         for (Resource resource : resources) {
+            log.debug("Compressing File Name: " + resource.getFilename());
+            long start = System.nanoTime();
+            Zip.zip(resource.getFile().getAbsolutePath(),resource.getFile().getAbsolutePath() + ".zip");
+            log.debug("Compression has been executed in " + ((System.nanoTime() - start) / 1000000) + "ms");
+
+            log.debug("Uploading File to bucket: " + bucketName);
             log.debug("File Name: " + resource.getFilename());
             log.debug("File Path: " + resource.getFile().getAbsolutePath());
-            client.putObject(bucketName, objectPath + resource.getFilename(), resource.getFile().getAbsolutePath());
+            start = System.nanoTime();
+            client.putObject(bucketName, objectPath + resource.getFilename() + ".zip",
+                    resource.getFile().getAbsolutePath() + ".zip");
+            log.debug("Uploading has been executed in " + ((System.nanoTime() - start) / 1000000) + "ms");
         }
 
         log.info("Files uploaded: " + resources.length);
