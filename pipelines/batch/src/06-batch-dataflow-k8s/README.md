@@ -57,12 +57,14 @@
    - maven://com.example:batch-process:0.0.1-SNAPSHOT
    - maven://com.example:task-notifier:0.0.1-SNAPSHOT
    - maven://com.example:batch-uploader-k8s:0.0.1-SNAPSHOT
+   - maven://com.example:batch-process-prod-k8s:0.0.1-SNAPSHOT
   
    ```bash
     app register --name composed-task-runner --type task --uri maven://org.springframework.cloud.task.app:composedtaskrunner-task:2.1.0.RELEASE
     app register --name batch-process-app --type task --uri maven://com.example:batch-process:0.0.1-SNAPSHOT
     app register --name task-notifier-app --type task --uri maven://com.example:task-notifier:0.0.1-SNAPSHOT
     app register --name batch-uploader-app --type task --uri maven://com.example:batch-uploader-k8s:0.0.1-SNAPSHOT
+    app register --name batch-process-prod-k8s-app --type task --uri maven://com.example:batch-process-prod-k8s:0.0.1-SNAPSHOT
   
     app list
     ```
@@ -73,6 +75,7 @@
     task create --name batch-process-task --definition "batch-process-app"
     task create --name task-notifier-task --definition "task-notifier-app"
     task create --name batch-uploader-task --definition "batch-uploader-app"
+    task create --name batch-process-prod-k8s-task --definition "batch-process-prod-k8s-app"
     ```bash
 
 1. Using the dashboard is needed to pass the initial paremeters as key value pair
@@ -86,6 +89,11 @@
          task launch --name batch-process-task --arguments "--inputFile=dataflow-bucket:sample-data.zip --resourcesPath=dataflow-bucket"
          # Using docker
          task launch --name batch-process-task --arguments "--inputFile=dataflow-bucket:sample-data.zip --resourcesPath=dataflow-bucket --spring.profiles.active=docker,master"
+         
+         task launch --name batch-uploader-task --arguments "--spring.profiles.active=docker,master"
+         
+         # Using docker and local deployer compilatation
+         task launch --name batch-process-prod-k8s-task --arguments "--inputFile=dataflow-bucket:sample-data-prod.zip --resourcesPath=dataflow-bucket --spring.profiles.active=docker,master"
             
 1. Add following app inside Spring Data-flow server, to support composite tasks
 

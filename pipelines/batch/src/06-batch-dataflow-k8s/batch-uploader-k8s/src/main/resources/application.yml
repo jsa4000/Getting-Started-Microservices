@@ -53,7 +53,7 @@ spring:
 batch:
   max-threads: 4
   max-workers: 1
-  worker-app: docker:jsa4000/dataflow-batch-uploader-k8s:0.0.1-SNAPSHOT
+  worker-app: maven://com.example:batch-uploader-k8s:0.0.1-SNAPSHOT
   storage:
     url: http://minio:9000
     accessKey: minio

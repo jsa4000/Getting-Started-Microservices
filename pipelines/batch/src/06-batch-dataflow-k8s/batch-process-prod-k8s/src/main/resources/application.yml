@@ -68,7 +68,7 @@ batch:
   max-threads: 4
   max-workers: 1
   departmentsUri: http://rest-service:8080/departments
-  worker-app: docker:jsa4000/dataflow-batch-process-prod-k8s:0.0.1-SNAPSHOT
+  worker-app: maven://com.example:batch-process-prod-k8s:0.0.1-SNAPSHOT
   datasource:
     url: jdbc:postgresql://postgres:5432/db
     username: postgres
