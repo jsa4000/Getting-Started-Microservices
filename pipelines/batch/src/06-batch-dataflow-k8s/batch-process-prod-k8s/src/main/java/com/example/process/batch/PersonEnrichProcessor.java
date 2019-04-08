@@ -16,8 +16,8 @@ import java.util.Optional;
 import java.util.Random;
 
 @Slf4j
-@Profile("worker")
 @Component
+@Profile("worker")
 public class PersonEnrichProcessor implements ItemProcessor<Customer, Customer> {
 
     static Random random = new Random();

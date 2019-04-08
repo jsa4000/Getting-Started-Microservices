@@ -34,6 +34,11 @@ management:
 ---
 spring:
   profiles: local
+  datasource:
+    url: jdbc:postgresql://dockerhost:5432/dataflow
+    username: postgres
+    password: password
+    driver-class-name: org.postgresql.Driver
 
 batch:
   max-threads: 2
@@ -41,16 +46,10 @@ batch:
   departmentsUri: http://dockerhost:8080/departments
   worker-app: maven://com.example:batch-process-prod-k8s:0.0.1-SNAPSHOT
   datasource:
-    first:
-      url: jdbc:postgresql://dockerhost:5432/dataflow
-      username: postgres
-      password: password
-      driver-class-name: org.postgresql.Driver
-    second:
-      url: jdbc:postgresql://dockerhost:5432/db
-      username: postgres
-      password: password
-      driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://dockerhost:5432/db
+    username: postgres
+    password: password
+    driver-class-name: org.postgresql.Driver
   storage:
     url: http://dockerhost:9000
     accessKey: minio
@@ -59,6 +58,11 @@ batch:
 ---
 spring:
   profiles: docker
+  datasource:
+    url: jdbc:postgresql://postgres:5432/dataflow
+    username: postgres
+    password: password
+    driver-class-name: org.postgresql.Driver
 
 batch:
   max-threads: 4
@@ -66,16 +70,10 @@ batch:
   departmentsUri: http://rest-service:8080/departments
   worker-app: docker:jsa4000/dataflow-batch-process-prod-k8s:0.0.1-SNAPSHOT
   datasource:
-    first:
-      url: jdbc:postgresql://postgres:5432/dataflow
-      username: postgres
-      password: password
-      driver-class-name: org.postgresql.Driver
-    second:
-      url: jdbc:postgresql://postgres:5432/db
-      username: postgres
-      password: password
-      driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://postgres:5432/db
+    username: postgres
+    password: password
+    driver-class-name: org.postgresql.Driver
   storage:
     url: http://minio:9000
     accessKey: minio
@@ -84,6 +82,11 @@ batch:
 ---
 spring:
   profiles: k8s
+  datasource:
+    url: jdbc:postgresql://postgres.default.svc.cluster.local:5432/dataflow
+    username: postgres
+    password: password
+    driver-class-name: org.postgresql.Driver
 
 batch:
   max-threads: 2
@@ -91,16 +94,10 @@ batch:
   departmentsUri: http://rest-service.default.svc.cluster.local:8080/departments
   worker-app: docker:jsa4000/dataflow-batch-process-prod-k8s:0.0.1-SNAPSHOT
   datasource:
-    first:
-      url: jdbc:postgresql://postgres.default.svc.cluster.local:5432/dataflow
-      username: postgres
-      password: password
-      driver-class-name: org.postgresql.Driver
-    second:
-      url: jdbc:postgresql://postgres.default.svc.cluster.local:5432/db
-      username: postgres
-      password: password
-      driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://postgres.default.svc.cluster.local:5432/db
+    username: postgres
+    password: password
+    driver-class-name: org.postgresql.Driver
   storage:
     url: http://minio.default.svc.cluster.local:9000
     accessKey: minio

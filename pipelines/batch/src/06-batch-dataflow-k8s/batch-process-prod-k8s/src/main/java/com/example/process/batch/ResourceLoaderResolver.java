@@ -3,10 +3,12 @@ package com.example.process.batch;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.deployer.resource.docker.DockerResourceLoader;
 import org.springframework.cloud.deployer.resource.support.DelegatingResourceLoader;
+import org.springframework.context.annotation.Profile;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Component;
 
 @Component
+@Profile("master")
 public class ResourceLoaderResolver {
 
     @Autowired

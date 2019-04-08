@@ -19,9 +19,9 @@ import java.util.Map;
 @Profile("master")
 public class MultiResourcePartitioner implements Partitioner {
 
-    private static final String FILENAME_KEY = "fileName";
-    private static final String SOURCE_KEY = "sourceKey";
-    private static final String PARTITION_KEY = "partition";
+    public static final String RESOURCE_KEY = "resourceKey";
+    public static final String SOURCE_KEY = "sourceKey";
+    public static final String PARTITION_KEY = "partition";
 
     @Autowired
     ResourcePatternResolver resourcePatternResolver;
@@ -59,7 +59,7 @@ public class MultiResourcePartitioner implements Partitioner {
         for (Resource resource : resources) {
             ExecutionContext context = new ExecutionContext();
             log.info("Adding " + bucketName + ":" + objectPath + resource.getFilename() + " file to partition");
-            context.putString(FILENAME_KEY, bucketName + ":" + objectPath + resource.getFilename());
+            context.putString(RESOURCE_KEY, bucketName + ":" + objectPath + resource.getFilename());
             context.putString(SOURCE_KEY, filename);
             map.put(PARTITION_KEY + i, context);
             i++;

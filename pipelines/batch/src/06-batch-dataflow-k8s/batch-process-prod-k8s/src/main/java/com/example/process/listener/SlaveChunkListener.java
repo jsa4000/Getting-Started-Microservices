@@ -3,10 +3,14 @@ package com.example.process.listener;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.ChunkListener;
 import org.springframework.batch.core.scope.context.ChunkContext;
+import org.springframework.context.annotation.Profile;
+import org.springframework.stereotype.Component;
 
 import java.util.stream.Collectors;
 
 @Slf4j
+@Component
+@Profile("worker")
 public class SlaveChunkListener implements ChunkListener {
 
     @Override

@@ -10,6 +10,7 @@ import org.springframework.batch.core.step.tasklet.Tasklet;
 import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Profile;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.ResourcePatternResolver;
 import org.springframework.stereotype.Component;
@@ -21,6 +22,7 @@ import java.security.NoSuchAlgorithmException;
 
 @Slf4j
 @Component
+@Profile("master")
 public class UploadProcessTasklet implements Tasklet {
 
     @Autowired

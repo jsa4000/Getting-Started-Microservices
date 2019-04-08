@@ -5,8 +5,6 @@ import com.example.process.listener.SlaveChunkListener;
 import com.example.process.listener.SlaveStepListener;
 import com.example.process.mapper.RecordFieldSetMapper;
 import com.example.process.model.Customer;
-import com.example.process.utils.Zip;
-import io.minio.MinioClient;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
@@ -18,7 +16,6 @@ import org.springframework.batch.item.database.JdbcBatchItemWriter;
 import org.springframework.batch.item.database.builder.JdbcBatchItemWriterBuilder;
 import org.springframework.batch.item.file.FlatFileItemReader;
 import org.springframework.batch.item.file.builder.FlatFileItemReaderBuilder;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.task.batch.partition.DeployerStepExecutionHandler;
@@ -27,16 +24,11 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.io.Resource;
-import org.springframework.core.io.ResourceLoader;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.web.client.RestTemplate;
 
 import javax.sql.DataSource;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.io.OutputStream;
 
 @Slf4j
 @Profile("worker")
@@ -45,15 +37,6 @@ public class SlaveConfiguration {
 
     @Value("${batch.max-threads:4}")
     private int maxThreads;
-
-    @Value("${batch.tempPath:/tmp/data}")
-    String tempPath;
-
-    @Autowired
-    ResourceLoader resourceLoader;
-
-    @Autowired
-    MinioClient client;
 
     @Bean
     public DeployerStepExecutionHandler stepExecutionHandler(ApplicationContext context,
@@ -64,53 +47,8 @@ public class SlaveConfiguration {
 
     @Bean
     @StepScope
-    public FlatFileItemReader<Customer> reader(@Value("#{stepExecutionContext['fileName']}") String source)
-            throws Exception {
-        log.info("Slave processing the file: " + source );
-
-        String[] parts = source.split(":");
-        String bucketName = parts[0];
-        String objectName = parts[1];
-
-        log.debug("Bucket Name: " + bucketName);
-        log.debug("Object Name: " + objectName);
-
-        client.statObject(bucketName, objectName);
-
-        String slaveTempPath = tempPath + "/slave_data";
-        File destDir = new File(slaveTempPath);
-
-        log.info("Creating the temp directory.");
-
-        if (!destDir.exists() && !destDir.mkdirs()) {
-            throw new Exception("Folder cannot be created: " + slaveTempPath);
-        }
-
-        log.info("Fetching the file to process locally.");
-
-        InputStream inStream = client.getObject(bucketName, objectName);
-
-        final String filename = parts[1].split("/")[parts[1].split("/").length - 1];
-        File targetFile = new File(slaveTempPath + "/" + filename);
-        OutputStream outStream = new FileOutputStream(targetFile);
-
-        byte[] buffer = new byte[16 * 1024];
-        int bytesRead;
-        while ((bytesRead = inStream.read(buffer)) != -1) {
-            outStream.write(buffer, 0, bytesRead);
-        }
-        inStream.close();
-        outStream.close();
-
-        log.info("Uncompressing Content to Process");
-
-
-        int files = Zip.unZip(targetFile.getAbsolutePath(), targetFile.getParentFile().getAbsolutePath() );
-        log.info("Files uncompressed " + files);
-        log.debug("File Absolute Path: " + targetFile.getAbsolutePath());
-        log.debug("File Parent Path: " + targetFile.getParentFile().getAbsolutePath());
-        Resource resource = resourceLoader.getResource("file:"  + targetFile.getAbsolutePath().replace(".zip",""));
-
+    public FlatFileItemReader<Customer> reader(@Value("#{stepExecutionContext['resourceFile']}") Resource resource) {
+        log.info("Slave processing the file: " + resource.getFilename());
         return new FlatFileItemReaderBuilder<Customer>()
                 .name("personReader")
                 .resource(resource)
@@ -155,7 +93,9 @@ public class SlaveConfiguration {
 
     @Bean
     public Step slaveStep(StepBuilderFactory stepBuilderFactory,
-                          PersonEnrichProcessor processor) throws Exception {
+                          PersonEnrichProcessor processor,
+                          SlaveStepListener slaveListener,
+                          SlaveChunkListener chunkListener) throws Exception {
         return stepBuilderFactory.get("slaveStep")
                 .<Customer, Customer>chunk(10)
                 .reader(reader(null))
@@ -163,8 +103,8 @@ public class SlaveConfiguration {
                 .writer(writer(null))
                 //.taskExecutor(taskExecutor())
                 //.throttleLimit(20)
-                .listener(new SlaveStepListener())
-                .listener(new SlaveChunkListener())
+                .listener(slaveListener)
+                .listener(chunkListener)
                 .build();
     }
 

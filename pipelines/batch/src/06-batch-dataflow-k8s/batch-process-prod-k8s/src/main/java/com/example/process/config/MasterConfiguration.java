@@ -113,7 +113,7 @@ public class MasterConfiguration {
                 .next(unzipProcessStep(null,null))
                 .next(uploadProcessStep(null,null))
                 .next(masterStep( null, null, null))
-                //.next(postProcessStep(null,null))
+                .next(postProcessStep(null,null))
                 .build();
     }
 }
