@@ -193,7 +193,7 @@ In order to work are necessary some changes to be done.
     # Since the pods is deployed in port 80, override default configuration
     server-unknown:> dataflow config server http://localhost:80
     # Or Simply join the previous two statements
-    kubectl exec scdf-server-58cb976466-9gqrv -it -- java -jar shell.jar --dataflow.uri=http://localhost:80
+    kubectl exec scdf-server-6fcd7bf4c-ggshs -it -- java -jar shell.jar --dataflow.uri=http://localhost:80
     
     # Using compiled version locally (recommended in production environments)
     java -jar spring-cloud-dataflow-shell-2.0.1.RELEASE.jar --dataflow.uri=http://dockerhost:9393
@@ -214,6 +214,7 @@ In order to work are necessary some changes to be done.
         app register --type task --name batch-process-app --uri docker:jsa4000/dataflow-batch-process-k8s:0.0.1-SNAPSHOT
         app register --type task --name batch-uploader-app --uri docker:jsa4000/dataflow-batch-uploader-k8s:0.0.1-SNAPSHOT
         app register --type task --name notifier-app --uri docker:jsa4000/dataflow-task-notifier:0.0.1-SNAPSHOT
+        app register --type task --name batch-process-prod-app --uri docker:jsa4000/dataflow-batch-process-prod-k8s:0.0.1-SNAPSHOT
         
         app list
         
@@ -221,11 +222,13 @@ In order to work are necessary some changes to be done.
         task create batch-process-task --definition "batch-process-app"
         task create batch-uploader-task --definition "batch-uploader-app"
         task create notifier-task --definition "notifier-app"
+        task create batch-process-prod-task --definition "batch-process-prod-app"
           
         # Launch task individually
         task launch notifier-task --arguments "--mail.auth.username= --mail.auth.password="
         task launch batch-uploader-task --arguments "--spring.profiles.active=k8s,master"
         task launch batch-process-task --arguments "--spring.profiles.active=k8s,master --inputFile=dataflow-bucket:sample-data.zip --resourcesPath=dataflow-bucket"
+        task launch batch-process-prod-task --arguments "--spring.profiles.active=k8s,master --inputFile=dataflow-bucket:sample-data-prod.zip --resourcesPath=dataflow-bucket/sample-data-prod"
 
         # Get the result
         task execution list
