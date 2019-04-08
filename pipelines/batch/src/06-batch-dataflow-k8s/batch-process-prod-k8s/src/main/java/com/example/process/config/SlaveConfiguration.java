@@ -1,7 +1,8 @@
 package com.example.process.config;
 
 import com.example.process.batch.PersonEnrichProcessor;
-import com.example.process.listener.SlaveListener;
+import com.example.process.listener.SlaveChunkListener;
+import com.example.process.listener.SlaveStepListener;
 import com.example.process.mapper.RecordFieldSetMapper;
 import com.example.process.model.Customer;
 import com.example.process.utils.Zip;
@@ -162,7 +163,8 @@ public class SlaveConfiguration {
                 .writer(writer(null))
                 //.taskExecutor(taskExecutor())
                 //.throttleLimit(20)
-                .listener(new SlaveListener())
+                .listener(new SlaveStepListener())
+                .listener(new SlaveChunkListener())
                 .build();
     }
 

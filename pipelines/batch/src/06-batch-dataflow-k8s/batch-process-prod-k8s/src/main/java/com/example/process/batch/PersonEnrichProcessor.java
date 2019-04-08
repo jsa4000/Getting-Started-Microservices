@@ -1,7 +1,7 @@
 package com.example.process.batch;
 
-import com.example.process.model.Department;
 import com.example.process.model.Customer;
+import com.example.process.model.Department;
 import com.example.process.service.DepartmentService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.item.ItemProcessor;
