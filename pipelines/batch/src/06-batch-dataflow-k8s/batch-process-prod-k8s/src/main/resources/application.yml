@@ -51,9 +51,11 @@ batch:
     password: password
     driver-class-name: org.postgresql.Driver
   storage:
+    #url: s3.amazonaws.com
     url: http://dockerhost:9000
     accessKey: minio
     secretKey: password
+    #region: eu-west-2
 
 ---
 spring:

@@ -63,8 +63,6 @@ public class Person {
 
 ```
 
-
-
 ### Example
 
 ## Values
@@ -90,6 +88,7 @@ docker run -it -v /tmp/test:/tmp/test busybox /bin/sh
 
 cd /tmp/test
 
+# Be care about the files to be generated from total lines in the original file.
 time split -l 100000 -a 2 sample-data.csv sample-data-
 
 for file in *; do mv "$file" "${file%}.csv"; done
@@ -98,6 +97,7 @@ for file in *; do mv "$file" "${file%}.csv"; done
 
 | Time | Start | End | Processes |
 | -- | -- | -- | -- |
+| | 14:21 | 20:48 | (360MB)  |
 | | 20:32 | 20:45 | (1.2GB)  |
 | | 20:32 | 21:07 | (3.25GB) |
 

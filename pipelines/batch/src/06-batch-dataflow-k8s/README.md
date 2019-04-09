@@ -237,10 +237,16 @@ In order to work are necessary some changes to be done.
        
 - Use the following parameters to launch the task (`create batch-process-task`)
 
+  > Parameter `--resourcesPath` does not work the same way in batch-process-PP and  batch-process-prod-app, since folder are not yet implemented in the first project.
+
         --inputFile=dataflow-bucket:sample-data.zip
         --resourcesPath=dataflow-bucket 
+        --batch.max-workers=8
         
         --inputFile=dataflow-bucket:sample-data.zip --resourcesPath=dataflow-bucket
+
+        # Create and upload the data to test 'sample-data-test.zip'
+        task launch batch-process-prod-task --arguments "--batch.max-workers=1 --spring.profiles.active=k8s,master --inputFile=dataflow-bucket:sample-data-test.zip --resourcesPath=dataflow-bucket/sample-test-prod"
 
 - Destroy the task
 
@@ -256,6 +262,45 @@ In order to work are necessary some changes to be done.
         kubectl get pods | awk '$2 ~ 0/1 && $3 ~ "Completed"' | awk '{print $1}' | xargs kubectl delete pod
         kubectl get pods | awk '$2 ~ 0/1 && $3 ~ "Error"' | awk '{print $1}' | xargs kubectl delete pod
         
+#### Benchmark
+
+- Create the test data (`csv-generator`). Configure the number of records desired to be generated for the test and execute the app
+    
+    java -jar csv-genrator-0.0.1-SNAPSHOT.jar --pathString=/tmp/sample-data-test.csv --count=1000000
+
+- Split the files into chunks
+
+        docker run -it -v /tmp/test:/tmp/test busybox /bin/sh
+        
+        cd /tmp/test
+        
+        # Be care about the files to be generated from total lines in the original file. (if partitions > `zz`, then use `-a 3` or more resolution)
+        time split -l 100000 -a 2 sample-data.csv sample-data-
+        
+        for file in *; do mv "$file" "${file%}.csv"; done
+        
+- Compress the file using zip and renamed to `sample-data-test.zip`
+
+- Upload the file to `minio` server.
+
+- Create the app and the task
+
+        app register --type task --name batch-process-prod-app --uri docker:jsa4000/dataflow-batch-process-prod-k8s:0.0.1-SNAPSHOT
+        
+        task create batch-process-prod-task --definition "batch-process-prod-app"
+        
+- Launch the task previously defined and with the commands (`00:28:02.359`)
+
+        # Create and upload the data to test 'sample-data-test.zip'
+        task launch batch-process-prod-task --arguments "--batch.max-workers=1 --spring.profiles.active=k8s,master --inputFile=dataflow-bucket:sample-data-test.zip --resourcesPath=dataflow-bucket/sample-test-prod"
+
+- Launch the task previously defined and with the commands (`00:15:33.025`)    
+
+        # Create and upload the data to test 'sample-data-test.zip'
+        task launch batch-process-prod-task --arguments "--batch.max-workers=8 --spring.profiles.active=k8s,master --inputFile=dataflow-bucket:sample-data-test.zip --resourcesPath=dataflow-bucket/sample-test-prod"
+
+- Compare both results
+
 #### Composed Tasks
 
 Spring Cloud Data Flow allows a user to create a directed graph where each node of the graph is a task application. This is done by using the DSL for composed tasks. A composed task can be created via the RESTful API, the Spring Cloud Data Flow Shell, or the Spring Cloud Data Flow UI.
@@ -305,6 +350,13 @@ Links:
   - [Reference Composed Task](https://docs.spring.io/spring-cloud-dataflow/docs/1.2.0.RELEASE/reference/html/spring-cloud-dataflow-composed-tasks.html)
   - [Docs Composited Tasks](http://docs.spring.io/spring-cloud-dataflow/docs/1.2.0.BUILD-SNAPSHOT/reference/htmlsingle/#spring-cloud-dataflow-composed-tasks)  
   
+### S3
+
+In order to create a S3 bucket, is necessary also to create an user and its policies. 
+
+See `AWS.md` to know the process to create manually a bucket and user.
+
+
 #### Known issues
 
 - Too many connections in PostgreSQL
@@ -332,10 +384,27 @@ services:
 WHERE  name = 'max_connections';
 ```    
      
-- To enter into a container currently running.
+- To enter into a container (k8s) currently running, use the following command
 
         kubectl exec batchjobtask-394317zg6p -i -t -- sh     
-     
+
+ - To run into a docker container, that has not an entry point.
+
+        # Redefine the --entrypoint if there is already one
+        docker run -it --entrypoint=/bin/sh minio/mc 
+        
+- Pods are runnning forever in kubernetes.
+    
+    ```json
+    spring:
+      cloud:
+        task:
+          # Not available yet
+          #closecontext:
+          #  enabled: true
+          closecontextEnabled: true
+    ```
+
 #### References
 
 - [Spring Cloud Dataflow releases version matrix](https://github.com/spring-cloud/spring-cloud-dataflow/releases)
