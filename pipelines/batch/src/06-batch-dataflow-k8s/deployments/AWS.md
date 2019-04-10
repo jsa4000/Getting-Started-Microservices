@@ -42,6 +42,8 @@
 
         aws s3api list-objects --bucket dataflow-bucket-lab --query 'Contents[].{Key: Key, Size: Size}'
 
+        aws s3api list-objects --bucket eks-lab-dev-bucket --query 'Contents[].{Key: Key, Size: Size}'
+
     ``` json
     [
         {
@@ -58,6 +60,8 @@
 - Get objects using API
 
         aws s3api get-object --bucket dataflow-bucket-lab --key sample-data-prod.zip sample-data-prod.zip
+
+        aws s3api get-object --bucket eks-lab-dev-bucket --key sample-data-prod.zip sample-data-prod.zip
 
 - List the objects via minio
 

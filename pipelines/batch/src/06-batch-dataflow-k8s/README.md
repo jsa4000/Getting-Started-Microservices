@@ -365,14 +365,6 @@ In order to create a S3 bucket, is necessary also to create an user and its poli
 
 See `AWS.md` to know the process to create manually a bucket and user.
 
-https://github.com/LeapBeyond/terraform-tutorials/wiki/Lesson-2:-S3-Bucket-and-ACL
-https://github.com/cloudposse/terraform-aws-iam-s3-user/blob/master/main.tf
-https://github.com/cloudposse/terraform-aws-iam-system-user/blob/master/main.tf
-
-- Create S3 and User specific to be used within the deployment.
-- Get AMÏ from atasource in terraform.
-- Create multiple databases... but not in terraform
-
 ### PostgreSQL
 
 In order to create the databases exsist some ways, depending on the environment and depending if the database already exist.
@@ -388,6 +380,29 @@ In order to create the databases exsist some ways, depending on the environment 
         
 In the case using kubernetes, the creation of the databases is performed by the migration tool, before the container is initialized. 
 Since postgres does not allow the jdbc connection parameter `?createDatabaseIfNotExist=true`.
+
+#### Private Database
+
+In order to connect remotely to another database that is not public, it can be accessed via `port-forwarding` and through the bastion or any DMZ node.
+
+    # If not added before
+    ssh-add .ssh/bastion-key
+    
+    ssh -NL local-port:remote-private-host:remote-private-port user@remote-public-host 
+    #  -L [bind_address:]port:host:hostport
+    #          Specifies that the given port on the local (client) host is to be
+    #          forwarded to the given host and port on the remote side.
+    #  -N  Do not execute a remote command.  This is useful for just for‐
+    #          warding ports (protocol version 2 only).
+ 
+    ssh -NL 5432:eks-lab-dev-db.cwekrnapay4v.eu-west-2.rds.amazonaws.com:5432 ubuntu@35.176.168.219 -v
+    
+    # if using ssh agent (config)
+    ssh -NL 5432:eks-lab-dev-db.cwekrnapay4v.eu-west-2.rds.amazonaws.com:5432 bastion
+    
+Finally, it can be used `localhost:5432` to access to the remote database and through the *port-forwarded*
+
+> Connect to default database `postgres`
 
 #### Known issues
 
@@ -425,7 +440,7 @@ WHERE  name = 'max_connections';
         # Redefine the --entrypoint if there is already one
         docker run -it --entrypoint=/bin/sh minio/mc 
         
-- Pods are runnning forever in kubernetes.
+- Pods are running forever in kubernetes.
     
     ```json
     spring:
@@ -436,6 +451,37 @@ WHERE  name = 'max_connections';
           #  enabled: true
           closecontextEnabled: true
     ```
+
+#### HELM
+
+- Create and initialize the helm chart
+
+        helm create scdf-batch
+
+- Get the dependencies within the `requirements.yaml` file inside the helm chart.
+
+        helm dependency update
+        
+- Install the helm chart
+        
+        helm install --name scdf-batch-lab --namespace dev-lab --set postgres.enabled=true,postgres.service.type=NodePort,minio.enabled=true,minio.service.type=NodePort .
+                
+        # List all the charts deployed
+        helm list
+        
+    > Install the helm chat using custome parameters via `--set` or via `--values` parameters
+
+- Check all deployments currently running.
+
+        kubectl get pods -n dev-lab
+
+- Update current helm definition 
+
+        helm upgrade scdf-batch-lab .
+                
+- Delete helm previously created
+
+        helm del scdf-batch-lab --purge
 
 #### References
 

@@ -1,0 +1,194 @@
+# Default values for dataflow-batch.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+postgres:
+    enabled: false
+
+  ## Global Docker image parameters
+  ## Please, note that this will override the image parameters, including dependencies, configured to use the global value
+  ## Current available global Docker image parameters: imageRegistry and imagePullSecrets
+  ##
+    global:
+      postgresql: {}
+  #   imageRegistry: myRegistryName
+  #   imagePullSecrets:
+  #     - myRegistryKeySecretName
+
+  ## Bitnami PostgreSQL image version
+  ## ref: https://hub.docker.com/r/bitnami/postgresql/tags/
+  ##
+    image:
+      registry: docker.io
+      repository: bitnami/postgresql
+      tag: 10.7.0
+      ## Specify a imagePullPolicy
+      ## Defaults to 'Always' if image tag is 'latest', else set to 'IfNotPresent'
+      ## ref: http://kubernetes.io/docs/user-guide/images/#pre-pulling-images
+      ##
+      pullPolicy: Always
+
+      ## Set to true if you would like to see extra information on logs
+      ## It turns BASH and NAMI debugging in minideb
+      ## ref:  https://github.com/bitnami/minideb-extras/#turn-on-bash-debugging
+      debug: false
+
+  ## Bitnami PostgreSQL replication
+  ## ref: https://hub.docker.com/r/bitnami/postgresql/tags/
+  ##
+    replication:
+      enabled: false
+
+  ## PostgreSQL admin user
+  ## ref: https://github.com/bitnami/bitnami-docker-postgresql/blob/master/README.md#setting-the-root-password-on-first-run
+    postgresqlUsername: postgres
+
+  ## PostgreSQL password
+  ## ref: https://github.com/bitnami/bitnami-docker-postgresql/blob/master/README.md#setting-the-root-password-on-first-run
+  ##
+    postgresqlPassword:
+      existingSecret: password
+
+  ## PostgreSQL data dir
+  ## ref: https://github.com/bitnami/bitnami-docker-postgresql/blob/master/README.md
+  ##
+    postgresqlDataDir: /bitnami/postgresql
+
+  ## PostgreSQL service configuration
+    service:
+      ## PosgresSQL service type
+      type: ClusterIP
+      # clusterIP: None
+      port: 5432
+
+      ## Specify the nodePort value for the LoadBalancer and NodePort service types.
+      ## ref: https://kubernetes.io/docs/concepts/services-networking/service/#type-nodeport
+      ##
+      # nodePort:
+
+      ## Provide any additional annotations which may be required. This can be used to
+      annotations: {}
+      ## Set the LoadBalancer service type to internal only.
+      ## ref: https://kubernetes.io/docs/concepts/services-networking/service/#internal-load-balancer
+      ##
+      # loadBalancerIP:
+
+  ## PostgreSQL data Persistent Volume Storage Class
+  ## If defined, storageClassName: <storageClass>
+  ## If set to "-", storageClassName: "", which disables dynamic provisioning
+  ## If undefined (the default) or set to null, no storageClassName spec is
+  ##   set, choosing the default provisioner.  (gp2 on AWS, standard on
+  ##   GKE, AWS & OpenStack)
+  ##
+    persistence:
+      enabled: true
+      ## A manually managed Persistent Volume and Claim
+      ## If defined, PVC must be created manually before volume will be bound
+      ## The value is evaluated as a template, so, for example, the name can depend on .Release or .Chart
+      ##
+      # existingClaim:
+
+      ## The path the volume will be mounted at, useful when using different
+      ## PostgreSQL images.
+      ##
+      mountPath: /bitnami/postgresql
+
+      ## The subdirectory of the volume to mount to, useful in dev environments
+      ## and one PV for multiple services.
+      ##
+      subPath: ""
+
+      # storageClass: "-"
+      accessModes:
+        - ReadWriteOnce
+      size: 8Gi
+      annotations: {}
+
+minio:
+  ## set whether the chart is installed or not
+  ##
+    enabled: false
+  ## set kubernetes cluster domain where minio is running
+  ##
+    clusterDomain: cluster.local
+
+  ## Set default image, imageTag, and imagePullPolicy. mode is used to indicate the
+  ##
+    image:
+      repository: minio/minio
+      tag: RELEASE.2019-03-13T21-59-47Z
+      pullPolicy: IfNotPresent
+
+  ## minio server mode, i.e. standalone or distributed.
+  ## Distributed Minio ref: https://docs.minio.io/docs/distributed-minio-quickstart-guide
+  ##
+    mode: standalone
+
+  ## Set default accesskey, secretkey, Minio config file path, volume mount path and
+  ## number of nodes (only used for Minio distributed mode)
+  ## Distributed Minio ref: https://docs.minio.io/docs/distributed-minio-quickstart-guide
+  ##
+    accessKey: "minio"
+    secretKey: "password"
+    replicas: 4
+
+  ## Enable persistence using Persistent Volume Claims
+  ## ref: http://kubernetes.io/docs/user-guide/persistent-volumes/
+  ##
+    persistence:
+      enabled: true
+
+      ## A manually managed Persistent Volume and Claim
+      ## Requires persistence.enabled: true
+      ## If defined, PVC must be created manually before volume will be bound
+      # existingClaim:
+
+      ## minio data Persistent Volume Storage Class
+      ## If defined, storageClassName: <storageClass>
+      ## If set to "-", storageClassName: "", which disables dynamic provisioning
+      ## If undefined (the default) or set to null, no storageClassName spec is
+      ##   set, choosing the default provisioner.  (gp2 on AWS, standard on
+      ##   GKE, AWS & OpenStack)
+      ##
+      ## Storage class of PV to bind. By default it looks for standard storage class.
+      ## If the PV uses a different storage class, specify that here.
+      # storageClass: standard
+      accessMode: ReadWriteOnce
+      size: 10Gi
+
+      ## If subPath is set mount a sub folder of a volume instead of the root of the volume.
+      ## This is especially handy for volume plugins that don't natively support sub mounting (like glusterfs).
+      ##
+      subPath: ""
+
+  ## Expose the Minio service to be accessed from outside the cluster (LoadBalancer service).
+  ## or access it from within the cluster (ClusterIP service). Set the service type and the port to serve it.
+  ## ref: http://kubernetes.io/docs/user-guide/services/
+  ##
+
+    service:
+      type: ClusterIP
+      clusterIP: ~
+      port: 9000
+      nodePort: 31311
+      # externalIPs:
+      #   - externalIp1
+      annotations: {}
+        # prometheus.io/scrape: 'true'
+      # prometheus.io/path:   '/minio/prometheus/metrics'
+      # prometheus.io/port:   '9000'
+
+    ingress:
+      enabled: false
+      annotations: {}
+      # kubernetes.io/ingress.class: nginx
+      # kubernetes.io/tls-acme: "true"
+      path: /
+      hosts:
+        - chart-example.local
+
+  ## Use this field to add environment variables relevant to Minio server. These fields will be passed on to Minio container(s)
+  ## when Chart is deployed
+    environment:
+      ## To disable Minio Browser, set this value to off
+      MINIO_BROWSER: "on"

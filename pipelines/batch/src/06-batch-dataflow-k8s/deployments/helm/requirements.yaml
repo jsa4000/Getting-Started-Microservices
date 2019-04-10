@@ -1,0 +1,11 @@
+dependencies:
+  - name: minio
+    version: 2.4.11
+    repository: https://kubernetes-charts.storage.googleapis.com/
+    condition: minio.enabled
+    alias: minio
+  - name: postgresql
+    version: 3.16.1
+    repository: https://kubernetes-charts.storage.googleapis.com/
+    condition: postgres.enabled
+    alias: postgres
