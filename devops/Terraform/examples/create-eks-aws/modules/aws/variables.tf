@@ -80,13 +80,6 @@ variable "bastion_instance_type" {
   default = "t2.micro"
 }
 
-variable "bastion_ami" {
-    description = "Image used for the bastion ec2"
-    default = "ami-969ab1f6"
-}
-
 variable "bastion_key_name" {}
 
 variable "bastion_public_key" {}
-
-

@@ -48,7 +48,6 @@ module "eks" {
   asg_spot_desired_capacity = "${var.eks_asg_spot_desired_capacity}"
 }
 
-
 module "bastion" {
   source                    = "./bastion"
   owner                     = "${var.owner}"
@@ -57,7 +56,13 @@ module "bastion" {
   vpc_id                    = "${module.vpc.vpc_id}"
   subnet_id                 = "${element(module.vpc.public_subnets,0)}"
   instance_type             = "${var.bastion_instance_type}"
-  ami                       = "${var.bastion_ami}"
   key_name                  = "${var.bastion_key_name}"
   public_key                = "${var.bastion_public_key}"
+}
+
+module "storage" {
+  source                    = "./storage"
+  owner                     = "${var.owner}"
+  environment               = "${var.environment}"
+  cluster_name              = "${var.cluster_name}"
 }

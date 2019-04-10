@@ -22,3 +22,11 @@ output "eks_config_map_aws_auth" {
 output "bastion_public_ip" {
   value = "${module.bastion.public_ip}"
 }
+
+output "storage_bucket_name" {
+  value = "${module.storage.bucket_name}"
+}
+
+output "storage_bucket_user" {
+  value = "${module.storage.user_unique_id},${module.storage.user_arn},${module.storage.user_name},${module.storage.access_key_id},${module.storage.secret_access_key}"
+}
