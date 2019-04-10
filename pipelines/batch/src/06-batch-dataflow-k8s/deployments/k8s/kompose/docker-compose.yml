@@ -1,5 +1,7 @@
 version: '3'
 
+# Using Kompose suppoorted versions are 1,2 and 3.
+
 services:
   postgres:
     image: postgres:10.7-alpine
@@ -12,8 +14,6 @@ services:
       - 5432:5432
     volumes:
       - ${PWD}/files:/docker-entrypoint-initdb.d
-    networks:
-      - dataflow-network
 
   minio:
     image: minio/minio:RELEASE.2019-03-27T22-35-21Z
@@ -23,8 +23,6 @@ services:
       MINIO_SECRET_KEY: password
     ports:
       - 9001:9000
-    networks:
-      - dataflow-network
 
   createbuckets:
     image: minio/mc
@@ -44,15 +42,11 @@ services:
       "
     volumes:
       - ${PWD}/src/main/resources/:/sample-data/
-    networks:
-      - dataflow-network
 
   rest-service:
     image: jsa4000/dataflow-rest-service
     ports:
       - 8080:8080
-    networks:
-      - dataflow-network
 
   db-migration:
     image: jsa4000/dataflow-db-migration
@@ -65,6 +59,4 @@ services:
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: password
       SPRING_DATASOURCE_DRIVER-CLASS-NAME: org.postgresql.Driver
-    networks:
-      - dataflow-network
 

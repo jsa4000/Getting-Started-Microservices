@@ -181,13 +181,17 @@ In order to work are necessary some changes to be done.
 
 #### SETUP
 
+- Connect to the minio server at [http://localhost:31680/minio/](http://localhost:31680/minio/)
 - Create a new bucket into **minio**: `dataflow-bucket`
-- Add file into previous bucket: `sample-data.zip`
+- Add following files at `/deployments/compose/files` into previous bucket: `dataflow-bucket`
+    - `sample-data.zip`
+    - `sample-data-prod.zip`
 
 #### Launching Task
 
-- Connect to dataflow server via shecll or dashboard
+- Connect to dataflow server via shell or dashboard
 
+    ```bash
     # Using pods alterady deployed (use 'kubectl get pods' to get the pod id)
     kubectl exec scdf-server-58cb976466-9gqrv -it -- java -jar shell.jar
     # Since the pods is deployed in port 80, override default configuration
@@ -197,43 +201,48 @@ In order to work are necessary some changes to be done.
     
     # Using compiled version locally (recommended in production environments)
     java -jar spring-cloud-dataflow-shell-2.0.1.RELEASE.jar --dataflow.uri=http://dockerhost:9393
-
+    ```
+    
 - Perform a single test prior to launch the example to verify everything is working as expected
 
-        app register --type task --name timestamp --uri docker:springcloudtask/timestamp-task:2.0.0.RELEASE --metadata-uri maven://org.springframework.cloud.task.app:timestamp-task:jar:metadata:2.0.0.RELEASE
-        task create task1 --definition "timestamp"
-        task launch task1
-        
-        # Get the result
-        task execution list
+    ```bash
+    app register --type task --name timestamp --uri docker:springcloudtask/timestamp-task:2.0.0.RELEASE --metadata-uri maven://org.springframework.cloud.task.app:timestamp-task:jar:metadata:2.0.0.RELEASE
+    task create task1 --definition "timestamp"
+    task launch task1
+    
+    # Get the result
+    task execution list
+    ```
 
 - Create a new application, using the generated docker image
 
-        # Resgister apps
-        app register --type task --name composed-task-runner --uri docker:springcloudtask/composedtaskrunner-task:2.1.0.RELEASE
-        app register --type task --name batch-process-app --uri docker:jsa4000/dataflow-batch-process-k8s:0.0.1-SNAPSHOT
-        app register --type task --name batch-uploader-app --uri docker:jsa4000/dataflow-batch-uploader-k8s:0.0.1-SNAPSHOT
-        app register --type task --name notifier-app --uri docker:jsa4000/dataflow-task-notifier:0.0.1-SNAPSHOT
-        app register --type task --name batch-process-prod-app --uri docker:jsa4000/dataflow-batch-process-prod-k8s:0.0.1-SNAPSHOT
-        
-        app list
-        
-        # Create task with previous app
-        task create batch-process-task --definition "batch-process-app"
-        task create batch-uploader-task --definition "batch-uploader-app"
-        task create notifier-task --definition "notifier-app"
-        task create batch-process-prod-task --definition "batch-process-prod-app"
-          
-        # Launch task individually
-        task launch notifier-task --arguments "--mail.auth.username= --mail.auth.password="
-        task launch batch-uploader-task --arguments "--spring.profiles.active=k8s,master"
-        task launch batch-process-task --arguments "--spring.profiles.active=k8s,master --inputFile=dataflow-bucket:sample-data.zip --resourcesPath=dataflow-bucket"
-        task launch batch-process-prod-task --arguments "--spring.profiles.active=k8s,master --inputFile=dataflow-bucket:sample-data-prod.zip --resourcesPath=dataflow-bucket/sample-data-prod"
+    ```bash
+    # Resgister apps
+    app register --type task --name composed-task-runner --uri docker:springcloudtask/composedtaskrunner-task:2.1.0.RELEASE
+    app register --type task --name batch-process-app --uri docker:jsa4000/dataflow-batch-process-k8s:0.0.1-SNAPSHOT
+    app register --type task --name batch-uploader-app --uri docker:jsa4000/dataflow-batch-uploader-k8s:0.0.1-SNAPSHOT
+    app register --type task --name notifier-app --uri docker:jsa4000/dataflow-task-notifier:0.0.1-SNAPSHOT
+    app register --type task --name batch-process-prod-app --uri docker:jsa4000/dataflow-batch-process-prod-k8s:0.0.1-SNAPSHOT
+    
+    app list
+    
+    # Create task with previous app
+    task create batch-process-task --definition "batch-process-app"
+    task create batch-uploader-task --definition "batch-uploader-app"
+    task create notifier-task --definition "notifier-app"
+    task create batch-process-prod-task --definition "batch-process-prod-app"
+      
+    # Launch task individually
+    task launch notifier-task --arguments "--mail.auth.username= --mail.auth.password="
+    task launch batch-uploader-task --arguments "--spring.profiles.active=k8s,master"
+    task launch batch-process-task --arguments "--spring.profiles.active=k8s,master --inputFile=dataflow-bucket:sample-data.zip --resourcesPath=dataflow-bucket"
+    task launch batch-process-prod-task --arguments "--spring.profiles.active=k8s,master --inputFile=dataflow-bucket:sample-data-prod.zip --resourcesPath=dataflow-bucket/sample-data-prod"
 
-        # Get the result
-        task execution list
-        job execution list
-        job execution display --id 1
+    # Get the result
+    task execution list
+    job execution list
+    job execution display --id 1
+    ```
        
 - Use the following parameters to launch the task (`create batch-process-task`)
 
@@ -356,6 +365,29 @@ In order to create a S3 bucket, is necessary also to create an user and its poli
 
 See `AWS.md` to know the process to create manually a bucket and user.
 
+https://github.com/LeapBeyond/terraform-tutorials/wiki/Lesson-2:-S3-Bucket-and-ACL
+https://github.com/cloudposse/terraform-aws-iam-s3-user/blob/master/main.tf
+https://github.com/cloudposse/terraform-aws-iam-system-user/blob/master/main.tf
+
+- Create S3 and User specific to be used within the deployment.
+- Get AMÏ from atasource in terraform.
+- Create multiple databases... but not in terraform
+
+### PostgreSQL
+
+In order to create the databases exsist some ways, depending on the environment and depending if the database already exist.
+
+- Using **custom** database, it can be created multiple databases during the **creation time**. In the current example, and using *docker-compose* method, it can be created a script and added into a volume, within the `/docker-entrypoint-initdb.d` folder.
+- Using external database, this must be done *manually*. Using initContainers or a command to create the database.
+
+
+        docker run -d -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=password -p 5432:5432 postgres:10.7-alpine
+
+        PGPASSWORD=password createuser -h localhost -p 5432 -U postgres dataflow
+        PGPASSWORD=password createdb -h localhost -p 5432 -O dataflow -U postgres dataflow
+        
+In the case using kubernetes, the creation of the databases is performed by the migration tool, before the container is initialized. 
+Since postgres does not allow the jdbc connection parameter `?createDatabaseIfNotExist=true`.
 
 #### Known issues
 
