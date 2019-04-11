@@ -2,6 +2,95 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
+## Spring Cloud Data flow chart parameters
+scdf-srerver:
+  # Default values for spring-cloud-data-flow.
+  rbac:
+    # Specifies whether RBAC resources should be created
+    create: true
+
+  serviceAccount:
+    # Specifies whether a service account should be created
+    create: true
+    # The name of the service account to use.
+    # If not set and create is true, a name is generated using the serviceAccountName template
+    name:
+
+  server:
+    image: springcloud/spring-cloud-dataflow-server
+    version: 2.0.1.RELEASE
+    imagePullPolicy: IfNotPresent
+    platformName: default
+    service:
+      type: LoadBalancer
+      externalPort: 80
+    resources: {}
+    #  limits:
+    #    cpu: 1.0
+    #    memory: 2048Mi
+    #  requests:
+    #    cpu: 0.5
+    #    memory: 640Mi
+
+  skipper:
+    image: springcloud/spring-cloud-skipper-server
+    version: 2.0.0.RELEASE
+    imagePullPolicy: IfNotPresent
+    platformName: default
+    service:
+      type: ClusterIP
+    resources: {}
+    #  limits:
+    #    cpu: 1.0
+    #    memory: 1024Mi
+    #  requests:
+    #    cpu: 0.5
+    #    memory: 640Mi
+
+  deployer:
+    resourceLimits:
+      cpu: 500m
+      memory: 1024Mi
+    readinessProbe:
+      initialDelaySeconds: 120
+    livenessProbe:
+      initialDelaySeconds: 90
+
+  ## RabbitMQ settings
+  ## ref: https://kubernetes-charts.storage.googleapis.com/
+  ##
+  rabbitmq:
+    ## RabbitMQ enabled
+    ##
+    enabled: false
+
+  ## Kafka settings
+  ## ref: https://kubernetes-charts-incubator.storage.googleapis.com/
+  ##
+  kafka:
+    ## Kafka enabled
+    ##
+    enabled: false
+
+  ## MySQL settings
+  ## ref: https://kubernetes-charts.storage.googleapis.com/
+  ##
+  mysql:
+    ## MySQL persistence
+    ##
+    persistence:
+      enabled: false
+
+    ## Specify password for root user
+    ##
+    ## Default: random 10 character string
+    mysqlRootPassword: password
+
+    # Create a database
+    ##
+    mysqlDatabase: dataflow
+
+## Postgres chart parameters
 postgres:
     enabled: false
 
@@ -103,6 +192,7 @@ postgres:
       size: 8Gi
       annotations: {}
 
+## Minio chart parameters
 minio:
   ## set whether the chart is installed or not
   ##
