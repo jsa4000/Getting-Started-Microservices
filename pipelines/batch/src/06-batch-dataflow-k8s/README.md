@@ -473,11 +473,13 @@ WHERE  name = 'max_connections';
 
 - Check all deployments currently running.
 
-        kubectl get pods -n dev-lab
+        kubectl get pods,svc,secrets -n dev-lab
 
 - Update current helm definition 
 
         helm upgrade scdf-batch-lab .
+        
+        helm upgrade scdf-batch-lab --set postgres.service.type=NodePort .
                 
 - Delete helm previously created
 
