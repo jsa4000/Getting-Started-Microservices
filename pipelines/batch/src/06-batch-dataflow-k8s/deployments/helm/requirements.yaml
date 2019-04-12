@@ -6,18 +6,4 @@ dependencies:
   - name: postgresql
     version: 3.16.1
     repository: https://kubernetes-charts.storage.googleapis.com/
-    condition: global.postgres.enabled
-    alias: postgres
-  - name:  mysql
-    version: 0.3.4
-    repository: https://kubernetes-charts.storage.googleapis.com/
-    condition: global.mysql.enabled
-  - name:  rabbitmq
-    version: 0.6.16
-    repository: https://kubernetes-charts.storage.googleapis.com/
-    condition: global.rabbitmq.enabled
-  - name:  kafka
-    version: 0.13.11
-    repository: https://kubernetes-charts-incubator.storage.googleapis.com/
-    condition: global.kafka.enabled
-
+    condition: postgres.enabled,global.postgres.enabled

@@ -10,15 +10,19 @@ serviceAccount:
   # If not set and create is true, a name is generated using the serviceAccountName template
   name:
 
-## Database: 'mysql' or 'postgresql'
+  ## Datasource parameters, default 'postgresql' database
 #
-database:
-  type: mysql
-  host: scdf-batch-lab-mysql
-  port: 3306
-  username: root
+datasource:
+  type: postgresql
+  database: dataflow
+  ## Database Hostname
+  ## if empty, the database points to the local database installed with the chart
+  #
+  host:
+  port: 5432
+  username: postgres
   password: password
-  driverClassName: org.mariadb.jdbc.Driver
+  driverClassName: org.postgresql.Driver
 
 server:
   image: springcloud/spring-cloud-dataflow-server

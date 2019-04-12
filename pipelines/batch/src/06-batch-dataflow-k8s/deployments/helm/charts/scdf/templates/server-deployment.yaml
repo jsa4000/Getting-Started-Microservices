@@ -26,10 +26,6 @@ spec:
       - name: {{ template "scdf.fullname" . }}-server
         image: {{ .Values.server.image }}:{{ .Values.server.version }}
         imagePullPolicy: {{ .Values.server.imagePullPolicy }}
-        volumeMounts:
-          - name: mysql
-            mountPath: /etc/secrets/mysql
-            readOnly: true
         ports:
         - containerPort: 8080
           name: http
@@ -70,12 +66,23 @@ spec:
           value: 'http://${{ printf "{" }}{{ template "scdf.envname" . }}_SERVER_SERVICE_HOST}:${{ printf "{" }}{{ template "scdf.envname" . }}_SERVER_SERVICE_PORT}'
         - name: SPRING_APPLICATION_JSON
           value: "{ \"maven\": { \"local-repository\": null, \"remote-repositories\": { \"repo1\": { \"url\": \"https://repo.spring.io/libs-snapshot\"} } } }"
-      volumes:
-        - name: mysql
-          secret:
-            secretName: {{ printf "%s-%s" .Release.Name "mysql" | trunc 63 | trimSuffix "-" }}
+        - name: SPRING_DATASOURCE_URL
+          value: jdbc:{{ .Values.datasource.type }}://{{ template "scdf.database" . }}:{{ .Values.datasource.port }}/{{ .Values.datasource.database }}
+        - name: SPRING_DATASOURCE_USERNAME
+          value: {{ .Values.datasource.username }}
+        - name: SPRING_DATASOURCE_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ template "scdf.fullname" . }}
+              key: database-password
+        - name: SPRING_DATASOURCE_DRIVER_CLASS_NAME
+          value: {{ .Values.datasource.driverClassName }}
       initContainers:
-      - name: init-mysql-wait
+      - name: init-db-wait
         image: busybox
-        command: ['sh', '-c', 'until nc -w3 -z {{ printf "%s-%s" .Release.Name "mysql" | trunc 63 | trimSuffix "-" }} 3306; do echo waiting for mysql; sleep 3; done;']
-      serviceAccountName: {{ template "scdf.serviceAccountName" . }}
+        command: ['sh', '-c', 'until nc -w3 -z {{ template "scdf.database" . }} {{ .Values.datasource.port }}; do echo waiting for database; sleep 3; done;']
+      - name: init-create-dataflow
+        image: postgres:10.7-alpine
+        command: ['sh', '-c', 'PGPASSWORD={{ .Values.datasource.password }} createuser -h {{ template "scdf.database" . }} -p {{ .Values.datasource.port }} -U {{ .Values.datasource.username }} {{ .Values.datasource.database }}; PGPASSWORD={{ .Values.datasource.password }} createdb -h {{ template "scdf.database" . }} -p {{ .Values.datasource.port }} -O {{ .Values.datasource.database }} -U {{ .Values.datasource.username }} {{ .Values.datasource.database }};echo 0']
+
+serviceAccountName: {{ template "scdf.serviceAccountName" . }}

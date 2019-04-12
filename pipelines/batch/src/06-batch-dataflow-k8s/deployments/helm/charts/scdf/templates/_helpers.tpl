@@ -24,6 +24,17 @@ Create an uppercase app name to use for environment variables.
 {{- end -}}
 
 {{/*
+Create a name to use for datasource variables.
+*/}}
+{{- define "scdf.database" -}}
+{{- if .Values.datasource.host -}}
+    {{ default "default" .Values.datasource.host }}
+{{- else -}}
+    {{- printf "%s-%s" .Release.Name .Values.datasource.type | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
 Create an uppercase release prefix to use for environment variables.
 */}}
 {{- define "scdf.envrelease" -}}

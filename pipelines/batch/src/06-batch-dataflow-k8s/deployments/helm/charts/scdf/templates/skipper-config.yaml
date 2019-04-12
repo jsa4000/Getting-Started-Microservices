@@ -18,11 +18,6 @@ data:
               kubernetes:
                 accounts:
                   {{ .Values.skipper.platformName }}:
-                    {{- if .Values.global.rabbitmq.enabled}}
-                    environmentVariables: 'SPRING_RABBITMQ_HOST=${{ printf "{" }}{{ template "scdf.envrelease" . }}_RABBITMQ_SERVICE_HOST},SPRING_RABBITMQ_PORT=${{ printf "{" }}{{ template "scdf.envrelease" . }}_RABBITMQ_SERVICE_PORT_AMQP},SPRING_RABBITMQ_USERNAME={{ .Values.global.rabbitmq.rabbitmqUsername }},SPRING_RABBITMQ_PASSWORD=${RABBITMQ_PASSWORD}'
-                    {{- else if .Values.global.kafka.enabled}}
-                    environmentVariables: 'SPRING_CLOUD_STREAM_KAFKA_BINDER_BROKERS=${{ printf "{" }}{{ template "scdf.envrelease" . }}_KAFKA_SERVICE_HOST}:${{ printf "{" }}{{ template "scdf.envrelease" . }}_KAFKA_SERVICE_PORT},SPRING_CLOUD_STREAM_KAFKA_BINDER_ZK_NODES=${{ printf "{" }}{{ template "scdf.envrelease" . }}_ZOOKEEPER_SERVICE_HOST}:${{ printf "{" }}{{ template "scdf.envrelease" . }}_ZOOKEEPER_SERVICE_PORT}'
-                    {{- end}}
                     limits:
                       memory: {{ .Values.deployer.resourceLimits.memory }}
                       cpu: {{ .Values.deployer.resourceLimits.cpu }}

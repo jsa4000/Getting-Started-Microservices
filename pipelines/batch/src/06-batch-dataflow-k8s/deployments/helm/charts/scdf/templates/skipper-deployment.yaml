@@ -26,12 +26,6 @@ spec:
       - name: {{ template "scdf.fullname" . }}-skipper
         image: {{ .Values.skipper.image }}:{{ .Values.skipper.version }}
         imagePullPolicy: {{ .Values.skipper.imagePullPolicy }}
-        volumeMounts:
-          {{- if .Values.global.rabbitmq.enabled}}
-          - name: rabbitmq
-            mountPath: /etc/secrets/rabbitmq
-            readOnly: true
-          {{- end}}
         ports:
         - containerPort: 7577
           name: http
@@ -63,32 +57,19 @@ spec:
         - name: SPRING_CLOUD_KUBERNETES_SECRETS_PATHS
           value: /etc/secrets
         - name: SPRING_DATASOURCE_URL
-          value: jdbc:{{ .Values.database.type }}://{{ .Values.database.host }}:{{ .Values.database.port }}/dataflow
+          value: jdbc:{{ .Values.datasource.type }}://{{ template "scdf.database" . }}:{{ .Values.datasource.port }}/{{ .Values.datasource.database }}
         - name: SPRING_DATASOURCE_USERNAME
-          value: {{ .Values.database.username }}
+          value: {{ .Values.datasource.username }}
         - name: SPRING_DATASOURCE_PASSWORD
           valueFrom:
             secretKeyRef:
               name: {{ template "scdf.fullname" . }}
               key: database-password
         - name: SPRING_DATASOURCE_DRIVER_CLASS_NAME
-          value: {{ .Values.database.driverClassName }}
+          value: {{ .Values.datasource.driverClassName }}
         - name: SPRING_CLOUD_KUBERNETES_CONFIG_NAME
           value: {{ template "scdf.fullname" . }}-skipper
-        {{- if .Values.global.rabbitmq.enabled}}
-        - name: RABBITMQ_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: {{ printf "%s-%s" .Release.Name "rabbitmq" | trunc 63 | trimSuffix "-" }}
-              key: rabbitmq-password
-        {{- end}}
-      volumes:
-        {{- if .Values.global.rabbitmq.enabled}}
-        - name: rabbitmq
-          secret:
-            secretName: {{ printf "%s-%s" .Release.Name "rabbitmq" | trunc 63 | trimSuffix "-" }}
-        {{- end}}
       initContainers:
       - name: init-db-wait
         image: busybox
-        command: ['sh', '-c', 'until nc -w3 -z {{ .Values.database.host }} {{ .Values.database.port }}; do echo waiting for database; sleep 3; done;']
+        command: ['sh', '-c', 'until nc -w3 -z {{ template "scdf.database" . }} {{ .Values.datasource.port }}; do echo waiting for database; sleep 3; done;']
