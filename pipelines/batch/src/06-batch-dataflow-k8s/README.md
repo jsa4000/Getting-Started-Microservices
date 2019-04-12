@@ -462,9 +462,15 @@ WHERE  name = 'max_connections';
 
         helm dependency update
         
+> Add needed repo by using: `helm repo add incubator https://kubernetes-charts-incubator.storage.googleapis.com/` 
+        
 - Install the helm chart
         
-        helm install --name scdf-batch-lab --namespace dev-lab --set postgres.enabled=true,postgres.service.type=NodePort,minio.enabled=true,minio.service.type=NodePort .
+        # MySql Database
+        helm install --name scdf-batch-lab --namespace dev-lab --set global.mysql.enabled=true,global.mysql.service.type=NodePort,minio.enabled=true,minio.service.type=NodePort,spring-cloud-data-flow.server.service.type=NodePort .
+                
+        # PostgreSQL
+        helm install --name scdf-batch-lab --namespace dev-lab --set global.postgres.enabled=true,global.postgres.service.type=NodePort,minio.enabled=true,minio.service.type=NodePort .
                 
         # List all the charts deployed
         helm list

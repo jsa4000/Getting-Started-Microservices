@@ -3,16 +3,21 @@ dependencies:
     version: 2.4.11
     repository: https://kubernetes-charts.storage.googleapis.com/
     condition: minio.enabled
-    alias: minio
   - name: postgresql
     version: 3.16.1
     repository: https://kubernetes-charts.storage.googleapis.com/
-    condition: postgres.enabled
+    condition: global.postgres.enabled
     alias: postgres
-  - name: spring-cloud-data-flow
-    version: 2.0.0
+  - name:  mysql
+    version: 0.3.4
     repository: https://kubernetes-charts.storage.googleapis.com/
-    condition: scdf-server.enabled
-    alias: scdf-server
-
+    condition: global.mysql.enabled
+  - name:  rabbitmq
+    version: 0.6.16
+    repository: https://kubernetes-charts.storage.googleapis.com/
+    condition: global.rabbitmq.enabled
+  - name:  kafka
+    version: 0.13.11
+    repository: https://kubernetes-charts-incubator.storage.googleapis.com/
+    condition: global.kafka.enabled
 
