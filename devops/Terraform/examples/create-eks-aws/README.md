@@ -569,6 +569,25 @@ It will forward all container logs to the svc named elasticsearch-client on port
         brew install gnu-sed
         sudo gsed -i 's/5.176.104.136/35.176.104.136/g' /etc/hosts
 
+## Graphs
+
+Terraform already contains a ‘graph’ command for outputting tf plans. The advised utility for converting these outputs into a graphical format is a tool called `Graphviz`.
+
+Firstly, we need to install the tool and other dependencies:
+
+        sudo apt install graphviz python-pydot python-pydot-ng python-pyparsing \
+        libcdt5 libcgraph6 libgvc6 libgvpr2 libpathplan4
+
+Next, we need to generate the graphic file.
+
+        # Export to PNG format
+        terragrunt graph | dot -Tpng > graph.png
+
+        # Export to svg format
+        terragrunt graph | dot -Tsvg > graph.svg
+
+> Depth can be configured using parameter `-module-depth=n`
+
 ## References
 
 - [Naming conventions](http://lloydholman.co.uk/in-the-wild-aws-iam-naming-conventions/)
