@@ -41,6 +41,16 @@ spring-cloud-data-flow:
     # If not set and create is true, a name is generated using the serviceAccountName template
     name:
 
+  ## Database: 'mysql' or 'postgresql'
+  #
+  database:
+    type: mysql
+    host: scdf-batch-lab-mysql
+    post: 3306
+    username: root
+    password: password
+    driverClassName: org.mariadb.jdbc.Driver
+
   server:
     image: springcloud/spring-cloud-dataflow-server
     version: 2.0.1.RELEASE

@@ -29,9 +29,6 @@ data:
                     readinessProbeDelay: {{ .Values.deployer.readinessProbe.initialDelaySeconds }}
                     livenessProbeDelay: {{ .Values.deployer.livenessProbe.initialDelaySeconds }}
       datasource:
-        url: 'jdbc:mysql://${{ printf "{" }}{{ template "scdf.envrelease" . }}_MYSQL_SERVICE_HOST}:${{ printf "{" }}{{ template "scdf.envrelease" . }}_MYSQL_SERVICE_PORT}/skipper'
-        driverClassName: org.mariadb.jdbc.Driver
-        username: root
-        password: ${mysql-root-password}
         testOnBorrow: true
         validationQuery: "SELECT 1"
+

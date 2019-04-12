@@ -32,9 +32,6 @@ spec:
             mountPath: /etc/secrets/rabbitmq
             readOnly: true
           {{- end}}
-          - name: mysql
-            mountPath: /etc/secrets/mysql
-            readOnly: true
         ports:
         - containerPort: 7577
           name: http
@@ -65,6 +62,17 @@ spec:
           value: 'true'
         - name: SPRING_CLOUD_KUBERNETES_SECRETS_PATHS
           value: /etc/secrets
+        - name: SPRING_DATASOURCE_URL
+          value: jdbc:{{ .Values.database.type }}://{{ .Values.database.host }}:{{ .Values.database.port }}/dataflow
+        - name: SPRING_DATASOURCE_USERNAME
+          value: {{ .Values.database.username }}
+        - name: SPRING_DATASOURCE_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ template "scdf.fullname" . }}
+              key: database-password
+        - name: SPRING_DATASOURCE_DRIVER_CLASS_NAME
+          value: {{ .Values.database.driverClassName }}
         - name: SPRING_CLOUD_KUBERNETES_CONFIG_NAME
           value: {{ template "scdf.fullname" . }}-skipper
         {{- if .Values.global.rabbitmq.enabled}}
@@ -80,20 +88,7 @@ spec:
           secret:
             secretName: {{ printf "%s-%s" .Release.Name "rabbitmq" | trunc 63 | trimSuffix "-" }}
         {{- end}}
-        - name: mysql
-          secret:
-            secretName: {{ printf "%s-%s" .Release.Name "mysql" | trunc 63 | trimSuffix "-" }}
       initContainers:
-      - name: init-mysql-wait
+      - name: init-db-wait
         image: busybox
-        command: ['sh', '-c', 'until nc -w3 -z {{ printf "%s-%s" .Release.Name "mysql" | trunc 63 | trimSuffix "-" }} 3306; do echo waiting for mysql; sleep 3; done;']
-      - name: init-mysql-database
-        image: mysql:5.7.14
-        env:
-        - name: MYSQL_PWD
-          valueFrom:
-            secretKeyRef:
-              name: {{ printf "%s-%s" .Release.Name "mysql" | trunc 63 | trimSuffix "-" }}
-              key: mysql-root-password
-        command: ['sh', '-c', 'mysql -h {{ printf "%s-%s" .Release.Name "mysql" | trunc 63 | trimSuffix "-" }} -u root -e "CREATE DATABASE IF NOT EXISTS skipper;"']
-      serviceAccountName: {{ template "scdf.serviceAccountName" . }}
+        command: ['sh', '-c', 'until nc -w3 -z {{ .Values.database.host }} {{ .Values.database.port }}; do echo waiting for database; sleep 3; done;']
