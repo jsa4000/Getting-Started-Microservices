@@ -28,8 +28,5 @@ spec:
       - name: init-crecate-db
         image: postgres:10.7-alpine
         command: ['sh', '-c', 'PGPASSWORD=password createuser -h postgres.default.svc.cluster.local -p 5432 -U postgres db; PGPASSWORD=password createdb -h postgres.default.svc.cluster.local -p 5432 -O db -U postgres db;echo 0']
-      - name: init-create-dataflow
-        image: postgres:10.7-alpine
-        command: ['sh', '-c', 'PGPASSWORD=password createuser -h postgres.default.svc.cluster.local -p 5432 -U postgres dataflow; PGPASSWORD=password createdb -h postgres.default.svc.cluster.local -p 5432 -O dataflow -U postgres dataflow;echo 0']
       restartPolicy: Never
 

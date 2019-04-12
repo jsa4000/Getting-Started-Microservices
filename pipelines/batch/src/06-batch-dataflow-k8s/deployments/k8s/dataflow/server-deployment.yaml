@@ -55,4 +55,10 @@ spec:
           value: 'true'
         - name: SPRING_CLOUD_KUBERNETES_CONFIG_NAME
           value: scdf-server
+      initContainers:
+        # Create databases if not exists. This initialization is specific only on postgres databases.
+        # Use 'jdbc:mysql://dbhost:5432/db?createDatabaseIfNotExist=true' for other databases that supports this feature
+      - name: init-create-dataflow
+        image: postgres:10.7-alpine
+        command: ['sh', '-c', 'PGPASSWORD=password createuser -h postgres.default.svc.cluster.local -p 5432 -U postgres dataflow; PGPASSWORD=password createdb -h postgres.default.svc.cluster.local -p 5432 -O dataflow -U postgres dataflow;echo 0']
       serviceAccountName: scdf-sa
