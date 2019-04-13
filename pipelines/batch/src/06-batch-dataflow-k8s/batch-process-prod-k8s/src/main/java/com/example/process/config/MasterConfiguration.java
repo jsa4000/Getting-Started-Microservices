@@ -11,7 +11,9 @@ import org.springframework.batch.core.explore.JobExplorer;
 import org.springframework.batch.core.launch.support.RunIdIncrementer;
 import org.springframework.batch.core.partition.PartitionHandler;
 import org.springframework.batch.core.partition.support.Partitioner;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.ApplicationArguments;
 import org.springframework.cloud.deployer.spi.task.TaskLauncher;
 import org.springframework.cloud.task.batch.partition.DeployerPartitionHandler;
 import org.springframework.cloud.task.batch.partition.NoOpEnvironmentVariablesProvider;
@@ -24,7 +26,9 @@ import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Profile("master")
@@ -33,6 +37,9 @@ public class MasterConfiguration {
 
     @Value("${batch.max-workers:1}")
     private int maxWorkers;
+
+    @Autowired
+    private ApplicationArguments applicationArguments;
 
     @Bean
     public Step masterStep(StepBuilderFactory stepBuilderFactory,
@@ -63,6 +70,13 @@ public class MasterConfiguration {
         commandLineArgs.add("--spring.profiles.active=" + activeProfile.replace("master","worker"));
         commandLineArgs.add("--spring.cloud.task.initialize.enable=false");
         commandLineArgs.add("--spring.batch.initializer.enabled=false");
+        commandLineArgs.addAll(Arrays.stream(applicationArguments.getSourceArgs())
+                .filter(x -> !x.startsWith("--spring.profiles.active=") &&
+                        !x.startsWith("--spring.cloud.task.executionid="))
+                .collect(Collectors.toList()));
+
+        log.info("Partition Parameters: " + commandLineArgs.stream()
+                .collect(Collectors.joining( "," )));
 
         partitionHandler.setCommandLineArgsProvider(new PassThroughCommandLineArgsProvider(commandLineArgs));
         partitionHandler.setEnvironmentVariablesProvider(new NoOpEnvironmentVariablesProvider());

@@ -1,6 +1,6 @@
 spring:
   profiles:
-    active: local, master
+    active: local,master
   application:
     name: batchJobTask
   batch:
