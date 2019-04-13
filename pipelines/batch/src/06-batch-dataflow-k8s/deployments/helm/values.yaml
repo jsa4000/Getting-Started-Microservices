@@ -21,13 +21,32 @@ batch-process:
     username: postgres
     password: password
 
-  ## Datasource parameters, default 'postgresql' database
+  ## Migration Job parameters
   #
   migration:
     image: jsa4000/dataflow-db-migration
     version: 0.0.1-SNAPSHOT
     imagePullPolicy: Always
     resources: {}
+
+  ## Rest Service parameters
+  #
+  restService:
+    image: jsa4000/dataflow-rest-service
+    version: 0.0.1-SNAPSHOT
+    imagePullPolicy: Always
+    replicas: 1
+    resources: {}
+    #  limits:
+    #    cpu: 1.0
+    #    memory: 2048Mi
+    #  requests:
+    #    cpu: 0.5
+    #    memory: 640Mi
+    service:
+      type: ClusterIP
+      externalPort: 8080
+
 
 ## Spring Cloud Data flow chart parameters
 spring-cloud-data-flow:

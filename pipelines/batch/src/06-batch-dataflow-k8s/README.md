@@ -470,7 +470,7 @@ WHERE  name = 'max_connections';
                
 - Install the helm chart
           
-        helm install --name scdf-batch-lab --namespace dev-lab --set global.postgresql.enabled=true,postgresql.service.type=NodePort,minio.enabled=true,minio.service.type=NodePort,spring-cloud-data-flow.server.service.type=NodePort .
+        helm install --name scdf-batch-lab --namespace dev-lab --set global.postgresql.enabled=true,postgresql.service.type=NodePort,minio.enabled=true,minio.service.type=NodePort,spring-cloud-data-flow.server.service.type=NodePort,batch-process.restService.service.type=NodePort .
                 
         # List all the charts deployed
         helm list
@@ -499,7 +499,7 @@ WHERE  name = 'max_connections';
 
     ```bash
     kubectl get pods -n dev-lab
-    kubectl exec -n dev-lab scdf-batch-lab-data-flow-server-5c46f7b694-9kp8v -it -- java -jar shell.jar --dataflow.uri=http://localhost:8080
+    kubectl exec -n dev-lab scdf-batch-lab-data-flow-server-5c46f7b694-2fmxr -it -- java -jar shell.jar --dataflow.uri=http://localhost:8080
     ```
 
 - Create a new application, using the generated docker image
@@ -517,7 +517,7 @@ WHERE  name = 'max_connections';
       
     # Launch task individually
     task launch batch-uploader-task --arguments "--spring.profiles.active=k8s,master --inputFile=dataflow-bucket:sample-data-prod.zip"
-    task launch batch-process-prod-task --arguments "--spring.profiles.active=k8s,master --inputFile=dataflow-bucket:sample-data-prod.zip --resourcesPath=dataflow-bucket/sample-data-prod --batch.departmentsUri=http://scdf-batch-lab-rest-service:8080/departments --batch.storage.url=http://scdf-batch-lab-minio:9000 --batch.storage.accessKey=minio --batch.storage.secretKey=password --batch.datasource.username=postgres --batch.datasource.url=jdbc:postgresql://scdf-batch-lab-postgresql:5432/db --batch.datasource.driverClassName=org.postgresql.Driver --batch.datasource.password=password"
+    task launch batch-process-prod-task --arguments "--spring.profiles.active=k8s,master --inputFile=dataflow-bucket:sample-data-prod.zip --resourcesPath=dataflow-bucket/sample-data-prod --batch.departmentsUri=http://scdf-batch-lab-batch-process-rest-service:8080/departments --batch.storage.url=http://scdf-batch-lab-minio:9000 --batch.storage.accessKey=minio --batch.storage.secretKey=password --batch.datasource.username=postgres --batch.datasource.url=jdbc:postgresql://scdf-batch-lab-postgresql:5432/db --batch.datasource.driverClassName=org.postgresql.Driver --batch.datasource.password=password"
     
     ```
     

@@ -1,1 +1,14 @@
-server.port: 8080
+spring:
+  profiles:
+    active: default
+  application:
+    name: rest-service
+
+server:
+  port: 8080
+
+management:
+  endpoints:
+    web:
+      base-path: /management
+      exposure.include: health,beans,env,info

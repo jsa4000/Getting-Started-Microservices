@@ -1,5 +1,5 @@
 
-  ## Datasource parameters, default 'postgresql' database
+## Datasource parameters, default 'postgresql' database
 #
 datasource:
   type: postgresql
@@ -12,6 +12,22 @@ datasource:
   username: postgres
   password: password
   driverClassName: org.postgresql.Driver
+
+restService:
+  image: jsa4000/dataflow-rest-service
+  version: 0.0.1-SNAPSHOT
+  imagePullPolicy: Always
+  replicas: 1
+  resources: {}
+  #  limits:
+  #    cpu: 1.0
+  #    memory: 2048Mi
+  #  requests:
+  #    cpu: 0.5
+  #    memory: 640Mi
+  service:
+    type: ClusterIP
+    externalPort: 8080
 
 migration:
   image: jsa4000/dataflow-db-migration

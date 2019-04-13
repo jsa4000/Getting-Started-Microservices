@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ template "batch.fullname" . }}-rest-service
+  labels:
+    app: {{ template "batch.name" . }}
+    component: rest-service
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+    release: "{{ .Release.Name }}"
+    heritage: "{{ .Release.Service }}"
+spec:
+  selector:
+    matchLabels:
+      app: {{ template "batch.name" . }}
+      component: rest-service
+      release: "{{ .Release.Name }}"
+  replicas: {{ .Values.restService.replicas }}
+  template:
+    metadata:
+      labels:
+        app: {{ template "batch.name" . }}
+        component: rest-service
+        release: "{{ .Release.Name }}"
+    spec:
+      containers:
+      - name: {{ template "batch.fullname" . }}-rest-service
+        image: {{ .Values.restService.image }}:{{ .Values.restService.version }}
+        imagePullPolicy: {{ .Values.restService.imagePullPolicy }}
+        ports:
+        - containerPort: 8080
+          name: http
+        resources:
+{{ toYaml .Values.restService.resources | indent 10 }}
+        livenessProbe:
+          httpGet:
+            path: /management/health
+            port: http
+          initialDelaySeconds: 120
+          periodSeconds: 15
+          timeoutSeconds: 5
+        readinessProbe:
+          httpGet:
+            path: /management/health
+            port: http
+          initialDelaySeconds: 60
+          periodSeconds: 15
+          timeoutSeconds: 5
+        env:
+        - name: SERVER_PORT
+          value: '8080'
+
+
