@@ -39,7 +39,9 @@ spec:
         - name: SPRING_CLOUD_DATAFLOW_SERVER_URI
           value: 'http://scdf-server.default.svc.cluster.local:80'
         - name: SPRING_CLOUD_DATAFLOW_FEATURES_ANALYTICS_ENABLED
-          value: 'true'
+          value: 'false'
+        - name: SPRING_CLOUD_DATAFLOW_FEATURES_STREAMS_ENABLED
+          value: 'false'
         - name: SPRING_CLOUD_DATAFLOW_FEATURES_SCHEDULES_ENABLED
           value: 'true'
         - name: SPRING_CLOUD_DEPLOYER_KUBERNETES_CREATE_DEPLOYMENT

@@ -32,7 +32,7 @@ data:
                     livenessProbePeriod: 90
                     limits:
                       memory: 1024Mi
-                      #cpu: 500m
+                      cpu: 1000m
       datasource:
         url: jdbc:postgresql://postgres.default.svc.cluster.local:5432/dataflow
         username: postgres

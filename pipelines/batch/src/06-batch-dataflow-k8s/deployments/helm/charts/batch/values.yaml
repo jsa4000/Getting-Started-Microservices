@@ -1,0 +1,26 @@
+
+  ## Datasource parameters, default 'postgresql' database
+#
+datasource:
+  type: postgresql
+  database: db
+  ## Database Hostname
+  ## if empty, the database points to the local database installed with the chart
+  #
+  host:
+  port: 5432
+  username: postgres
+  password: password
+  driverClassName: org.postgresql.Driver
+
+migration:
+  image: jsa4000/dataflow-db-migration
+  version: 0.0.1-SNAPSHOT
+  imagePullPolicy: Always
+  resources: {}
+  #  limits:
+  #    cpu: 1.0
+  #    memory: 2048Mi
+  #  requests:
+  #    cpu: 0.5
+  #    memory: 640Mi

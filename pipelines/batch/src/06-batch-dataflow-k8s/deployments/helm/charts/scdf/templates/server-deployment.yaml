@@ -56,6 +56,10 @@ spec:
           value: 'false'
         - name: SPRING_CLOUD_KUBERNETES_SECRETS_ENABLE_API
           value: 'true'
+        - name: SPRING_CLOUD_DATAFLOW_FEATURES_ANALYTICS_ENABLED
+          value: 'false'
+        - name: SPRING_CLOUD_DATAFLOW_FEATURES_STREAMS_ENABLED
+          value: 'false'
         - name: SPRING_CLOUD_KUBERNETES_SECRETS_PATHS
           value: /etc/secrets
         - name: SPRING_CLOUD_KUBERNETES_CONFIG_NAME
@@ -83,6 +87,8 @@ spec:
         command: ['sh', '-c', 'until nc -w3 -z {{ template "scdf.database" . }} {{ .Values.datasource.port }}; do echo waiting for database; sleep 3; done;']
       - name: init-create-dataflow
         image: postgres:10.7-alpine
-        command: ['sh', '-c', 'PGPASSWORD={{ .Values.datasource.password }} createuser -h {{ template "scdf.database" . }} -p {{ .Values.datasource.port }} -U {{ .Values.datasource.username }} {{ .Values.datasource.database }}; PGPASSWORD={{ .Values.datasource.password }} createdb -h {{ template "scdf.database" . }} -p {{ .Values.datasource.port }} -O {{ .Values.datasource.database }} -U {{ .Values.datasource.username }} {{ .Values.datasource.database }};echo 0']
-
-serviceAccountName: {{ template "scdf.serviceAccountName" . }}
+        command: ['sh', '-c',
+          'PGPASSWORD={{ .Values.datasource.password }} createuser -h {{ template "scdf.database" . }} -p {{ .Values.datasource.port }} -U {{ .Values.datasource.username }} {{ .Values.datasource.database }};
+          PGPASSWORD={{ .Values.datasource.password }} createdb -h {{ template "scdf.database" . }} -p {{ .Values.datasource.port }} -O {{ .Values.datasource.database }} -U {{ .Values.datasource.username }} {{ .Values.datasource.database }};
+          echo 0']
+      serviceAccountName: {{ template "scdf.serviceAccountName" . }}

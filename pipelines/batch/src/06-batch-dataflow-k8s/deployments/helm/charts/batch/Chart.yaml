@@ -1,0 +1,12 @@
+apiVersion: v1
+description: Spring Batch Processing Toolkit.
+name: batch-process
+version: 0.1.0
+appVersion: 0.1.0.RELEASE
+home: https://github.com/jsa4000/Getting-Started-Microservices
+sources:
+- https://github.com/jsa4000/Getting-Started-Microservices
+icon: https://raw.githubusercontent.com/spring-cloud/spring-cloud-dataflow/master/spring-cloud-dataflow-docs/src/main/docbook/images/logo.png
+maintainers:
+- name: jsa4000
+  email: jsa4000@gmail.com
