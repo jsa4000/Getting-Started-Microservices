@@ -222,6 +222,7 @@ In order to work are necessary some changes to be done.
     app register --type task --name batch-process-app --uri docker:jsa4000/dataflow-batch-process-k8s:0.0.1-SNAPSHOT
     app register --type task --name batch-uploader-app --uri docker:jsa4000/dataflow-batch-uploader-k8s:0.0.1-SNAPSHOT
     app register --type task --name notifier-app --uri docker:jsa4000/dataflow-task-notifier:0.0.1-SNAPSHOT
+    app register --type task --name launcher-app --uri docker:jsa4000/dataflow-task-launcher:0.0.1-SNAPSHOT
     app register --type task --name batch-process-prod-app --uri docker:jsa4000/dataflow-batch-process-prod-k8s:0.0.1-SNAPSHOT
     
     app list
@@ -230,10 +231,12 @@ In order to work are necessary some changes to be done.
     task create batch-process-task --definition "batch-process-app"
     task create batch-uploader-task --definition "batch-uploader-app"
     task create notifier-task --definition "notifier-app"
+    task create launcher-task --definition "launcher-app --verion=0.1.0"
     task create batch-process-prod-task --definition "batch-process-prod-app"
       
     # Launch task individually
     task launch notifier-task --arguments "--mail.auth.username= --mail.auth.password="
+    task launch launcher-task --arguments "--spring.profiles.active=k8s"
     task launch batch-uploader-task --arguments "--spring.profiles.active=k8s,master"
     task launch batch-process-task --arguments "--spring.profiles.active=k8s,master --inputFile=dataflow-bucket:sample-data.zip --resourcesPath=dataflow-bucket"
     task launch batch-process-prod-task --arguments "--spring.profiles.active=k8s,master --inputFile=dataflow-bucket:sample-data-prod.zip --resourcesPath=dataflow-bucket/sample-data-prod"
@@ -404,55 +407,7 @@ Finally, it can be used `localhost:5432` to access to the remote database and th
 
 > Connect to default database `postgres`
 
-#### Known issues
-
-- Too many connections in PostgreSQL
-
-```sql
-SELECT *
-FROM   pg_settings
-WHERE  name = 'max_connections';
-```
-
-```yml
-version: '2'
-services:
-  postgres:
-    image: postgres:10.3-alpine
-    command: postgres -c 'max_connections=200'
-    environment:
-      POSTGRES_DB: pgdb
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_USER: postgres
-    stdin_open: true
-    tty: true
-    ports:
-    - 5432:5432/tcp
-WHERE  name = 'max_connections';
-```    
-     
-- To enter into a container (k8s) currently running, use the following command
-
-        kubectl exec batchjobtask-394317zg6p -i -t -- sh     
-
- - To run into a docker container, that has not an entry point.
-
-        # Redefine the --entrypoint if there is already one
-        docker run -it --entrypoint=/bin/sh minio/mc 
-        
-- Pods are running forever in kubernetes.
-    
-    ```json
-    spring:
-      cloud:
-        task:
-          # Not available yet
-          #closecontext:
-          #  enabled: true
-          closecontextEnabled: true
-    ```
-
-#### HELM
+#### Helm
 
 - Create and initialize the helm chart
 
@@ -525,6 +480,121 @@ WHERE  name = 'max_connections';
 
         kubectl get pods -n dev-lab
         kubectl logs -n dev-lab uploaderjobtask-3kwynk3v58
+
+
+#### Composed Task II
+
+Create the mandatory `composed-task-runner ` app and the apps that are going to be used within the tasks created.
+
+ ```bash
+# Resgister apps
+app register --type task --name composed-task-runner --uri docker:springcloudtask/composedtaskrunner-task:2.1.0.RELEASE
+app register --type task --name timestamp --uri docker:springcloudtask/timestamp-task:2.0.0.RELEASE --metadata-uri maven://org.springframework.cloud.task.app:timestamp-task:jar:metadata:2.0.0.RELEASE
+app register --type task --name launcher-app --uri docker:jsa4000/dataflow-task-launcher:0.0.1-SNAPSHOT
+
+app list
+
+# Create single task with previous apps
+task create launcher-task --definition "launcher-app --verion=0.1.0"
+
+## Original created within Spring Cloud data-flow server dashboard
+# "launcher-root: launcher-app 'COMPLETED'->launcher-complete: launcher-app 'FAILED'->launcher-fail: launcher-app"
+  
+# Create composed tasks
+task create my-composed-task --definition "<aaa: timestamp || bbb: timestamp>"
+task create launcher-composite-task --definition "launcher-root: launcher-app 'COMPLETED'->launcher-complete: launcher-app --result=COMPLETED 'FAILED'->launcher-fail: launcher-app --result=FAILED"  
+  
+```  
+
+Check the tasks created using composite task. Each repeated task is created again with an unique name.
+
+```bash
+task list
+
+╔═════════════════════════════════════════╤══════════════════════════════════════════════════════════════════════════════════════════════════════════════╤═══════════╗
+║                Task Name                │                                               Task Definition                                                │Task Status║
+╠═════════════════════════════════════════╪══════════════════════════════════════════════════════════════════════════════════════════════════════════════╪═══════════╣
+║launcher-task                            │launcher-app --verion=0.1.0                                                                                   │COMPLETE   ║
+║launcher-composite-task-launcher-root    │launcher-app                                                                                                  │UNKNOWN    ║
+║launcher-composite-task-launcher-complete│launcher-app --result=COMPLETED                                                                               │UNKNOWN    ║
+║launcher-composite-task-launcher-fail    │launcher-app --result=FAILED                                                                                  │UNKNOWN    ║
+║launcher-composite-task                  │launcher-root: launcher-app 'COMPLETED'->launcher-complete: launcher-app 'FAILED'->launcher-fail: launcher-app│UNKNOWN    ║
+╚═════════════════════════════════════════╧══════════════════════════════════════════════════════════════════════════════════════════════════════════════╧═══════════╝
+```
+
+Launch the composite task created previously `launcher-composite-task`. 
+
+```bash  
+# Launch task individually
+task launch launcher-task --arguments "--spring.profiles.active=k8s"
+
+# If not configured withon the SCDF server, 
+# It must be **specified** the URL where data-flow server is located. "--dataflow-server-uri=http://scdf-server.default.svc.cluster.local:80"
+
+task launch my-composed-task --arguments "--increment-instance-enabled=true --max-wait-time=50000 --split-thread-core-pool-size=4" --properties "app.my-composed-task.bbb.timestamp.format=dd/MM/yyyy HH:mm:ss"
+task launch launcher-composite-task --arguments "--increment-instance-enabled=true" --properties "app.launcher-composite-task.launcher-root.spring.profiles.active=k8s,app.launcher-composite-task.launcher-complete.spring.profiles.active=k8s"
+
+# --parameters cannot be too long. (256btyes) 
+
+# Get the result
+task execution list
+job execution list
+job execution display --id 1
+```
+
+Take into account following considerations:
+ - `--increment-instance-enabled=true`: this parameter will increase the `composer-task-runner` execution id, every time the task is launched.
+ - `job.incrementer(new RunIdIncrementer())`: same as before, this parameter will increase the execution job every time the job is launched.
+
+> Previous considerations must be carefully be supervised if the job must be restarted if the job failed previously. This case it must no create another new execution
+
+#### Known issues
+
+- Too many connections in PostgreSQL
+
+```sql
+SELECT *
+FROM   pg_settings
+WHERE  name = 'max_connections';
+```
+
+```yml
+version: '2'
+services:
+  postgres:
+    image: postgres:10.3-alpine
+    command: postgres -c 'max_connections=200'
+    environment:
+      POSTGRES_DB: pgdb
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_USER: postgres
+    stdin_open: true
+    tty: true
+    ports:
+    - 5432:5432/tcp
+WHERE  name = 'max_connections';
+```    
+     
+- To enter into a container (k8s) currently running, use the following command
+
+        kubectl exec batchjobtask-394317zg6p -i -t -- sh     
+
+ - To run into a docker container, that has not an entry point.
+
+        # Redefine the --entrypoint if there is already one
+        docker run -it --entrypoint=/bin/sh minio/mc 
+        
+- Pods are running forever in kubernetes.
+    
+    ```json
+    spring:
+      cloud:
+        task:
+          # Not available yet
+          #closecontext:
+          #  enabled: true
+          closecontextEnabled: true
+    ```
 
 #### References
 
