@@ -534,6 +534,13 @@ task launch launcher-task --arguments "--spring.profiles.active=k8s"
 task launch my-composed-task --arguments "--increment-instance-enabled=true --max-wait-time=50000 --split-thread-core-pool-size=4" --properties "app.my-composed-task.bbb.timestamp.format=dd/MM/yyyy HH:mm:ss"
 task launch launcher-composite-task --arguments "--increment-instance-enabled=true" --properties "app.launcher-composite-task.launcher-root.spring.profiles.active=k8s,app.launcher-composite-task.launcher-complete.spring.profiles.active=k8s"
 
+## Error ERROR: INSERT into BATCH_JOB_EXECUTION_PARAMS: value too long for type character varying(250);
+## https://stackoverflow.com/questions/43722390/spring-batch-3-0-best-way-to-pass-250-string-as-jobparameter
+## https://stackoverflow.com/questions/31622248/arraylist-cannot-be-cast-to-org-springframework-batch-core-jobparameter/31625130#31625130 
+## task launch launcher-composite-task --arguments "--increment-instance-enabled=true" --properties "app.launcher-composite-task.launcher-root.spring.profiles.active=k8s,app.launcher-composite-task.launcher-complete.spring.profiles.active=k8s,app.launcher-composite-task.launcher-fail.spring.profiles.active=k8s"
+
+task launch launcher-composite-task --arguments "--increment-instance-enabled=true --composed-task-arguments=spring.profiles.active=k8s,logging.level.com.example=DEBUG"
+
 # --parameters cannot be too long. (256btyes) 
 
 # Get the result
