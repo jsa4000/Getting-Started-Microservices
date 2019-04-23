@@ -180,6 +180,16 @@ Use `http://prometheus-server.prometheus.svc.cluster.local` as URL in grafana **
     
     helm install --name scdf-batch-lab --namespace dev-lab -f values-aws.yaml .
     
+- Upgrade a helm chart verion
+
+    helm upgrade scdf-batch-lab -f values-aws.yaml --set spring-cloud-data-flow.server.version=2.0.2.RELEASE .
+    
+> Previous configuration file is needed to get the proper state.
+
+ - Remove the helm chart
+ 
+        helm delete scdf-batch-lab --purge    
+    
 - Verify chart installation
 
         kubectl get pods -n dev-lab
@@ -228,7 +238,7 @@ Use `http://prometheus-server.prometheus.svc.cluster.local` as URL in grafana **
  
      ```bash
      kubectl get pods -n dev-lab | grep 'scdf-batch-lab-data-flow-server-' | awk '{print $1}'
-     kubectl exec -n dev-lab scdf-batch-lab-data-flow-server-5d4777dfc4-p9k66 -it -- java -jar shell.jar --dataflow.uri=http://localhost:8080
+     kubectl exec -n dev-lab scdf-batch-lab-data-flow-server-64488b697-qh4z9 -it -- java -jar shell.jar --dataflow.uri=http://localhost:8080
      ```
  
  - Create a new application, using the generated docker image
