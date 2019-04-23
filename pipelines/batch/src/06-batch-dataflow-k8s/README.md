@@ -198,6 +198,8 @@ In order to work are necessary some changes to be done.
     server-unknown:> dataflow config server http://localhost:80
     # Or Simply join the previous two statements
     kubectl exec scdf-server-6fcd7bf4c-ggshs -it -- java -jar shell.jar --dataflow.uri=http://localhost:80
+    # From helm chart
+    kubectl exec -n dev-lab scdf-batch-lab-data-flow-server-5d4777dfc4-5b6t2 -it -- java -jar shell.jar --dataflow.uri=http://localhost:8080
     
     # Using compiled version locally (recommended in production environments)
     java -jar spring-cloud-dataflow-shell-2.0.1.RELEASE.jar --dataflow.uri=http://dockerhost:9393
@@ -446,6 +448,17 @@ Finally, it can be used `localhost:5432` to access to the remote database and th
 
         helm del scdf-batch-lab --purge
         
+        # Remove all at once
+        helm delete grafana-dashboard prometheus scdf-batch-lab traefik-ingress --purge
+        
+- Deploy chart using a file.
+
+  > It can be used also --set to set additional properties in addition to the values file.
+
+    helm install --debug --dry-run --name scdf-batch-lab --namespace dev-lab -f values-aws.yaml .
+    
+    helm install --name scdf-batch-lab --namespace dev-lab -f values-aws.yaml .
+         
 ##### Launching Task example
 
 - Add following file `/deployments/compose/files/sample-data-prod.zip` into bucket: `dataflow-bucket`
@@ -473,6 +486,9 @@ Finally, it can be used `localhost:5432` to access to the remote database and th
     # Launch task individually
     task launch batch-uploader-task --arguments "--spring.profiles.active=k8s,master --inputFile=dataflow-bucket:sample-data-prod.zip"
     task launch batch-process-prod-task --arguments "--spring.profiles.active=k8s,master --inputFile=dataflow-bucket:sample-data-prod.zip --resourcesPath=dataflow-bucket/sample-data-prod --batch.departmentsUri=http://scdf-batch-lab-batch-process-rest-service:8080/departments --batch.storage.url=http://scdf-batch-lab-minio:9000 --batch.storage.accessKey=minio --batch.storage.secretKey=password --batch.datasource.username=postgres --batch.datasource.url=jdbc:postgresql://scdf-batch-lab-postgresql:5432/db --batch.datasource.driverClassName=org.postgresql.Driver --batch.datasource.password=password"
+    
+    # Launch using AWS (S3 + RDS)
+    task launch batch-process-prod-task --arguments "--spring.profiles.active=k8s,master --inputFile=eks-lab-dev-bucket:sample-data-prod.zip --resourcesPath=eks-lab-dev-bucket/sample-data-prod --batch.departmentsUri=http://scdf-batch-lab-batch-process-rest-service:8080/departments --batch.storage.region=eu-west-2 --batch.storage.url=s3.amazonaws.com --batch.storage.accessKey=AKIAV2GSISOCASTGHX7M --batch.storage.secretKey=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 --batch.datasource.username=postgres --batch.datasource.url=jdbc:postgresql://eks-lab-dev-db.cwekrnapay4v.eu-west-2.rds.amazonaws.com:5432/db --batch.datasource.driverClassName=org.postgresql.Driver --batch.datasource.password=password"
     
     ```
     
@@ -602,6 +618,10 @@ WHERE  name = 'max_connections';
           #  enabled: true
           closecontextEnabled: true
     ```
+    
+- Default service account doesn't have permission to launch Pod
+
+    kubectl create clusterrolebinding dev-lab --clusterrole cluster-admin --serviceaccount=dev-lab:default
 
 #### References
 

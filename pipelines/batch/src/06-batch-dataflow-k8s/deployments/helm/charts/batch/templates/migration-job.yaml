@@ -46,7 +46,7 @@ spec:
         image: postgres:10.7-alpine
         command: ['sh', '-c',
             'PGPASSWORD={{ .Values.datasource.password }} createuser -h {{ template "batch.database" . }} -p {{ .Values.datasource.port }} -U {{ .Values.datasource.username }} {{ .Values.datasource.database }};
-            PGPASSWORD={{ .Values.datasource.password }} createdb -h {{ template "batch.database" . }} -p {{ .Values.datasource.port }} -O {{ .Values.datasource.database }} -U {{ .Values.datasource.username }} {{ .Values.datasource.database }};
+            PGPASSWORD={{ .Values.datasource.password }} createdb -h {{ template "batch.database" . }} -p {{ .Values.datasource.port }} -O {{ .Values.datasource.username }} -U {{ .Values.datasource.username }} {{ .Values.datasource.database }};
             echo 0']
       restartPolicy: Never
 

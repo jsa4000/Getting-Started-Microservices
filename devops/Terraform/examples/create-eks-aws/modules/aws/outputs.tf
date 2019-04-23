@@ -30,3 +30,18 @@ output "storage_bucket_name" {
 output "storage_bucket_user" {
   value = "${module.storage.user_unique_id},${module.storage.user_arn},${module.storage.user_name},${module.storage.access_key_id},${module.storage.secret_access_key}"
 }
+
+output "rds_instance_address" {
+  description = "The address of the RDS instance"
+  value       = "${module.rds.instance_address}"
+}
+
+output "rds_instance_arn" {
+  description = "The ARN of the RDS instance"
+  value       = "${module.rds.instance_arn}"
+}
+
+output "rds_instance_endpoint" {
+  description = "The connection endpoint"
+  value       = "${module.rds.instance_endpoint}"
+}
