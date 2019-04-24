@@ -571,6 +571,36 @@ Take into account following considerations:
 
 > Previous considerations must be carefully be supervised if the job must be restarted if the job failed previously. This case it must no create another new execution
 
+#### Scheduled Tasks
+
+In order to create scheduled Jobs within Spring Cloud Dataflow it is neccesary to enable following parameter in the server configuration.
+
+    SPRING_CLOUD_DATAFLOW_FEATURES_SCHEDULES_ENABLED=true
+
+Click onto the *down-arrow* on a task and select `Sschedule Task`.
+
+> Use the following *cron* expression to lauch a task per minute: `*/1 * * * *`. It uses the stgandard from K8s https://kubernetes.io/docs/tasks/job/automated-tasks-with-cron-jobs/
+
+Since it is using Kubernete's **cronjob**, it does not work fine with job names using specific charaters. 
+
+> Recommended using **lower case and only-letters** for the schedule name.
+
+```bash
+kubectl get cronjob --all-namespaces
+NAMESPACE   NAME         SCHEDULE      SUSPEND   ACTIVE   LAST SCHEDULE   AGE
+dev-lab     myschedule   */1 * * * *   False     0        34s             3m
+```
+
+Finally int can be seen the jobs that has been performed.
+
+```bash
+kubectl get job --all-namespaces
+NAMESPACE   NAME                                         DESIRED   SUCCESSFUL   AGE
+dev-lab     myschedule-1556091000                        1         1            2m
+dev-lab     myschedule-1556091060                        1         1            1m
+dev-lab     myschedule-1556091120                        1         1            49s
+```
+
 #### Known issues
 
 - Too many connections in PostgreSQL
@@ -579,6 +609,11 @@ Take into account following considerations:
 SELECT *
 FROM   pg_settings
 WHERE  name = 'max_connections';
+
+
+SELECT count(*) FROM pg_stat_activity
+
+SELECT * FROM pg_stat_activity
 ```
 
 ```yml
@@ -597,6 +632,8 @@ services:
     - 5432:5432/tcp
 WHERE  name = 'max_connections';
 ```    
+
+> For RDS instances use the following [guide](https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_WorkingWithParamGroups.html)
      
 - To enter into a container (k8s) currently running, use the following command
 
@@ -619,7 +656,9 @@ WHERE  name = 'max_connections';
           closecontextEnabled: true
     ```
     
-- Default service account doesn't have permission to launch Pod
+- Default service account doesn't have permission to launch Pod.
+
+> The idea is to use for all deployers (dataflow or partition handlers) to use the same Service Account with the same permissions. Following command gives full access to the pods within environment.
 
     kubectl create clusterrolebinding dev-lab --clusterrole cluster-admin --serviceaccount=dev-lab:default
 

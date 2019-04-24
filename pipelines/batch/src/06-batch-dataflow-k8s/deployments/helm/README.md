@@ -138,10 +138,11 @@ Install `Prometheus` as `Grafana` (`EFK` is optional)
     
 Get Load Balander IP (ExternalIP) and update `hosts` file for dns configured
 
-> Get one IP address used for the static IP assigned to the LoadBalancer and added to the /etc/hosts
+> Waiut until the ELB is created. Get one IP address used for the static IP assigned to the LoadBalancer and added to the /etc/hosts
 
 ```bash
 host $(kubectl describe svc traefik-ingress --namespace kube-system | grep Ingress | awk '{print $3}') |  awk '{print $NF}'
+code /etc/hosts
 ```
 
 ```bash
@@ -164,7 +165,7 @@ Get password for Grafana dashboard (user `admin` )
     
 Use `http://prometheus-server.prometheus.svc.cluster.local` as URL in grafana **datasource** and Install following dashboards
  
-   - Node eXporter: `405405`
+   - Node eXporter: `405`
    - Cadvisor: `893`
    - Kubernetes cluster monitoring: `1621`
    
@@ -258,7 +259,7 @@ Use `http://prometheus-server.prometheus.svc.cluster.local` as URL in grafana **
      task launch batch-uploader-task --arguments "--spring.profiles.active=k8s,master"
 
      # Launch using AWS (S3 + RDS)
-     task launch batch-process-prod-task --arguments "--spring.profiles.active=k8s,master --inputFile=eks-lab-dev-bucket:sample-data-prod.zip --resourcesPath=eks-lab-dev-bucket/sample-data-prod --batch.departmentsUri=http://scdf-batch-lab-batch-process-rest-service:8080/departments --batch.storage.region=eu-west-2 --batch.storage.url=s3.amazonaws.com --batch.storage.accessKey=AKIAV2GSISOCDOVXNQ3I --batch.storage.secretKey=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 --batch.datasource.username=postgres --batch.datasource.url=jdbc:postgresql://eks-lab-dev-db.cwekrnapay4v.eu-west-2.rds.amazonaws.com:5432/db --batch.datasource.driverClassName=org.postgresql.Driver --batch.datasource.password=password"
+     task launch batch-process-prod-task --arguments "--spring.profiles.active=k8s,master --inputFile=eks-lab-dev-bucket:sample-data-prod.zip --resourcesPath=eks-lab-dev-bucket/sample-data-prod --batch.departmentsUri=http://scdf-batch-lab-batch-process-rest-service:8080/departments --batch.storage.region=eu-west-2 --batch.storage.url=s3.amazonaws.com --batch.storage.accessKey=AKIAV2GSISOCPRVR7F5Q --batch.storage.secretKey=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 --batch.datasource.username=postgres --batch.datasource.url=jdbc:postgresql://eks-lab-dev-db.cwekrnapay4v.eu-west-2.rds.amazonaws.com:5432/db --batch.datasource.driverClassName=org.postgresql.Driver --batch.datasource.password=password"
      
      ```
 
@@ -274,3 +275,64 @@ Use `http://prometheus-server.prometheus.svc.cluster.local` as URL in grafana **
  
          kubectl get pods -n dev-lab
          kubectl logs -n dev-lab uploaderjobtask-3kwynk3v58
+         
+- To clean completed Jobs use the following command
+
+    kubectl get pods -n dev-lab | awk '$2 ~ 0/1' | awk '{print $1}' | xargs kubectl delete pod -n dev-lab
+         
+### Benchmarks
+
+In order to perform benchmarks, a big file must be generated and different configurations are tested to get the time the job takes to complete.
+
+- Launch the task previously defined and with the commands (`00:28:02.359`)
+
+        # Create and upload the data to test 'sample-data-prod.zip'
+        task launch batch-process-prod-task --arguments "--batch.max-workers=1 --spring.profiles.active=k8s,master --inputFile=eks-lab-dev-bucket:sample-data-prod.zip --resourcesPath=eks-lab-dev-bucket/sample-data-prod --batch.departmentsUri=http://scdf-batch-lab-batch-process-rest-service:8080/departments --batch.storage.region=eu-west-2 --batch.storage.url=s3.amazonaws.com --batch.storage.accessKey=AKIAV2GSISOCPRVR7F5Q --batch.storage.secretKey=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 --batch.datasource.username=postgres --batch.datasource.url=jdbc:postgresql://eks-lab-dev-db.cwekrnapay4v.eu-west-2.rds.amazonaws.com:5432/db --batch.datasource.driverClassName=org.postgresql.Driver --batch.datasource.password=password"
+ 
+- Launch the task previously defined and with the commands (`00:09:39.743` and `454176` writes and `1000000` read   )
+
+        # Create and upload the data to test 'sample-data-prod.zip' 
+        task launch batch-process-prod-task --arguments "--batch.max-workers=8 --spring.profiles.active=k8s,master --inputFile=eks-lab-dev-bucket:sample-data-prod.zip --resourcesPath=eks-lab-dev-bucket/sample-data-prod --batch.departmentsUri=http://scdf-batch-lab-batch-process-rest-service:8080/departments --batch.storage.region=eu-west-2 --batch.storage.url=s3.amazonaws.com --batch.storage.accessKey=AKIAV2GSISOCPRVR7F5Q --batch.storage.secretKey=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 --batch.datasource.username=postgres --batch.datasource.url=jdbc:postgresql://eks-lab-dev-db.cwekrnapay4v.eu-west-2.rds.amazonaws.com:5432/db --batch.datasource.driverClassName=org.postgresql.Driver --batch.datasource.password=password"
+        
+- Launch the task previously defined and with the commands (`00:07:09.487` and `454176` writes and `1000000` read   )
+
+        # Create and upload the data to test 'sample-data-prod.zip' 
+        task launch batch-process-prod-task --arguments "--batch.max-workers=10 --spring.profiles.active=k8s,master --inputFile=eks-lab-dev-bucket:sample-data-prod.zip --resourcesPath=eks-lab-dev-bucket/sample-data-prod --batch.departmentsUri=http://scdf-batch-lab-batch-process-rest-service:8080/departments --batch.storage.region=eu-west-2 --batch.storage.url=s3.amazonaws.com --batch.storage.accessKey=AKIAV2GSISOCPRVR7F5Q --batch.storage.secretKey=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 --batch.datasource.username=postgres --batch.datasource.url=jdbc:postgresql://eks-lab-dev-db.cwekrnapay4v.eu-west-2.rds.amazonaws.com:5432/db --batch.datasource.driverClassName=org.postgresql.Driver --batch.datasource.password=password"
+                
+- Useful queries in SQL
+
+```sql
+-- Count all the records 
+SELECT count(*) FROM customer;
+
+-- DELETE ALL RECORDS
+DELETE FROM customer;  
+````
+        
+### Scheduled Tasks
+
+Create following task 
+
+> This is a work-around because an [issue](https://github.com/spring-cloud/spring-cloud-dataflow/issues/3187) using multiple profiles within arguments)
+
+```bash
+# Resgister app (if not exists)
+ app register --type task --name batch-uploader-app --uri docker:jsa4000/dataflow-batch-uploader-k8s:0.0.1-SNAPSHOT
+ 
+ # Create task with previous app
+ task create batch-uploader-task-schedule --definition "batch-uploader-app --version=0.0.1 --spring.profiles.active=k8s,master"
+```
+
+Click onto the *down-arrow* on previous task created and select `Schedule Task`.
+
+> Use the following *cron* expression to lauch a task per minute: `*/1 * * * *`. It uses the stgandard from K8s https://kubernetes.io/docs/tasks/job/automated-tasks-with-cron-jobs/
+
+Since it is using Kubernete's **cronjob**, it does not work fine with job names using specific charaters. 
+
+> Recommended using **lower case and only-letters** for the schedule name. i.e `myschedule`
+
+```bash
+kubectl get cronjob --all-namespaces
+NAMESPACE   NAME         SCHEDULE      SUSPEND   ACTIVE   LAST SCHEDULE   AGE
+dev-lab     myschedule   */1 * * * *   False     0        34s             3m
+```
