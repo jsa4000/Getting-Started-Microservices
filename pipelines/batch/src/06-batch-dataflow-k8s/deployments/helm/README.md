@@ -352,11 +352,13 @@ Create the mandatory `composed-task-runner ` app and the apps that are going to 
 app register --type task --name composed-task-runner --uri docker:springcloudtask/composedtaskrunner-task:2.1.0.RELEASE
 app register --type task --name timestamp --uri docker:springcloudtask/timestamp-task:2.0.0.RELEASE --metadata-uri maven://org.springframework.cloud.task.app:timestamp-task:jar:metadata:2.0.0.RELEASE
 app register --type task --name launcher-app --uri docker:jsa4000/dataflow-task-launcher:0.0.1-SNAPSHOT
+app register --type task --name notifier-app --uri docker:jsa4000/dataflow-task-notifier:0.0.1-SNAPSHOT
 
 app list
 
 # Create single task with previous apps
 task create launcher-task --definition "launcher-app --verion=0.1.0"
+task create notifier-task --definition "notifier-app --verion=0.1.0"
 
 ## Original created within Spring Cloud data-flow server dashboard
 # "launcher-root: launcher-app 'COMPLETED'->launcher-complete: launcher-app 'FAILED'->launcher-fail: launcher-app"
@@ -388,6 +390,7 @@ Launch the composite task created previously `launcher-composite-task`.
 ```bash  
 # Launch task individually
 task launch launcher-task --arguments "--spring.profiles.active=k8s"
+task launch notifier-task --arguments "--mail.auth.username= --mail.auth.password="
 
 # If not configured withon the SCDF server, 
 # It must be **specified** the URL where data-flow server is located. "--dataflow-server-uri=http://scdf-server.default.svc.cluster.local:80"
