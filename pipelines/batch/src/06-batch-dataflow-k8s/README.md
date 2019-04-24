@@ -662,6 +662,20 @@ WHERE  name = 'max_connections';
 
     kubectl create clusterrolebinding dev-lab --clusterrole cluster-admin --serviceaccount=dev-lab:default
 
+- Composite tasks arguments limitation to 250 chars
+
+    ```sql
+    ALTER TABLE batch_job_execution_params ALTER COLUMN string_val TYPE VARCHAR(1024);
+    ```
+    
+- Pods are spread within the same nodes using k8s
+
+    > Read following article https://stackoverflow.com/questions/41159843/kubernetes-pod-distribution-amongst-nodes
+    
+- Jobs do not complete and keep running of error
+
+  Depending on the error the Job can be running forverver, since the master or dataflow does not know the current status of the task. In this case it must the configured a max time, so the job is cancelled.
+
 #### References
 
 - [Spring Cloud Dataflow releases version matrix](https://github.com/spring-cloud/spring-cloud-dataflow/releases)

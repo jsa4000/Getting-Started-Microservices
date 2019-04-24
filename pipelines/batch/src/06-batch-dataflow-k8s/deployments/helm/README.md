@@ -284,17 +284,17 @@ Use `http://prometheus-server.prometheus.svc.cluster.local` as URL in grafana **
 
 In order to perform benchmarks, a big file must be generated and different configurations are tested to get the time the job takes to complete.
 
-- Launch the task previously defined and with the commands (`00:28:02.359`)
+- Launch the task previously defined and with the commands (`00:33:19.672` and `454176` writes and `1000000` read)
 
         # Create and upload the data to test 'sample-data-prod.zip'
         task launch batch-process-prod-task --arguments "--batch.max-workers=1 --spring.profiles.active=k8s,master --inputFile=eks-lab-dev-bucket:sample-data-prod.zip --resourcesPath=eks-lab-dev-bucket/sample-data-prod --batch.departmentsUri=http://scdf-batch-lab-batch-process-rest-service:8080/departments --batch.storage.region=eu-west-2 --batch.storage.url=s3.amazonaws.com --batch.storage.accessKey=AKIAV2GSISOCPRVR7F5Q --batch.storage.secretKey=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 --batch.datasource.username=postgres --batch.datasource.url=jdbc:postgresql://eks-lab-dev-db.cwekrnapay4v.eu-west-2.rds.amazonaws.com:5432/db --batch.datasource.driverClassName=org.postgresql.Driver --batch.datasource.password=password"
  
-- Launch the task previously defined and with the commands (`00:09:39.743` and `454176` writes and `1000000` read   )
+- Launch the task previously defined and with the commands (`00:09:39.743` and `454176` writes and `1000000` read)
 
         # Create and upload the data to test 'sample-data-prod.zip' 
         task launch batch-process-prod-task --arguments "--batch.max-workers=8 --spring.profiles.active=k8s,master --inputFile=eks-lab-dev-bucket:sample-data-prod.zip --resourcesPath=eks-lab-dev-bucket/sample-data-prod --batch.departmentsUri=http://scdf-batch-lab-batch-process-rest-service:8080/departments --batch.storage.region=eu-west-2 --batch.storage.url=s3.amazonaws.com --batch.storage.accessKey=AKIAV2GSISOCPRVR7F5Q --batch.storage.secretKey=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 --batch.datasource.username=postgres --batch.datasource.url=jdbc:postgresql://eks-lab-dev-db.cwekrnapay4v.eu-west-2.rds.amazonaws.com:5432/db --batch.datasource.driverClassName=org.postgresql.Driver --batch.datasource.password=password"
         
-- Launch the task previously defined and with the commands (`00:07:09.487` and `454176` writes and `1000000` read   )
+- Launch the task previously defined and with the commands (`00:07:09.487` and `454176` writes and `1000000` read)
 
         # Create and upload the data to test 'sample-data-prod.zip' 
         task launch batch-process-prod-task --arguments "--batch.max-workers=10 --spring.profiles.active=k8s,master --inputFile=eks-lab-dev-bucket:sample-data-prod.zip --resourcesPath=eks-lab-dev-bucket/sample-data-prod --batch.departmentsUri=http://scdf-batch-lab-batch-process-rest-service:8080/departments --batch.storage.region=eu-west-2 --batch.storage.url=s3.amazonaws.com --batch.storage.accessKey=AKIAV2GSISOCPRVR7F5Q --batch.storage.secretKey=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 --batch.datasource.username=postgres --batch.datasource.url=jdbc:postgresql://eks-lab-dev-db.cwekrnapay4v.eu-west-2.rds.amazonaws.com:5432/db --batch.datasource.driverClassName=org.postgresql.Driver --batch.datasource.password=password"
@@ -311,21 +311,23 @@ DELETE FROM customer;
         
 ### Scheduled Tasks
 
-Create following task 
+- Create a new task
 
-> This is a work-around because an [issue](https://github.com/spring-cloud/spring-cloud-dataflow/issues/3187) using multiple profiles within arguments)
+    > This is a work-around since there is an [issue](https://github.com/spring-cloud/spring-cloud-dataflow/issues/3187) using multiple profiles within arguments)
+    
+    ```bash
+    # Resgister app (if not exists)
+     app register --type task --name batch-uploader-app --uri docker:jsa4000/dataflow-batch-uploader-k8s:0.0.1-SNAPSHOT
+     
+     # Create task with previous app
+     task create batch-uploader-task-schedule --definition "batch-uploader-app --version=0.0.1 --spring.profiles.active=k8s,master"
+    ```
 
-```bash
-# Resgister app (if not exists)
- app register --type task --name batch-uploader-app --uri docker:jsa4000/dataflow-batch-uploader-k8s:0.0.1-SNAPSHOT
- 
- # Create task with previous app
- task create batch-uploader-task-schedule --definition "batch-uploader-app --version=0.0.1 --spring.profiles.active=k8s,master"
-```
+- Open **SCDF dashboard** and enter into the `tasks` pannel.
 
-Click onto the *down-arrow* on previous task created and select `Schedule Task`.
+- Click onto the *down-arrow* on previous task created and select `Schedule Task`.
 
-> Use the following *cron* expression to lauch a task per minute: `*/1 * * * *`. It uses the stgandard from K8s https://kubernetes.io/docs/tasks/job/automated-tasks-with-cron-jobs/
+> Use the following *cron* expression to lauch a task per minute: `*/1 * * * *`. It uses the standard from K8s https://kubernetes.io/docs/tasks/job/automated-tasks-with-cron-jobs/
 
 Since it is using Kubernete's **cronjob**, it does not work fine with job names using specific charaters. 
 
@@ -335,4 +337,69 @@ Since it is using Kubernete's **cronjob**, it does not work fine with job names 
 kubectl get cronjob --all-namespaces
 NAMESPACE   NAME         SCHEDULE      SUSPEND   ACTIVE   LAST SCHEDULE   AGE
 dev-lab     myschedule   */1 * * * *   False     0        34s             3m
+```
+
+## Composite Task
+
+It is possible to lauch multiple task using composition.
+
+> It is neccesary to increase the length of the `string_val` column field `batch_job_execution_params` table. `ALTER TABLE batch_job_execution_params ALTER COLUMN string_val TYPE VARCHAR(1024);`
+
+Create the mandatory `composed-task-runner ` app and the apps that are going to be used within the tasks created.
+
+ ```bash
+# Resgister apps
+app register --type task --name composed-task-runner --uri docker:springcloudtask/composedtaskrunner-task:2.1.0.RELEASE
+app register --type task --name timestamp --uri docker:springcloudtask/timestamp-task:2.0.0.RELEASE --metadata-uri maven://org.springframework.cloud.task.app:timestamp-task:jar:metadata:2.0.0.RELEASE
+app register --type task --name launcher-app --uri docker:jsa4000/dataflow-task-launcher:0.0.1-SNAPSHOT
+
+app list
+
+# Create single task with previous apps
+task create launcher-task --definition "launcher-app --verion=0.1.0"
+
+## Original created within Spring Cloud data-flow server dashboard
+# "launcher-root: launcher-app 'COMPLETED'->launcher-complete: launcher-app 'FAILED'->launcher-fail: launcher-app"
+  
+# Create composed tasks
+task create my-composed-task --definition "<aaa: timestamp || bbb: timestamp>"
+task create launcher-composite-task --definition "launcher-root: launcher-app 'COMPLETED'->launcher-complete: launcher-app --result=COMPLETED 'FAILED'->launcher-fail: launcher-app --result=FAILED"  
+  
+```  
+
+Check the tasks created using composite task. Each repeated task is created again with an unique name.
+
+```bash
+task list
+
+╔═════════════════════════════════════════╤══════════════════════════════════════════════════════════════════════════════════════════════════════════════╤═══════════╗
+║                Task Name                │                                               Task Definition                                                │Task Status║
+╠═════════════════════════════════════════╪══════════════════════════════════════════════════════════════════════════════════════════════════════════════╪═══════════╣
+║launcher-task                            │launcher-app --verion=0.1.0                                                                                   │COMPLETE   ║
+║launcher-composite-task-launcher-root    │launcher-app                                                                                                  │UNKNOWN    ║
+║launcher-composite-task-launcher-complete│launcher-app --result=COMPLETED                                                                               │UNKNOWN    ║
+║launcher-composite-task-launcher-fail    │launcher-app --result=FAILED                                                                                  │UNKNOWN    ║
+║launcher-composite-task                  │launcher-root: launcher-app 'COMPLETED'->launcher-complete: launcher-app 'FAILED'->launcher-fail: launcher-app│UNKNOWN    ║
+╚═════════════════════════════════════════╧══════════════════════════════════════════════════════════════════════════════════════════════════════════════╧═══════════╝
+```
+
+Launch the composite task created previously `launcher-composite-task`. 
+
+```bash  
+# Launch task individually
+task launch launcher-task --arguments "--spring.profiles.active=k8s"
+
+# If not configured withon the SCDF server, 
+# It must be **specified** the URL where data-flow server is located. "--dataflow-server-uri=http://scdf-server.default.svc.cluster.local:80"
+
+task launch my-composed-task --arguments "--increment-instance-enabled=true --max-wait-time=50000 --split-thread-core-pool-size=4" --properties "app.my-composed-task.bbb.timestamp.format=dd/MM/yyyy HH:mm:ss"
+task launch launcher-composite-task --arguments "--increment-instance-enabled=true" --properties "app.launcher-composite-task.launcher-root.spring.profiles.active=k8s,app.launcher-composite-task.launcher-complete.spring.profiles.active=k8s"
+
+# Next composite task will throw an error if the `batch_job_execution_params` table has not been modified
+task launch launcher-composite-task --arguments "--increment-instance-enabled=true" --properties "app.launcher-composite-task.launcher-root.spring.profiles.active=k8s,app.launcher-composite-task.launcher-complete.spring.profiles.active=k8s,app.launcher-composite-task.launcher-fail.spring.profiles.active=k8s"
+
+# Get the result
+task execution list
+job execution list
+job execution display --id 1
 ```
