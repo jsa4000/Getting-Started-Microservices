@@ -78,7 +78,7 @@
     task create --name notifier-task --definition "notifier-app"
     task create --name batch-uploader-task --definition "batch-uploader-app"
     task create --name batch-process-prod-k8s-task --definition "batch-process-prod-k8s-app"
-    ```bash
+    ```
 
 1. Using the dashboard is needed to pass the initial paremeters as key value pair
     
@@ -87,15 +87,17 @@
                 
 1. Launch the task
 
-         # Using local server (jar)
-         task launch --name batch-process-task --arguments "--inputFile=dataflow-bucket:sample-data.zip --resourcesPath=dataflow-bucket"
-         # Using docker
-         task launch --name batch-process-task --arguments "--inputFile=dataflow-bucket:sample-data.zip --resourcesPath=dataflow-bucket --spring.profiles.active=docker,master"
-         
-         task launch --name batch-uploader-task --arguments "--spring.profiles.active=docker,master"
-         
-         # Using docker and local deployer compilatation
-         task launch --name batch-process-prod-k8s-task --arguments "--inputFile=dataflow-bucket:sample-data-prod.zip --resourcesPath=dataflow-bucket --spring.profiles.active=docker,master"
+    ```bash
+     # Using local server (jar)
+     task launch --name batch-process-task --arguments "--inputFile=dataflow-bucket:sample-data.zip --resourcesPath=dataflow-bucket"
+     # Using docker
+     task launch --name batch-process-task --arguments "--inputFile=dataflow-bucket:sample-data.zip --resourcesPath=dataflow-bucket --spring.profiles.active=docker,master"
+     
+     task launch --name batch-uploader-task --arguments "--spring.profiles.active=docker,master"
+     
+     # Using docker and local deployer compilatation
+     task launch --name batch-process-prod-k8s-task --arguments "--inputFile=dataflow-bucket:sample-data-prod.zip --resourcesPath=dataflow-bucket --spring.profiles.active=docker,master"
+    ```           
             
 1. Add following app inside Spring Data-flow server, to support composite tasks
 
@@ -103,22 +105,20 @@
     - Type: task
     - Maven: maven://org.springframework.cloud.task.app:composedtaskrunner-task:2.1.0.RELEASE
 
-```bash
-    
-  # Create composed tasks
-  task create my-composed-task --definition "<aaa: timestamp || bbb: timestamp>"
-  task create launcher-composite-task --definition "launcher-root: launcher-app 'COMPLETED'->launcher-complete: launcher-app --result=COMPLETED 'FAILED'->launcher-fail: launcher-app --result=FAILED"
-  task create notifier-composite-task --definition "launcher-root: launcher-app 'COMPLETED'->notifier-complete: notifier-app --mail.message=COMPLETED 'FAILED'->notifier-fail: notifier-app --mail.message=FAILED"
-  
-  # Launch Tasks
-  task launch my-composed-task --arguments "--increment-instance-enabled=true --max-wait-time=50000 --split-thread-core-pool-size=4" --properties "app.my-composed-task.bbb.timestamp.format=dd/MM/yyyy HH:mm:ss"
-  task launch launcher-composite-task --arguments "--increment-instance-enabled=true" --properties "app.launcher-composite-task.launcher-root.spring.profiles.active=docker,app.launcher-composite-task.launcher-complete.spring.profiles.active=docker,app.launcher-composite-task.launcher-fail.spring.profiles.active=docker"
-  
-  # Set 'mail.auth.username' and 'mail.auth.password' properties
-  task launch notifier-task --arguments "--mail.auth.username= --mail.auth.password= --mail.message='Custom Message'"
-  task launch notifier-composite-task --arguments "--increment-instance-enabled=true --composed-task-arguments=--mail.auth.username=,--mail.auth.password=" --properties "app.launcher-composite-task.launcher-root.spring.profiles.active=docker,app.launcher-composite-task.notifier-complete.spring.profiles.active=docker,app.launcher-composite-task.notifier-fail.spring.profiles.active=docker"
-
-```
+    ```bash     
+      # Create composed tasks
+      task create my-composed-task --definition "<aaa: timestamp || bbb: timestamp>"
+      task create launcher-composite-task --definition "launcher-root: launcher-app 'COMPLETED'->launcher-complete: launcher-app --result=COMPLETED 'FAILED'->launcher-fail: launcher-app --result=FAILED"
+      task create notifier-composite-task --definition "launcher-root: launcher-app 'COMPLETED'->notifier-complete: notifier-app --mail.message=COMPLETED 'FAILED'->notifier-fail: notifier-app --mail.message=FAILED"
+      
+      # Launch Tasks
+      task launch my-composed-task --arguments "--increment-instance-enabled=true --max-wait-time=50000 --split-thread-core-pool-size=4" --properties "app.my-composed-task.bbb.timestamp.format=dd/MM/yyyy HH:mm:ss"
+      task launch launcher-composite-task --arguments "--increment-instance-enabled=true" --properties "app.launcher-composite-task.launcher-root.spring.profiles.active=docker,app.launcher-composite-task.launcher-complete.spring.profiles.active=docker,app.launcher-composite-task.launcher-fail.spring.profiles.active=docker"
+      
+      # Set 'mail.auth.username' and 'mail.auth.password' properties
+      task launch notifier-task --arguments "--mail.auth.username= --mail.auth.password= --mail.message='Custom Message'"
+      task launch notifier-composite-task --arguments "--increment-instance-enabled=true --composed-task-arguments=--mail.auth.username=,--mail.auth.password=" --properties "app.launcher-composite-task.launcher-root.spring.profiles.active=docker,app.launcher-composite-task.notifier-complete.spring.profiles.active=docker,app.launcher-composite-task.notifier-fail.spring.profiles.active=docker"
+    ```
                       
 ### Kubernetes
 
@@ -158,7 +158,6 @@
 #### Kompose
 
 Create the services needed to deploy the same initial services we have in previous environment using docker-compose`
-
 
 #### Deployment
 
@@ -521,6 +520,7 @@ Create the mandatory `composed-task-runner ` app and the apps that are going to 
 app register --type task --name composed-task-runner --uri docker:springcloudtask/composedtaskrunner-task:2.1.0.RELEASE
 app register --type task --name timestamp --uri docker:springcloudtask/timestamp-task:2.0.0.RELEASE --metadata-uri maven://org.springframework.cloud.task.app:timestamp-task:jar:metadata:2.0.0.RELEASE
 app register --type task --name launcher-app --uri docker:jsa4000/dataflow-task-launcher:0.0.1-SNAPSHOT
+app register --type task --name notifier-app --uri docker:jsa4000/dataflow-task-notifier:0.0.1-SNAPSHOT
 
 app list
 
@@ -533,7 +533,7 @@ task create launcher-task --definition "launcher-app --verion=0.1.0"
 # Create composed tasks
 task create my-composed-task --definition "<aaa: timestamp || bbb: timestamp>"
 task create launcher-composite-task --definition "launcher-root: launcher-app 'COMPLETED'->launcher-complete: launcher-app --result=COMPLETED 'FAILED'->launcher-fail: launcher-app --result=FAILED"  
-  
+task create notifier-composite-task --definition "launcher-root: launcher-app 'COMPLETED'->notifier-complete: notifier-app --mail.message=COMPLETED 'FAILED'->notifier-fail: notifier-app --mail.message=FAILED"
 ```  
 
 Check the tasks created using composite task. Each repeated task is created again with an unique name.
@@ -562,7 +562,6 @@ task launch launcher-task --arguments "--spring.profiles.active=k8s"
 # It must be **specified** the URL where data-flow server is located. "--dataflow-server-uri=http://scdf-server.default.svc.cluster.local:80"
 
 task launch my-composed-task --arguments "--increment-instance-enabled=true --max-wait-time=50000 --split-thread-core-pool-size=4" --properties "app.my-composed-task.bbb.timestamp.format=dd/MM/yyyy HH:mm:ss"
-task launch launcher-composite-task --arguments "--increment-instance-enabled=true" --properties "app.launcher-composite-task.launcher-root.spring.profiles.active=k8s,app.launcher-composite-task.launcher-complete.spring.profiles.active=k8s"
 
 ## Error ERROR: INSERT into BATCH_JOB_EXECUTION_PARAMS: value too long for type character varying(250);
 ## https://stackoverflow.com/questions/43722390/spring-batch-3-0-best-way-to-pass-250-string-as-jobparameter
@@ -570,10 +569,7 @@ task launch launcher-composite-task --arguments "--increment-instance-enabled=tr
 ## task launch launcher-composite-task --arguments "--increment-instance-enabled=true" --properties "app.launcher-composite-task.launcher-root.spring.profiles.active=k8s,app.launcher-composite-task.launcher-complete.spring.profiles.active=k8s,app.launcher-composite-task.launcher-fail.spring.profiles.active=k8s"
 
 task launch launcher-composite-task --arguments "--increment-instance-enabled=true" --properties "app.launcher-composite-task.launcher-root.spring.profiles.active=k8s,app.launcher-composite-task.launcher-complete.spring.profiles.active=k8s,app.launcher-composite-task.launcher-fail.spring.profiles.active=k8s"
-
-task launch launcher-composite-task --arguments "--increment-instance-enabled=true --composed-task-arguments=--spring.profiles.active=k8s,--logging.level.com.example=DEBUG"
-
-# --parameters cannot be too long. (256btyes) 
+task launch notifier-composite-task --arguments "--increment-instance-enabled=true --composed-task-arguments=--mail.auth.username=,--mail.auth.password=" --properties "app.launcher-composite-task.launcher-root.spring.profiles.active=k8s,app.launcher-composite-task.notifier-complete.spring.profiles.active=k8s,app.launcher-composite-task.notifier-fail.spring.profiles.active=k8s"
 
 # Get the result
 task execution list
@@ -705,6 +701,19 @@ WHERE  name = 'max_connections';
 - Jobs do not complete and keep running of error
 
   Depending on the error the Job can be running forverver, since the master or dataflow does not know the current status of the task. In this case it must the configured a max time, so the job is cancelled.
+  In the following example the application keep running, however the subtask has failed. This is because it fails before the task connected to database and store the status of the task.
+
+    ```bash
+    13:41:10.443 [main] ERROR org.springframework.boot.SpringApplication - Application run failed
+    java.lang.IllegalArgumentException: Invalid argument syntax: --mail.auth.username=
+        at org.springframework.core.env.SimpleCommandLineArgsParser.parse(SimpleCommandLineArgsParser.java:75)
+        at org.springframework.core.env.SimpleCommandLinePropertySource.<init>(SimpleCommandLinePropertySource.java:90)
+        at org.springframework.boot.DefaultApplicationArguments$Source.<init>(DefaultApplicationArguments.java:76)
+        at org.springframework.boot.DefaultApplicationArguments.<init>(DefaultApplicationArguments.java:42)
+        at org.springframework.boot.SpringApplication.run(SpringApplication.java:304)
+        at org.springframework.boot.SpringApplication.run(SpringApplication.java:1260)
+        at org.springframework.boot.SpringApplication.run(SpringApplication.java:1248) 
+    ```
 
 #### References
 

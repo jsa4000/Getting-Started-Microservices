@@ -190,6 +190,9 @@ Use `http://prometheus-server.prometheus.svc.cluster.local` as URL in grafana **
  - Remove the helm chart
  
         helm delete scdf-batch-lab --purge    
+        
+        # Remove all the charts
+        helm delete $(helm list -q) --purge
     
 - Verify chart installation
 
@@ -259,7 +262,7 @@ Use `http://prometheus-server.prometheus.svc.cluster.local` as URL in grafana **
      task launch batch-uploader-task --arguments "--spring.profiles.active=k8s,master"
 
      # Launch using AWS (S3 + RDS)
-     task launch batch-process-prod-task --arguments "--spring.profiles.active=k8s,master --inputFile=eks-lab-dev-bucket:sample-data-prod.zip --resourcesPath=eks-lab-dev-bucket/sample-data-prod --batch.departmentsUri=http://scdf-batch-lab-batch-process-rest-service:8080/departments --batch.storage.region=eu-west-2 --batch.storage.url=s3.amazonaws.com --batch.storage.accessKey=AKIAV2GSISOCPRVR7F5Q --batch.storage.secretKey=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 --batch.datasource.username=postgres --batch.datasource.url=jdbc:postgresql://eks-lab-dev-db.cwekrnapay4v.eu-west-2.rds.amazonaws.com:5432/db --batch.datasource.driverClassName=org.postgresql.Driver --batch.datasource.password=password"
+     task launch batch-process-prod-task --arguments "--spring.profiles.active=k8s,master --inputFile=eks-lab-dev-bucket:sample-data-prod.zip --resourcesPath=eks-lab-dev-bucket/sample-data-prod --batch.departmentsUri=http://scdf-batch-lab-batch-process-rest-service:8080/departments --batch.storage.region=eu-west-2 --batch.storage.url=s3.amazonaws.com --batch.storage.accessKey=AKIAV2GSISOCBWAK7TMN --batch.storage.secretKey=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 --batch.datasource.username=postgres --batch.datasource.url=jdbc:postgresql://eks-lab-dev-db.cwekrnapay4v.eu-west-2.rds.amazonaws.com:5432/db --batch.datasource.driverClassName=org.postgresql.Driver --batch.datasource.password=password"
      
      ```
 
@@ -358,13 +361,16 @@ app list
 task create launcher-task --definition "launcher-app --verion=0.1.0"
 task create notifier-task --definition "notifier-app --verion=0.1.0"
 
+# TO CHANGE: -mail.auth.username=,--mail.auth.password="
+task launch notifier-task --arguments "--mail.auth.username= --mail.auth.password="
+
 ## Original created within Spring Cloud data-flow server dashboard
 # "launcher-root: launcher-app 'COMPLETED'->launcher-complete: launcher-app 'FAILED'->launcher-fail: launcher-app"
   
 # Create composed tasks
 task create my-composed-task --definition "<aaa: timestamp || bbb: timestamp>"
 task create launcher-composite-task --definition "launcher-root: launcher-app 'COMPLETED'->launcher-complete: launcher-app --result=COMPLETED 'FAILED'->launcher-fail: launcher-app --result=FAILED"  
-  
+task create notifier-composite-task --definition "launcher-root: launcher-app 'COMPLETED'->notifier-complete: notifier-app --mail.message=COMPLETED 'FAILED'->notifier-fail: notifier-app --mail.message=FAILED"
 ```  
 
 Check the tasks created using composite task. Each repeated task is created again with an unique name.
@@ -394,10 +400,10 @@ task launch notifier-task --arguments "--mail.auth.username= --mail.auth.passwor
 # It must be **specified** the URL where data-flow server is located. "--dataflow-server-uri=http://scdf-server.default.svc.cluster.local:80"
 
 task launch my-composed-task --arguments "--increment-instance-enabled=true --max-wait-time=50000 --split-thread-core-pool-size=4" --properties "app.my-composed-task.bbb.timestamp.format=dd/MM/yyyy HH:mm:ss"
-task launch launcher-composite-task --arguments "--increment-instance-enabled=true" --properties "app.launcher-composite-task.launcher-root.spring.profiles.active=k8s,app.launcher-composite-task.launcher-complete.spring.profiles.active=k8s"
-
-# Next composite task will throw an error if the `batch_job_execution_params` table has not been modified
 task launch launcher-composite-task --arguments "--increment-instance-enabled=true" --properties "app.launcher-composite-task.launcher-root.spring.profiles.active=k8s,app.launcher-composite-task.launcher-complete.spring.profiles.active=k8s,app.launcher-composite-task.launcher-fail.spring.profiles.active=k8s"
+
+# TO CHANGE: -mail.auth.username=,--mail.auth.password="
+task launch notifier-composite-task --arguments "--increment-instance-enabled=true --composed-task-arguments=--mail.auth.username=,--mail.auth.password=" --properties "app.launcher-composite-task.launcher-root.spring.profiles.active=k8s,app.launcher-composite-task.notifier-complete.spring.profiles.active=k8s,app.launcher-composite-task.notifier-fail.spring.profiles.active=k8s"
 
 # Get the result
 task execution list
