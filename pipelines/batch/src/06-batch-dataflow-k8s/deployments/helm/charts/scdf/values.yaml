@@ -31,7 +31,7 @@ server:
   platformName: default
   service:
     type: LoadBalancer
-    externalPort: 80
+    externalPort: 8080
   ingress:
     enabled: false
     annotations: {}

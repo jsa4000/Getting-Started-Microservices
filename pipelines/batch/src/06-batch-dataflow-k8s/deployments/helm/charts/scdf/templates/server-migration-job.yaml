@@ -21,7 +21,8 @@ spec:
         image: postgres:10.7-alpine
         # This job fix the limitation for Spring Batch to store more than 250 characters for parameters. (Mostly used for composite tasks).
         command: ['sh', '-c',
-            'PGPASSWORD={{ .Values.datasource.password }} psql -h {{ template "batch.database" . }} -p {{ .Values.datasource.port }} -U {{ .Values.datasource.username }} -d {{ .Values.datasource.database }} -c "ALTER TABLE batch_job_execution_params ALTER COLUMN string_val TYPE VARCHAR(1024)";
+            'sleep 5;
+            PGPASSWORD={{ .Values.datasource.password }} psql -h {{ template "batch.database" . }} -p {{ .Values.datasource.port }} -U {{ .Values.datasource.username }} -d {{ .Values.datasource.database }} -c "ALTER TABLE batch_job_execution_params ALTER COLUMN string_val TYPE VARCHAR(1024)";
             echo 0']
       initContainers:
       - name: init-db-wait

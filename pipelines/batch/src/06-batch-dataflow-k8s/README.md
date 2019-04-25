@@ -63,6 +63,7 @@
     app register --name composed-task-runner --type task --uri maven://org.springframework.cloud.task.app:composedtaskrunner-task:2.1.0.RELEASE
     app register --name batch-process-app --type task --uri maven://com.example:batch-process:0.0.1-SNAPSHOT
     app register --name task-notifier-app --type task --uri maven://com.example:task-notifier:0.0.1-SNAPSHOT
+    app register --name launcher-app --type task --uri maven://com.example:task-launcher:0.0.1-SNAPSHOT
     app register --name batch-uploader-app --type task --uri maven://com.example:batch-uploader-k8s:0.0.1-SNAPSHOT
     app register --name batch-process-prod-k8s-app --type task --uri maven://com.example:batch-process-prod-k8s:0.0.1-SNAPSHOT
   
@@ -101,10 +102,20 @@
     - Type: task
     - Maven: maven://org.springframework.cloud.task.app:composedtaskrunner-task:2.1.0.RELEASE
 
+```bash
     
-    task create composite-task --definition "batch-process-app --spring.profiles.active=docker,master && batch-uploader-app"
-        
-    task launch --name composite-task --arguments "--inputFile=dataflow-bucket:sample-data.zip --resourcesPath=dataflow-bucket"
+  # Resgister apps
+  app register --type task --name timestamp --uri maven://org.springframework.cloud.task.app:timestamp-task:2.0.0.RELEASE --metadata-uri maven://org.springframework.cloud.task.app:timestamp-task:jar:metadata:2.0.0.RELEASE
+    
+    
+  # Create composed tasks
+  task create my-composed-task --definition "<aaa: timestamp || bbb: timestamp>"
+  task create launcher-composite-task --definition "launcher-root: launcher-app 'COMPLETED'->launcher-complete: launcher-app --result=COMPLETED 'FAILED'->launcher-fail: launcher-app --result=FAILED"
+  
+  # Launch Tasks
+  task launch my-composed-task --arguments "--increment-instance-enabled=true --max-wait-time=50000 --split-thread-core-pool-size=4" --properties "app.my-composed-task.bbb.timestamp.format=dd/MM/yyyy HH:mm:ss"
+  task launch launcher-composite-task --arguments "--increment-instance-enabled=true" --properties "app.launcher-composite-task.launcher-root.spring.profiles.active=docker,app.launcher-composite-task.launcher-complete.spring.profiles.active=docker,app.launcher-composite-task.launcher-fail.spring.profiles.active=docker"
+```
                       
 ### Kubernetes
 
@@ -554,6 +565,8 @@ task launch launcher-composite-task --arguments "--increment-instance-enabled=tr
 ## https://stackoverflow.com/questions/43722390/spring-batch-3-0-best-way-to-pass-250-string-as-jobparameter
 ## https://stackoverflow.com/questions/31622248/arraylist-cannot-be-cast-to-org-springframework-batch-core-jobparameter/31625130#31625130 
 ## task launch launcher-composite-task --arguments "--increment-instance-enabled=true" --properties "app.launcher-composite-task.launcher-root.spring.profiles.active=k8s,app.launcher-composite-task.launcher-complete.spring.profiles.active=k8s,app.launcher-composite-task.launcher-fail.spring.profiles.active=k8s"
+
+task launch launcher-composite-task --arguments "--increment-instance-enabled=true" --properties "app.launcher-composite-task.launcher-root.spring.profiles.active=k8s,app.launcher-composite-task.launcher-complete.spring.profiles.active=k8s,app.launcher-composite-task.launcher-fail.spring.profiles.active=k8s"
 
 task launch launcher-composite-task --arguments "--increment-instance-enabled=true --composed-task-arguments=spring.profiles.active=k8s,logging.level.com.example=DEBUG"
 

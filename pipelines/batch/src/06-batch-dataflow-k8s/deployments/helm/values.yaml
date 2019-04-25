@@ -80,7 +80,8 @@ spring-cloud-data-flow:
     platformName: default
     service:
       type: ClusterIP
-      externalPort: 80
+      externalPort: 8080
+      nodePort: 31313
     ingress:
       enabled: false
       annotations: {}
