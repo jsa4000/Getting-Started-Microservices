@@ -1,7 +1,7 @@
-package com.example.launcher.services;
+package com.example.notifier.services;
 
 
-import com.example.launcher.properties.SmtpProperties;
+import com.example.notifier.properties.SmtpProperties;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;

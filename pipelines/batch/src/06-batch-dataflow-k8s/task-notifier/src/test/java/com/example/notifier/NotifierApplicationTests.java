@@ -1,4 +1,4 @@
-package com.example.launcher;
+package com.example.notifier;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

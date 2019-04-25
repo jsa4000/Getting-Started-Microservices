@@ -16,6 +16,7 @@ logging:
     com.example: DEBUG
 
 mail:
+  message: this is a message
   auth:
     username: example@email.com
     password: password

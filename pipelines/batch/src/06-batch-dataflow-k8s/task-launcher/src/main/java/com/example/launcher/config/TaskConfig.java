@@ -30,6 +30,7 @@ public class TaskConfig {
     public Tasklet launcherTasklet() {
         return (StepContribution contribution, ChunkContext chunkContext) -> {
                 log.info("This is a simple Job running.");
+                //throw new Exception("Test the excetion so it fails");
                 return RepeatStatus.FINISHED;
         };
     }

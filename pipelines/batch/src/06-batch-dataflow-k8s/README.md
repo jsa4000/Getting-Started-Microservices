@@ -61,8 +61,9 @@
   
    ```bash
     app register --name composed-task-runner --type task --uri maven://org.springframework.cloud.task.app:composedtaskrunner-task:2.1.0.RELEASE
+    app register --name timestamp --type task --uri maven://org.springframework.cloud.task.app:timestamp-task:2.0.0.RELEASE --metadata-uri maven://org.springframework.cloud.task.app:timestamp-task:jar:metadata:2.0.0.RELEASE    
     app register --name batch-process-app --type task --uri maven://com.example:batch-process:0.0.1-SNAPSHOT
-    app register --name task-notifier-app --type task --uri maven://com.example:task-notifier:0.0.1-SNAPSHOT
+    app register --name notifier-app --type task --uri maven://com.example:task-notifier:0.0.1-SNAPSHOT
     app register --name launcher-app --type task --uri maven://com.example:task-launcher:0.0.1-SNAPSHOT
     app register --name batch-uploader-app --type task --uri maven://com.example:batch-uploader-k8s:0.0.1-SNAPSHOT
     app register --name batch-process-prod-k8s-app --type task --uri maven://com.example:batch-process-prod-k8s:0.0.1-SNAPSHOT
@@ -74,7 +75,7 @@
 
     ```bash
     task create --name batch-process-task --definition "batch-process-app"
-    task create --name task-notifier-task --definition "task-notifier-app"
+    task create --name notifier-task --definition "notifier-app"
     task create --name batch-uploader-task --definition "batch-uploader-app"
     task create --name batch-process-prod-k8s-task --definition "batch-process-prod-k8s-app"
     ```bash
@@ -104,17 +105,19 @@
 
 ```bash
     
-  # Resgister apps
-  app register --type task --name timestamp --uri maven://org.springframework.cloud.task.app:timestamp-task:2.0.0.RELEASE --metadata-uri maven://org.springframework.cloud.task.app:timestamp-task:jar:metadata:2.0.0.RELEASE
-    
-    
   # Create composed tasks
   task create my-composed-task --definition "<aaa: timestamp || bbb: timestamp>"
   task create launcher-composite-task --definition "launcher-root: launcher-app 'COMPLETED'->launcher-complete: launcher-app --result=COMPLETED 'FAILED'->launcher-fail: launcher-app --result=FAILED"
+  task create notifier-composite-task --definition "launcher-root: launcher-app 'COMPLETED'->notifier-complete: notifier-app --mail.message=COMPLETED 'FAILED'->notifier-fail: notifier-app --mail.message=FAILED"
   
   # Launch Tasks
   task launch my-composed-task --arguments "--increment-instance-enabled=true --max-wait-time=50000 --split-thread-core-pool-size=4" --properties "app.my-composed-task.bbb.timestamp.format=dd/MM/yyyy HH:mm:ss"
   task launch launcher-composite-task --arguments "--increment-instance-enabled=true" --properties "app.launcher-composite-task.launcher-root.spring.profiles.active=docker,app.launcher-composite-task.launcher-complete.spring.profiles.active=docker,app.launcher-composite-task.launcher-fail.spring.profiles.active=docker"
+  
+  # Set 'mail.auth.username' and 'mail.auth.password' properties
+  task launch notifier-task --arguments "--mail.auth.username= --mail.auth.password= --mail.message='Custom Message'"
+  task launch notifier-composite-task --arguments "--increment-instance-enabled=true --composed-task-arguments=--mail.auth.username=,--mail.auth.password=" --properties "app.launcher-composite-task.launcher-root.spring.profiles.active=docker,app.launcher-composite-task.notifier-complete.spring.profiles.active=docker,app.launcher-composite-task.notifier-fail.spring.profiles.active=docker"
+
 ```
                       
 ### Kubernetes
@@ -568,7 +571,7 @@ task launch launcher-composite-task --arguments "--increment-instance-enabled=tr
 
 task launch launcher-composite-task --arguments "--increment-instance-enabled=true" --properties "app.launcher-composite-task.launcher-root.spring.profiles.active=k8s,app.launcher-composite-task.launcher-complete.spring.profiles.active=k8s,app.launcher-composite-task.launcher-fail.spring.profiles.active=k8s"
 
-task launch launcher-composite-task --arguments "--increment-instance-enabled=true --composed-task-arguments=spring.profiles.active=k8s,logging.level.com.example=DEBUG"
+task launch launcher-composite-task --arguments "--increment-instance-enabled=true --composed-task-arguments=--spring.profiles.active=k8s,--logging.level.com.example=DEBUG"
 
 # --parameters cannot be too long. (256btyes) 
 
@@ -589,6 +592,20 @@ Take into account following considerations:
 In order to create scheduled Jobs within Spring Cloud Dataflow it is neccesary to enable following parameter in the server configuration.
 
     SPRING_CLOUD_DATAFLOW_FEATURES_SCHEDULES_ENABLED=true
+
+- Create a new task
+
+    > This is a work-around since there is an [issue](https://github.com/spring-cloud/spring-cloud-dataflow/issues/3187) using multiple profiles within arguments)
+    
+    ```bash
+    # Resgister app (if not exists)
+     app register --type task --name batch-uploader-app --uri docker:jsa4000/dataflow-batch-uploader-k8s:0.0.1-SNAPSHOT
+     
+     # Create task with previous app
+     task create batch-uploader-task-schedule --definition "batch-uploader-app --version=0.0.1 --spring.profiles.active=k8s,master"
+    ```
+
+- Open **SCDF dashboard** and enter into the `tasks` pannel.
 
 Click onto the *down-arrow* on a task and select `Sschedule Task`.
 

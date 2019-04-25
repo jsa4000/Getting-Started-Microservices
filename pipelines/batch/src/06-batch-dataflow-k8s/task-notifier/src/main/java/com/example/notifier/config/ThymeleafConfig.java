@@ -1,4 +1,4 @@
-package com.example.launcher.config;
+package com.example.notifier.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

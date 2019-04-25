@@ -86,7 +86,7 @@ services:
       - db-migration
     volumes:
       - ${HOME}/.m2/repository/:/root/.m2/repository/
-      #- /tmp/:/tmp/
+      - /tmp/:/tmp/
     networks:
       - dataflow-network
 

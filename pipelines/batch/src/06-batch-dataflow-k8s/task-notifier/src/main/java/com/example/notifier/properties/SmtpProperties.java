@@ -1,4 +1,4 @@
-package com.example.launcher.properties;
+package com.example.notifier.properties;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
