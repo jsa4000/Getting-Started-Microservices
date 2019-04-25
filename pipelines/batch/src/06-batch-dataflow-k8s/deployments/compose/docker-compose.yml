@@ -90,6 +90,20 @@ services:
     networks:
       - dataflow-network
 
+  scdf-db-migration:
+    image: postgres:10.7-alpine
+    depends_on:
+      - dataflow-server
+    entrypoint: >
+      /bin/sh -c "
+      while ! nc -z dataflow-server 9393; do echo 'Wait dataflow-server to startup...'; sleep 1; done;
+      sleep 5;
+      PGPASSWORD=password psql -h postgres -p 5432 -U postgres -d dataflow -c 'ALTER TABLE batch_job_execution_params ALTER COLUMN string_val TYPE VARCHAR(1024)';
+      exit 0;
+      "
+    networks:
+      - dataflow-network
+
 networks:
   dataflow-network:
     name: dataflow-network

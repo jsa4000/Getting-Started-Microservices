@@ -343,8 +343,6 @@ dev-lab     myschedule   */1 * * * *   False     0        34s             3m
 
 It is possible to lauch multiple task using composition.
 
-> It is neccesary to increase the length of the `string_val` column field `batch_job_execution_params` table. `ALTER TABLE batch_job_execution_params ALTER COLUMN string_val TYPE VARCHAR(1024);`
-
 Create the mandatory `composed-task-runner ` app and the apps that are going to be used within the tasks created.
 
  ```bash

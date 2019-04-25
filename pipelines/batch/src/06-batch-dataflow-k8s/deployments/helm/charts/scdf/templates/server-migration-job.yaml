@@ -1,0 +1,34 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ template "scdf.fullname" . }}-scdf-migration-job
+  labels:
+    app: {{ template "scdf.name" . }}
+    component: migration
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+    release: "{{ .Release.Name }}"
+    heritage: "{{ .Release.Service }}"
+spec:
+  template:
+    metadata:
+      labels:
+        app: {{ template "scdf.name" . }}
+        component: migration
+        release: "{{ .Release.Name }}"
+    spec:
+      containers:
+      - name: {{ template "scdf.fullname" . }}-scdf-migration-job
+        image: postgres:10.7-alpine
+        # This job fix the limitation for Spring Batch to store more than 250 characters for parameters. (Mostly used for composite tasks).
+        command: ['sh', '-c',
+            'PGPASSWORD={{ .Values.datasource.password }} psql -h {{ template "batch.database" . }} -p {{ .Values.datasource.port }} -U {{ .Values.datasource.username }} -d {{ .Values.datasource.database }} -c "ALTER TABLE batch_job_execution_params ALTER COLUMN string_val TYPE VARCHAR(1024)";
+            echo 0']
+      initContainers:
+      - name: init-db-wait
+        image: busybox
+        command: ['sh', '-c', 'until nc -w3 -z {{ template "scdf.database" . }} {{ .Values.datasource.port }}; do echo waiting for database; sleep 3; done;']
+      - name: init-scdf-wait
+        image: busybox
+        command: ['sh', '-c', 'until nc -w3 -z {{ template "scdf.fullname" . }}-server {{ .Values.server.service.externalPort }}; do echo waiting for scdf server; sleep 3; done;']
+      restartPolicy: Never
+
