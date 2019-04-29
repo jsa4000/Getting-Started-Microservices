@@ -13,6 +13,8 @@ spring:
       closecontextEnabled: true
 
 batch:
+  incrementerEnabled: true
+  failurePercentage: 0
   max-threads: 1
   max-workers: 1
 

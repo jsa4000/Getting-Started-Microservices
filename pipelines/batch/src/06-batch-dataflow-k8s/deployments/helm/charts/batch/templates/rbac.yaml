@@ -1,5 +1,6 @@
 apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRoleBinding
+#kind: ClusterRoleBinding
+kind: RoleBinding
 metadata:
   name: {{ .Release.Namespace }}
 roleRef:

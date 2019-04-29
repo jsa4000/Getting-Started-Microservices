@@ -8,6 +8,8 @@ import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.core.explore.JobExplorer;
+import org.springframework.batch.core.job.builder.JobBuilderHelper;
+import org.springframework.batch.core.job.builder.SimpleJobBuilder;
 import org.springframework.batch.core.launch.support.RunIdIncrementer;
 import org.springframework.batch.core.partition.PartitionHandler;
 import org.springframework.batch.core.partition.support.Partitioner;
@@ -37,6 +39,9 @@ public class MasterConfiguration {
 
     @Value("${batch.max-workers:1}")
     private int maxWorkers;
+
+    @Value("${batch.incrementerEnabled:true}")
+    private boolean incrementerEnabled;
 
     @Autowired
     private ApplicationArguments applicationArguments;
@@ -86,10 +91,14 @@ public class MasterConfiguration {
 
     @Bean
     public Job job(JobBuilderFactory jobBuilderFactory, JobCompletionListener listener) {
-        return jobBuilderFactory.get("job")
-                .incrementer(new RunIdIncrementer())
+        SimpleJobBuilder jobBuilder = jobBuilderFactory.get("job")
                 .listener(listener)
-                .start(masterStep( null, null, null))
-                .build();
+                .start(masterStep( null, null, null));
+
+        if (incrementerEnabled) {
+            jobBuilder.incrementer(new RunIdIncrementer());
+        }
+
+        return jobBuilder.build();
     }
 }

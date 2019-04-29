@@ -99,6 +99,40 @@
      task launch --name batch-process-prod-k8s-task --arguments "--inputFile=dataflow-bucket:sample-data-prod.zip --resourcesPath=dataflow-bucket --spring.profiles.active=docker,master"
     ```           
             
+1. Run Same Job using `parameters`. Parameters have not got `--` before the name.
+
+    ```bash
+    # This task will be EXECUTED (if first time) since it uses a different parameter value 'param=2'
+    dataflow:>task launch --name batch-uploader-task --arguments "--spring.profiles.active=docker,master --batch.incrementerEnabled=false"
+    Launched task 'batch-uploader-task' with execution id 29
+        
+    # This task will be EXECUTED since it uses a different parameter value 'param=1'
+    dataflow:>task launch --name batch-uploader-task --arguments "--spring.profiles.active=docker,master --batch.incrementerEnabled=false param=1"
+    Launched task 'batch-uploader-task' with execution id 30
+    
+    # This will thrown an ERROR because same task in executed with same parameters 'param=1'
+    dataflow:>task launch --name batch-uploader-task --arguments "--spring.profiles.active=docker,master --batch.incrementerEnabled=false param=1"
+    Launched task 'batch-uploader-task' with execution id 37
+    
+    # This will thrown an ERROR because same task in executed with same parameters 'param=1'
+    dataflow:>task launch --name batch-uploader-task --arguments "--spring.profiles.active=docker,master --batch.incrementerEnabled=false param=1"
+    Launched task 'batch-uploader-task' with execution id 38
+    
+    # This task will be EXECUTED since it uses a different parameter value 'param=2'
+    dataflow:>task launch --name batch-uploader-task --arguments "--spring.profiles.active=docker,master --batch.incrementerEnabled=false param=2"
+    Launched task 'batch-uploader-task' with execution id 39            
+    ```         
+           
+1. Introducing Failures and restarting the process
+
+    ```bash
+    # Start the process introducing some failures to the process (50%)
+    task launch --name batch-uploader-task --arguments "--spring.profiles.active=docker,master --batch.incrementerEnabled=false --batch.failurePercentage=50 param=3"
+    
+     # Complete the process removing all failures to the process
+     task launch --name batch-uploader-task --arguments "--spring.profiles.active=docker,master --batch.incrementerEnabled=false param=3"   
+    ```      
+            
 1. Add following app inside Spring Data-flow server, to support composite tasks
 
     - Name: composed-task-runner	
@@ -385,7 +419,7 @@ See `AWS.md` to know the process to create manually a bucket and user.
 
 ### PostgreSQL
 
-In order to create the databases exsist some ways, depending on the environment and depending if the database already exist.
+In order to create the databases exist some ways, depending on the environment and depending if the database already exist.
 
 - Using **custom** database, it can be created multiple databases during the **creation time**. In the current example, and using *docker-compose* method, it can be created a script and added into a volume, within the `/docker-entrypoint-initdb.d` folder.
 - Using external database, this must be done *manually*. Using initContainers or a command to create the database.
@@ -423,6 +457,12 @@ Finally, it can be used `localhost:5432` to access to the remote database and th
 > Connect to default database `postgres`
 
 #### Helm
+
+- Initialize helm
+
+  > On kubernetes cluster with RBAC (that is the default on recent versions) it is necessary to use `--service-account tiller`
+
+        helm init
 
 - Create and initialize the helm chart
 
@@ -501,7 +541,7 @@ Finally, it can be used `localhost:5432` to access to the remote database and th
     task launch batch-process-prod-task --arguments "--spring.profiles.active=k8s,master --inputFile=dataflow-bucket:sample-data-prod.zip --resourcesPath=dataflow-bucket/sample-data-prod --batch.departmentsUri=http://scdf-batch-lab-batch-process-rest-service:8080/departments --batch.storage.url=http://scdf-batch-lab-minio:9000 --batch.storage.accessKey=minio --batch.storage.secretKey=password --batch.datasource.username=postgres --batch.datasource.url=jdbc:postgresql://scdf-batch-lab-postgresql:5432/db --batch.datasource.driverClassName=org.postgresql.Driver --batch.datasource.password=password"
     
     # Launch using AWS (S3 + RDS)
-    task launch batch-process-prod-task --arguments "--spring.profiles.active=k8s,master --inputFile=eks-lab-dev-bucket:sample-data-prod.zip --resourcesPath=eks-lab-dev-bucket/sample-data-prod --batch.departmentsUri=http://scdf-batch-lab-batch-process-rest-service:8080/departments --batch.storage.region=eu-west-2 --batch.storage.url=s3.amazonaws.com --batch.storage.accessKey=AKIAV2GSISOCASTGHX7M --batch.storage.secretKey=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 --batch.datasource.username=postgres --batch.datasource.url=jdbc:postgresql://eks-lab-dev-db.cwekrnapay4v.eu-west-2.rds.amazonaws.com:5432/db --batch.datasource.driverClassName=org.postgresql.Driver --batch.datasource.password=password"
+    task launch batch-process-prod-task --arguments "--spring.profiles.active=k8s,master --inputFile=eks-lab-dev-bucket:sample-data-prod.zip --resourcesPath=eks-lab-dev-bucket/sample-data-prod --batch.departmentsUri=http://scdf-batch-lab-batch-process-rest-service:8080/departments --batch.storage.region=eu-west-2 --batch.storage.url=s3.amazonaws.com --batch.storage.accessKey= --batch.storage.secretKey= --batch.datasource.username=postgres --batch.datasource.url=jdbc:postgresql://eks-lab-dev-db.cwekrnapay4v.eu-west-2.rds.amazonaws.com:5432/db --batch.datasource.driverClassName=org.postgresql.Driver --batch.datasource.password=password"
     
     ```
     

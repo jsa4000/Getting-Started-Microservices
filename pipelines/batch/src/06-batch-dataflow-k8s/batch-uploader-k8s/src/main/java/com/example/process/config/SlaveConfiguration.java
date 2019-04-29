@@ -1,5 +1,6 @@
 package com.example.process.config;
 
+import com.example.process.exceptions.CustomJobFailingException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
@@ -15,10 +16,15 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
+import java.util.Random;
+
 @Slf4j
 @Profile("worker")
 @Configuration
 public class SlaveConfiguration {
+
+    @Value("${batch.failurePercentage:0}")
+    private int failurePercentage;
 
     @Bean
     public DeployerStepExecutionHandler stepExecutionHandler(ApplicationContext context,JobExplorer jobExplorer,
@@ -30,7 +36,16 @@ public class SlaveConfiguration {
     @StepScope
     public Tasklet workerTasklet(final @Value("#{stepExecutionContext['fileName']}")String fileName) {
         return (contribution, chunkContext) -> {
-            System.out.println("This tasklet ran partition: " + fileName);
+            log.info("This tasklet ran partition: " + fileName);
+            log.info("Failure chance: " + failurePercentage);
+            if (failurePercentage > 0) {
+                Random rand = new Random();
+                int chance = rand.nextInt(100);
+                log.info("Failure random " + chance + " <= " + failurePercentage);
+                if (chance <= failurePercentage) {
+                    throw new CustomJobFailingException();
+                }
+            }
             return RepeatStatus.FINISHED;
         };
     }
