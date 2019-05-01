@@ -1,0 +1,43 @@
+{
+  "generator-jhipster": {
+    "promptValues": {
+      "packageName": "com.example.petstore",
+      "nativeLanguage": "en"
+    },
+    "jhipsterVersion": "5.8.2",
+    "applicationType": "microservice",
+    "baseName": "petstore",
+    "packageName": "com.example.petstore",
+    "packageFolder": "com/example/petstore",
+    "serverPort": "8080",
+    "authenticationType": "jwt",
+    "cacheProvider": "no",
+    "websocket": false,
+    "databaseType": "sql",
+    "devDatabaseType": "h2Memory",
+    "prodDatabaseType": "postgresql",
+    "searchEngine": false,
+    "messageBroker": false,
+    "serviceDiscoveryType": false,
+    "buildTool": "gradle",
+    "enableSwaggerCodegen": true,
+    "jwtSecretKey": "Yzk0YzVmMjVlMzYyNjNjZjdiYjc5YmIyMWE2N2Q4ODA1ZDIwNTcxNmRlMTNkMDUxOWE3YTc5NTM1ZTJkNWRiMDk2YTBiYzJlZmFlNTQzMmI1NDlhMWNjNDA0YTJlN2QxYTdlOTYxNjVkZDI1OWNjYTliOWQxNDMwNmRkODkwMDY=",
+    "testFrameworks": [
+      "gatling",
+      "cucumber"
+    ],
+    "jhiPrefix": "jhi",
+    "entitySuffix": "",
+    "dtoSuffix": "DTO",
+    "otherModules": [],
+    "enableTranslation": true,
+    "clientPackageManager": "npm",
+    "nativeLanguage": "en",
+    "languages": [
+      "en",
+      "es"
+    ],
+    "skipClient": true,
+    "skipUserManagement": true
+  }
+}

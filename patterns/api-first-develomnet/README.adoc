@@ -1,0 +1,5 @@
+= API-First Development
+
+*API-first development* is a strategy in which the *first* order of business is to develop an API that puts your target developer’s interests first and *then* build the product on top of it (be it a website, mobile application, or a SaaS software). By building on top of APIs with developers in mind, you and your developers are saving a lot of work while laying down the foundations for others to build on.
+
+== 

@@ -1,0 +1,42 @@
+= JHipster
+
+== Installation
+
+There exist several ways to install JHipster and to start working with it. The full specifications are inside its  link:https://www.jhipster.tech/installation/[website]
+
+* JHipster Online is a simple way to generate an application without installing JHipster in the first place.
+* _Local installation with NPM_ is the classical way of working with JHipster. Everything is installed on your machine, which can be a little complex to* set up, but that’s how most people usually work. In case of doubt, choose this installation.
+* _Local installation with Yarn_ is the same as classical “_Local installation with NPM_, but using Yarn instead of NPM
+* _Installation with a package manager_ is only available for Mac OS X and Windows. This is a very simple installation method, if you use a package* manager, but it is still in BETA.
+* The Vagrant-based _development box_, with all tools already set up in a Ubuntu-based virtual machine.
+* The _Docker_ container, which brings you a lightweight container with JHipster installed.
+
+=== Pre-requisites
+
+Following are the prerequisites to start working with JHipster locally using _Local installation with NPM_ installation.
+
+1. Install `Java 8` from the Oracle website
+1. Install `Node.js` from the Node.js website (_please use an LTS* 64-bit version, non-LTS versions are not supported_)
+1. `NPM` is installed with `Node.js` but you need to upgrade it: `npm install -g npm`
+1. If you want to use the JHipster Marketplace, install `Yeoman`: `npm install -g yo`
+1. Install JHipster: `npm install -g generator-jhipster`
+
+NOTE: If `Error: EACCES: permission denied, access '/usr/local/lib/node_modules'` use following instructions:
+
+====
+- Use `id -run` or `whoami` to check current user id.
+- Change permissions to the entire folder: `sudo chown -R [owner]:[owner] /usr/local/lib/node_modules` or without group `sudo chown -R [owner] /usr/local/lib/node_modules`
+====
+
+Now that JHipster is installed, your next step is to create an application.
+
+=== Create an Application
+
+For further information refers to the following link:https://www.jhipster.tech/creating-an-app/[webpage]
+
+==== Micro-service
+
+* Create a folder where the code will be generated: `mkdir microservice-examle`
+* Prompt to that folder: `cd microservice-examle`
+* To generate your application, type: `jhipster`
+* Answer the questions asked by the generator to create an application tailored to your needs.
