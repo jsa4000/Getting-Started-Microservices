@@ -107,7 +107,8 @@ spring:
 
 server:
     servlet:
-        context-path: /${spring.application.name}
+        #context-path: /${spring.application.name}
+        context-path: /
         session:
             cookie:
                 http-only: true

@@ -42,6 +42,13 @@ paths:
     post:
       summary: Create a pet
       operationId: createPets
+      requestBody:
+        description: Optional description in *Markdown*
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Pet'
       tags:
         - pets
       responses:

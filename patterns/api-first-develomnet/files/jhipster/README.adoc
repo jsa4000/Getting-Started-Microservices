@@ -40,3 +40,6 @@ For further information refers to the following link:https://www.jhipster.tech/c
 * Prompt to that folder: `cd microservice-examle`
 * To generate your application, type: `jhipster`
 * Answer the questions asked by the generator to create an application tailored to your needs.
+
+'''
+include::microservice-example/README.md[]
