@@ -1,12 +1,14 @@
 package com.example.petstore.service;
 
 import com.example.petstore.web.api.PetsApiDelegate;
+import com.example.petstore.web.api.model.NewPet;
 import com.example.petstore.web.api.model.Pet;
-import com.example.petstore.web.api.model.Pets;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.request.NativeWebRequest;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -18,15 +20,22 @@ public class PetstoreService implements PetsApiDelegate{
     }
 
     @Override
-    public ResponseEntity<Void> createPets(Pet pet) {
+    public ResponseEntity<Pet> addPet(NewPet newPet) {
         return null;
     }
 
     @Override
-    public ResponseEntity<Pets> listPets(Integer limit) {
+    public ResponseEntity<Void> deletePet(Long id) {
+        return null;
+    }
 
-        Pets result = new Pets();
+    @Override
+    public ResponseEntity<Pet> findPetById(Long id) {
+        return null;
+    }
 
+    @Override
+    public ResponseEntity<List<Pet>> findPets(List<String> tags, Integer limit) {
         Pet p1 = new Pet();
         p1.setId(1L);
         p1.setName("Pet1");
@@ -37,14 +46,7 @@ public class PetstoreService implements PetsApiDelegate{
         p2.setName("Pet2");
         p2.setTag("cat");
 
-        result.add(p1);
-        result.add(p2);
-
-        return ResponseEntity.ok(result);
+        return ResponseEntity.ok(Arrays.asList(p1,p2));
     }
 
-    @Override
-    public ResponseEntity<Pets> showPetById(String petId) {
-        return null;
-    }
 }

@@ -36,10 +36,48 @@ For further information refers to the following link:https://www.jhipster.tech/c
 
 ==== Micro-service
 
+In order to create a micro-service using _jhipster_, use following simple steps:
+
 * Create a folder where the code will be generated: `mkdir microservice-examle`
 * Prompt to that folder: `cd microservice-examle`
 * To generate your application, type: `jhipster`
 * Answer the questions asked by the generator to create an application tailored to your needs.
+  - Micro-service 
+  - JWT Authentication (stateless)
+  - Service Discovered *Disabled* (using K8s or Isitio)
+  - No cache (test purposes)
+  - RDBMS database (JPA)
+  - API-First Development
+
+==== API-First Development 
+
+Once the mico-service has been generate using RAD (Rapid Application Development), next is creating the API definition since we are using API-First Development best practice.
+
+* Create definition OpenApi link:https://github.com/OAI/OpenAPI-Specification/blob/master/examples/v3.0/petstore-expanded.yaml[yaml] into project resources `$rootDir/src/main/resources/swagger/api.yml`
+* Use `./gradlew openApiGenerate` using _Gradle_, to generate the code with the controller and interfaces (`delegates`)
+* Then implements the generated delegate classes with `@Service` classes.
+
+Finally, test the application using following link:http://localhost:8080/api/pets[Url].
+
+Remember to change the `context-path` inside the configuration file. In this case, creating a microservice we do not want extra hierarchy in the uri.
+
+.application.yaml
+[source,yaml]
+----
+server:
+    servlet:
+        #context-path: /${spring.application.name}
+        context-path: /
+        session:
+            cookie:
+                http-only: true
+----
 
 '''
-include::microservice-example/README.md[]
+//include::jhipster/microservice-example/README.md[]
+
+==== API-First Development 
+
+== References
+
+Link:https://github.com/oktadeveloper/jhipster-microservices-example/blob/master/TUTORIAL.md[jhipster-microservices-example]
