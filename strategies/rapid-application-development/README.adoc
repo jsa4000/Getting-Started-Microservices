@@ -1,6 +1,12 @@
-= JHipster
+= Rapid-application development
 
-== Installation
+Rapid-application development (RAD), also called Rapid-application building (RAB), is both a general term, used to refer to adaptive software development approaches, as well as the name for James Martin's approach to rapid development. In general, RAD approaches to software development put less emphasis on planning and more emphasis on an adaptive process. Prototypes are often used in addition to or sometimes even in place of design specifications.
+
+RAD is especially well suited for (although not limited to) developing software that is driven by user interface requirements. Graphical user interface builders are often called rapid application development tools. Other approaches to rapid development include the adaptive, agile, spiral, and unified models. 
+
+== JHipster
+
+=== Installation
 
 There exist several ways to install JHipster and to start working with it. The full specifications are inside its  link:https://www.jhipster.tech/installation/[website]
 
@@ -11,7 +17,7 @@ There exist several ways to install JHipster and to start working with it. The f
 * The Vagrant-based _development box_, with all tools already set up in a Ubuntu-based virtual machine.
 * The _Docker_ container, which brings you a lightweight container with JHipster installed.
 
-=== Pre-requisites
+==== Pre-requisites
 
 Following are the prerequisites to start working with JHipster locally using _Local installation with NPM_ installation.
 
@@ -30,11 +36,11 @@ NOTE: If `Error: EACCES: permission denied, access '/usr/local/lib/node_modules'
 
 Now that JHipster is installed, your next step is to create an application.
 
-=== Create an Application
+==== Create an Application
 
 For further information refers to the following link:https://www.jhipster.tech/creating-an-app/[webpage]
 
-==== Micro-service
+===== Micro-service
 
 In order to create a micro-service using _jhipster_, use following simple steps:
 
@@ -49,7 +55,7 @@ In order to create a micro-service using _jhipster_, use following simple steps:
   - RDBMS database (JPA)
   - API-First Development
 
-==== API-First Development 
+===== API-First Development 
 
 Once the mico-service has been generate using RAD (Rapid Application Development), next is creating the API definition since we are using API-First Development best practice.
 
@@ -76,7 +82,7 @@ server:
 //'''
 //include::jhipster/microservice-example/README.md[]
 
-==== Entities
+===== Entities
 
 Create the entities that will become part of the application
 
