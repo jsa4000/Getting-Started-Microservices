@@ -1,8 +1,9 @@
 package com.example.petstore.service;
 
+import com.example.petstore.mapper.PetMapper;
 import com.example.petstore.web.api.PetsApiDelegate;
-import com.example.petstore.web.api.model.NewPet;
-import com.example.petstore.web.api.model.Pet;
+import com.example.petstore.web.api.model.NewPetDto;
+import com.example.petstore.web.api.model.PetDto;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -18,25 +19,18 @@ public class PetstoreService implements PetsApiDelegate{
 
     private final PetService petService;
 
-    public PetstoreService(PetService petService) {
+    private final PetMapper petMapper;
+
+    public PetstoreService(PetService petService, PetMapper petMapper) {
         this.petService = petService;
+        this.petMapper = petMapper;
     }
 
     @Override
-    public ResponseEntity<Pet> addPet(NewPet newPet) {
-        com.example.petstore.domain.Pet pet = new com.example.petstore.domain.Pet();
-        pet.setTag(newPet.getTag());
-        pet.setName(newPet.getName());
-
+    public ResponseEntity<PetDto> addPet(NewPetDto newPet) {
         // Call to Pets service
-        pet = petService.save(pet);
-
-        Pet petWeb = new Pet();
-        petWeb.setId(pet.getId());
-        petWeb.setTag(pet.getTag());
-        petWeb.setName(pet.getName());
-
-        return ResponseEntity.ok(petWeb);
+        com.example.petstore.domain.Pet pet = petService.save(petMapper.toDomain(newPet));
+        return ResponseEntity.ok(petMapper.fromDomain(pet));
     }
 
     @Override
@@ -46,7 +40,7 @@ public class PetstoreService implements PetsApiDelegate{
     }
 
     @Override
-    public ResponseEntity<Pet> findPetById(Long id) {
+    public ResponseEntity<PetDto> findPetById(Long id) {
         // Call to Pets service
         Optional<com.example.petstore.domain.Pet> pet = petService.findOne(id);
 
@@ -54,27 +48,16 @@ public class PetstoreService implements PetsApiDelegate{
             new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
 
-        Pet petWeb = new Pet();
-        petWeb.setId(pet.get().getId());
-        petWeb.setTag(pet.get().getTag());
-        petWeb.setName(pet.get().getName());
-
-        return ResponseEntity.ok(petWeb);
-
+        return ResponseEntity.ok(petMapper.fromDomain(pet.get()));
     }
 
     @Override
-    public ResponseEntity<List<Pet>> findPets(List<String> tags, Integer limit) {
+    public ResponseEntity<List<PetDto>> findPets(List<String> tags, Integer limit) {
         Pageable pages = PageRequest.of(0, limit);
-        List<Pet> result = petService.findAll(pages)
+        List<PetDto> result = petService.findAll(pages)
             .getContent().stream()
-            .map(pet -> {
-                Pet petWeb = new Pet();
-                petWeb.setId(pet.getId());
-                petWeb.setTag(pet.getTag());
-                petWeb.setName(pet.getName());
-                return petWeb;
-            }).collect(Collectors.toList());
+            .map(petMapper::fromDomain)
+            .collect(Collectors.toList());
 
         return ResponseEntity.ok(result);
     }
