@@ -6,7 +6,7 @@ apply plugin: 'org.openapi.generator'
 
 openApiGenerate {
     generatorName = "spring"
-    inputSpec = "$rootDir/src/main/resources/openapi/api.yml".toString()
+    inputSpec = "$rootDir/src/main/resources/openapi/api.yaml".toString()
     outputDir = "$buildDir/openapi".toString()
     apiPackage = "com.example.${project.name}.web.api"
     modelPackage = "com.example.${project.name}.web.api.model"

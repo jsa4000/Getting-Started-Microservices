@@ -1,6 +1,7 @@
 /*
  * Plugin to generate asciidoc
  */
+apply plugin: 'io.github.swagger2markup'
 
 asciidoctor {
     options doctype: 'book', ruby: 'erubis'
@@ -24,3 +25,12 @@ asciidoctor {
         }
     }
 }
+
+convertSwagger2markup {
+    swaggerInput file("src/main/resources/openapi/swagger.yaml").getAbsolutePath()
+    outputDir file("${buildDir}/docs/asciidoc/swagger")
+    config = ['swagger2markup.markupLanguage' : 'ASCIIDOC',
+              'swagger2markup.pathsGroupedBy' : 'TAGS']
+}
+
+asciidoctor.dependsOn("convertSwagger2markup")

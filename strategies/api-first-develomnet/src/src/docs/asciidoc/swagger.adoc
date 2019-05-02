@@ -1,0 +1,6 @@
+ifndef::generated[:generated: build/docs/asciidoc/swagger]
+
+include::{generated}/overview.adoc[]
+include::{generated}/security.adoc[]
+include::{generated}/paths.adoc[]
+include::{generated}/definitions.adoc[]
