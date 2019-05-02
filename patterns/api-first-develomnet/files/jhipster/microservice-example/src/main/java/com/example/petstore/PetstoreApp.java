@@ -2,9 +2,7 @@ package com.example.petstore;
 
 import com.example.petstore.config.ApplicationProperties;
 import com.example.petstore.config.DefaultProfileUtil;
-
 import io.github.jhipster.config.JHipsterConstants;
-
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

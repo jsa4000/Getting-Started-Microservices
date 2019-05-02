@@ -4,7 +4,6 @@ import com.example.petstore.security.AuthoritiesConstants;
 import io.github.jhipster.config.JHipsterProperties;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.http.HttpStatus;

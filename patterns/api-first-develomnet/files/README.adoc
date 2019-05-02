@@ -73,10 +73,48 @@ server:
                 http-only: true
 ----
 
-'''
+//'''
 //include::jhipster/microservice-example/README.md[]
 
-==== API-First Development 
+==== Entities
+
+Create the entities that will become part of the application
+
+.jhipster-jdl.jh
+[source,json]
+//include::jhipster/jhipster-jdl.jh[]
+----
+entity Pet {
+    id Long required,
+    name String required maxlength(256),
+    tag String required maxlength(256)
+}
+
+service * with serviceClass
+paginate Pet with pager
+----
+
+Run following command to add previous entities to the project
+
+----
+jhipster import-jdl ../jhipster-jdl.jh
+----
+
+Following are the files created/updated
+
+[source,bash]
+----
+he entity Pet is being updated.
+
+   create src/main/resources/config/liquibase/changelog/20190502084613_added_entity_Pet.xml
+   create src/main/java/com/example/petstore/domain/Pet.java
+   create src/main/java/com/example/petstore/repository/PetRepository.java
+   create src/main/java/com/example/petstore/web/rest/PetResource.java
+   create src/main/java/com/example/petstore/service/PetService.java
+   create src/test/java/com/example/petstore/web/rest/PetResourceIntTest.java
+   create src/test/gatling/user-files/simulations/PetGatlingTest.scala
+    force src/main/resources/config/liquibase/master.xml
+----
 
 == References
 

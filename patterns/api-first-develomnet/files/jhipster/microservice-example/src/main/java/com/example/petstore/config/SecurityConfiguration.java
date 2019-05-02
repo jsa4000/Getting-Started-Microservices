@@ -1,9 +1,8 @@
 package com.example.petstore.config;
 
-import com.example.petstore.security.*;
-import com.example.petstore.security.jwt.*;
-
-import org.springframework.context.annotation.Bean;
+import com.example.petstore.security.AuthoritiesConstants;
+import com.example.petstore.security.jwt.JWTConfigurer;
+import com.example.petstore.security.jwt.TokenProvider;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpMethod;

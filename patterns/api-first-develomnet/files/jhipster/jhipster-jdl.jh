@@ -1,0 +1,8 @@
+entity Pet {
+    id Long required,
+    name String required maxlength(256),
+    tag String required maxlength(256)
+}
+
+service * with serviceClass
+paginate Pet with pager
