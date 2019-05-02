@@ -11,11 +11,16 @@ asciidoctor {
                 sourcedir: project.sourceSets.main.java.srcDirs[0],
                 'endpoint-url': 'http://example.org',
                 'source-highlighter': 'coderay',
-                imagesdir: './images',
                 toc: 'left',
                 icons: 'font',
                 setanchors: '',
                 idprefix: '',
                 idseparator: '-',
                 docinfo1: ''
+
+    resources {
+        from('src/docs/asciidoc') {
+            include 'images/**'
+        }
+    }
 }

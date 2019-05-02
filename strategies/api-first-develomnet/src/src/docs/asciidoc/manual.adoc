@@ -4,6 +4,9 @@ Author <jsa4000@gmail.com>
 :revnumber: {project-version}
 :example-caption!:
 ifndef::imagesdir[:imagesdir: images]
+ifeval::["{backend}" == "pdf"]
+:imagesdir: src/docs/asciidoc/{imagesdir}
+endif::[]
 ifndef::sourcedir[:sourcedir: ../java]
 
 This is a user manual for an example project.
@@ -34,6 +37,7 @@ image::spring-boot.png[scaledwidth=75%]
 
 .Built-in
 asciidoctor-version:: {asciidoctor-version}
+backend:: {backend}
 safe-mode-name:: {safe-mode-name}
 docdir:: {docdir}
 docfile:: {docfile}
