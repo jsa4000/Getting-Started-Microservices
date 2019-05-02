@@ -1,0 +1,30 @@
+/*
+ * Plugin that containerize Java applications
+ */
+apply plugin: 'com.google.cloud.tools.jib'
+
+jib {
+	from {
+		image = 'openjdk:8-jre-alpine'
+	}
+	to {
+		image = "registry.hub.docker.com/jsa4000/${project.name}-ms"
+		credHelper = 'osxkeychain'
+		tags = [version, 'latest']
+	}
+	container {
+		jvmFlags = ['-XX:+UnlockExperimentalVMOptions',
+					'-XX:+UseCGroupMemoryLimitForHeap',
+					'-XX:+HeapDumpOnOutOfMemoryError',
+					'-XX:MaxRAMFraction=2']
+		ports = ['8080']
+        environment = [
+            SPRING_OUTPUT_ANSI_ENABLED: 'ALWAYS',
+        ]
+		labels = [ownerName: 'jsa4000',
+				  projectName: project.name,
+				  creationDate: System.nanoTime().toString()]
+        useCurrentTimestamp = true
+		//format = 'OCI'
+	}
+}

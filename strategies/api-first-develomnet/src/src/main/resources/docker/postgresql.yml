@@ -1,0 +1,9 @@
+version: '2'
+services:
+    petstore-postgresql:
+        image: postgres:10.4
+        environment:
+            - POSTGRES_USER=root
+            - POSTGRES_PASSWORD=password
+        ports:
+            - 5432:5432
