@@ -1,0 +1,41 @@
+/*
+ * Plugin for Liquibase Support from Gradle
+ */
+
+if (!project.hasProperty('runList')) {
+    project.ext.runList = 'diffLog' // main || diffLog
+}
+
+project.ext.diffChangelogFile = 'src/main/resources/config/liquibase/changelog/' + new Date().format('yyyyMMddHHmmss') + '_changelog.xml'
+project.ext.mainUrl = 'jdbc:postgresql://dockerhost:5432/db'
+project.ext.mainUsername =  'postgres'
+project.ext.mainPassword = 'password'
+project.ext.driver = 'org.postgresql.Driver'
+
+liquibase {
+    activities {
+        main {
+            url project.ext.mainUrl
+            username project.ext.mainUsername
+            password project.ext.mainPassword
+            driver project.ext.driver
+            changeLogFile 'src/main/resources/config/liquibase/master.xml'
+            defaultSchemaName ''
+            logLevel 'debug'
+            classpath 'src/main/resources/'
+        }
+        diffLog {
+            url project.ext.mainUrl
+            username project.ext.mainUsername
+            password project.ext.mainPassword
+            driver project.ext.driver
+            changeLogFile project.ext.diffChangelogFile
+            referenceUrl 'hibernate:spring:com.example.micro.domain?dialect=org.hibernate.dialect.PostgreSQLDialect&amp;hibernate.physical_naming_strategy=org.springframework.boot.orm.jpa.hibernate.SpringPhysicalNamingStrategy&amp;hibernate.implicit_naming_strategy=org.springframework.boot.orm.jpa.hibernate.SpringImplicitNamingStrategy'
+            defaultSchemaName ''
+            logLevel 'debug'
+            classpath "$buildDir/classes/java/main"
+        }
+    }
+
+    runList = project.ext.runList
+}

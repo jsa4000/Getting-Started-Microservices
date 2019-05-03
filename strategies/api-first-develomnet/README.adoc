@@ -39,7 +39,7 @@
     packageFolder": "../../../build/jhipster/com/example/micro",
 ----
 ---
-jhipster import-jdl src/main/resources/model/jhipster-jdl.jh
+jhipster import-jdl src/main/resources/model/jhipster-jdl.jh --interactive
 ---
 
 link:https://www.jhipster.tech/jdl/[Reference JDL]
