@@ -87,7 +87,6 @@ server:
 Create the entities that will become part of the application
 
 .jhipster-jdl.jh
-[source,json]
 //include::jhipster/jhipster-jdl.jh[]
 ----
 entity Pet {
