@@ -40,3 +40,23 @@ spring:
       hibernate.cache.use_second_level_cache: false
       hibernate.cache.use_query_cache: false
       hibernate.generate_statistics: true
+---
+spring:
+  profiles: docker
+  datasource:
+    type: com.zaxxer.hikari.HikariDataSource
+    url: jdbc:postgresql://dockerhost:5432/db
+    driverClassName: org.postgresql.Driver
+    username: postgres
+    password: password
+    hikari:
+      poolName: Hikari
+      auto-commit: false
+  jpa:
+    show-sql: true
+    properties:
+      hibernate.id.new_generator_mappings: true
+      hibernate.connection.provider_disables_autocommit: true
+      hibernate.cache.use_second_level_cache: false
+      hibernate.cache.use_query_cache: false
+      hibernate.generate_statistics: true

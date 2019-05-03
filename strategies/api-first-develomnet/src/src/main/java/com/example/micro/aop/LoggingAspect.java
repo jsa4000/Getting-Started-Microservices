@@ -18,6 +18,7 @@ import java.util.Arrays;
  * By default, it only runs with the "dev" profile.
  */
 @Aspect
+@Component
 public class LoggingAspect {
 
     private final Logger log = LoggerFactory.getLogger(this.getClass());
