@@ -1,0 +1,28 @@
+{
+  "generator-jhipster": {
+    "promptValues": {
+      "packageName": "com.example.micro",
+      "nativeLanguage": "en"
+    },
+    "jhipsterVersion": "5.8.2",
+    "applicationType": "microservice",
+    "baseName": "micro",
+    "packageName": "com.example.micro",
+    "packageFolder": "com/example/micro",
+    "cacheProvider": "no",
+    "websocket": false,
+    "databaseType": "sql",
+    "devDatabaseType": "h2Memory",
+    "prodDatabaseType": "postgresql",
+    "searchEngine": false,
+    "messageBroker": false,
+    "serviceDiscoveryType": false,
+    "buildTool": "gradle",
+    "entitySuffix": "",
+    "otherModules": [],
+    "testFrameworks": [],
+    "enableTranslation": false,
+    "skipClient": true,
+    "skipUserManagement": true
+  }
+}

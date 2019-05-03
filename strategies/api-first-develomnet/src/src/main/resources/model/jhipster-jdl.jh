@@ -1,0 +1,13 @@
+// Entities for Microservice
+
+// npm link generator-jhipster
+// jhipster import-jdl src/main/resources/model/jhipster-jdl.jh
+
+entity Pet {
+    id Long required,
+    name String required maxlength(256),
+    tag String required maxlength(256)
+}
+
+service * with serviceClass
+paginate Pet with pager
