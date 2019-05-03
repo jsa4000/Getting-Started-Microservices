@@ -9,5 +9,5 @@ entity Pet {
     tag String required maxlength(256)
 }
 
-service * with serviceClass
+service * with serviceImpl
 paginate Pet with pager
