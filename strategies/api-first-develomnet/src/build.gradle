@@ -1,14 +1,10 @@
 buildscript {
-	ext {
-		springFoxSwaggerVersion = '2.9.2'
-	}
 	repositories {
 		mavenLocal()
 		mavenCentral()
 	}
 	dependencies {
 		classpath "org.openapitools:openapi-generator-gradle-plugin:3.3.4"
-		classpath 'io.github.swagger2markup:swagger2markup-gradle-plugin:1.3.3'
 	}
 }
 
@@ -16,8 +12,8 @@ plugins {
 	id 'org.springframework.boot' version '2.1.4.RELEASE'
 	id 'org.sonarqube' version '2.6.2'
 	id 'com.google.cloud.tools.jib' version '1.1.2'
-	id "org.asciidoctor.jvm.convert" version "2.1.0"
-	id "org.asciidoctor.jvm.pdf" version "2.1.0"
+	id "org.asciidoctor.jvm.convert" version '2.1.0'
+	id "org.asciidoctor.jvm.pdf" version '2.1.0'
 	id 'java'
 }
 
@@ -38,6 +34,7 @@ apply from: 'gradle/docker.gradle'
 apply from: 'gradle/sonar.gradle'
 apply from: 'gradle/openapi.gradle'
 apply from: 'gradle/asciidoc.gradle'
+apply from: 'gradle/swagger.gradle'
 
 repositories {
 	mavenCentral()
@@ -50,7 +47,7 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
-	compile "io.springfox:springfox-swagger2:${springFoxSwaggerVersion}"
+	compile "io.springfox:springfox-swagger2:2.9.2"
 	runtime "com.h2database:h2"
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.springframework.security:spring-security-test'

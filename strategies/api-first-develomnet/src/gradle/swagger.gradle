@@ -1,0 +1,19 @@
+/*
+ * Copy the OpenAPI definition to SwaggerUI
+ */
+
+task copyOpenApiToSwagger(type: Copy) {
+    from ('src/main/resources/openapi')
+    from ('src/main/resources/swagger-ui')
+    into "$buildDir/swagger/static/swagger-ui".toString()
+}
+
+sourceSets {
+    main {
+        resources {
+            srcDir file("${project.buildDir.path}/swagger")
+        }
+    }
+}
+
+compileJava.dependsOn("copyOpenApiToSwagger")
