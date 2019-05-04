@@ -1,0 +1,67 @@
+#!/usr/bin/env sh
+
+### npm link generator-jhipster
+
+dir=".jhipster"
+packageFolder="com/example/micro"
+folders=( "domain" "repository" "service" )
+
+### Check if a directory does exist ###
+if [ -d "$dir" ]
+then
+  echo "Directory $dir exists. Do you want to update the project (y/n)? "
+  read answer
+
+  if [ "$answer" != "${answer#[Yy]}" ] ;then
+
+      # Remove all the files recursively previously generated
+      rm -rf build/jhipster
+
+      # Call to jhipster to create components interactive
+      jhipster import-jdl src/main/resources/model/jhipster-jdl.jh --interactive
+
+      if [ -d "build/jhipster" ];  then
+        # Update only updates domain entities, nor service nor repositories
+        overwriteFolder="domain"
+
+        # Remove all ocurrences with 'jhipster' in files
+        find build/jhipster/ -type f -exec ex -sc g/jhipster/d -cx {} ';'
+
+        for i in "${folders[@]}"; do
+             # "Creating necessary folders"
+             mkdir -p src/main/java/$packageFolder/$i
+
+             if [ $i == $overwriteFolder ]; then
+                # Copying files generated (overwrite)
+                cp -r build/jhipster/$packageFolder/$i/ src/main/java/$packageFolder/$i/
+             else
+                # Copying files generated
+                cp -r -n build/jhipster/$packageFolder/$i/ src/main/java/$packageFolder/$i/
+             fi
+        done
+      fi
+  fi
+else
+  echo "Directory $dir DOES NOT exists. Do you want to create new project (y/n)? "
+  read answer
+
+  if [ "$answer" != "${answer#[Yy]}" ] ;then
+
+      # Remove all the files recursively previously generated
+      rm -rf build/jhipster
+
+      # Call to jhipster to create initial components
+      jhipster import-jdl src/main/resources/model/jhipster-jdl.jh
+
+      # Remove all ocurrences with 'jhipster' in files
+      find build/jhipster/ -type f -exec ex -sc g/jhipster/d -cx {} ';'
+
+      for i in "${folders[@]}"; do
+         # "Creating necessary folders"
+         mkdir -p src/main/java/$packageFolder/$i
+         # Copying files generated
+         cp -r build/jhipster/$packageFolder/$i/ src/main/java/$packageFolder/$i/
+      done
+
+  fi
+fi

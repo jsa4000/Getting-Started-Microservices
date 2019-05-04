@@ -8,7 +8,7 @@
     "applicationType": "microservice",
     "baseName": "micro",
     "packageName": "com.example.micro",
-    "packageFolder": "com/example/micro",
+    "packageFolder": "../../../build/jhipster/com/example/micro",
     "cacheProvider": "no",
     "websocket": false,
     "databaseType": "sql",
