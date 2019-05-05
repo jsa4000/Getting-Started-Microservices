@@ -1,0 +1,47 @@
+/*
+ * Plugin for Liquibase Support from Gradle
+ */
+
+if (!project.hasProperty('runList')) {
+    project.ext.runList = 'main' // runList = 'main' || 'diffLog'
+}
+
+ext {
+    diffChangelogFile = 'src/main/resources/config/liquibase/changelog/' + new Date().format('yyyyMMddHHmmss') + '_changelog.xml'
+    mainUrl = 'jdbc:postgresql://dockerhost:5432/dataflow'
+    mainUsername =  'postgres'
+    mainPassword = 'password'
+    maindriver = 'org.postgresql.Driver'
+    mainDialect = 'org.hibernate.dialect.PostgreSQLDialect'
+}
+
+liquibase {
+    activities {
+        main {
+            url mainUrl
+            username mainUsername
+            password mainPassword
+            driver maindriver
+            changeLogFile 'src/main/resources/config/liquibase/master.xml'
+            defaultSchemaName ''
+            logLevel 'debug'
+            classpath 'src/main/resources/'
+        }
+        diffLog {
+            url mainUrl
+            username mainUsername
+            password mainPassword
+            driver maindriver
+            changeLogFile diffChangelogFile
+            referenceUrl "hibernate:spring:com.example.orchestrator.model?dialect=${mainDialect}&amp;hibernate.physical_naming_strategy=org.springframework.boot.orm.jpa.hibernate.SpringPhysicalNamingStrategy&amp;hibernate.implicit_naming_strategy=org.springframework.boot.orm.jpa.hibernate.SpringImplicitNamingStrategy"
+            defaultSchemaName ''
+            logLevel 'debug'
+            classpath "$buildDir/classes/java/main"
+        }
+    }
+
+    runList = project.ext.runList
+}
+
+diff.dependsOn compileJava
+diffChangeLog.dependsOn compileJava

@@ -6,6 +6,7 @@ include 'task-launcher'
 include 'batch-uploader-k8s'
 include 'partitioned-batch-job'
 include 'rest-service'
+include 'scdf-orchestrator'
 include 'db-migration'
 include 'csv-generator'
 

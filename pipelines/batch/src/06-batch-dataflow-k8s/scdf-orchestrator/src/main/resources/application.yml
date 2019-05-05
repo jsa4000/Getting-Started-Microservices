@@ -1,0 +1,64 @@
+spring:
+  profiles:
+    active: local
+  application:
+    name: scdf-orchestrator
+  liquibase:
+    change-log: classpath:config/liquibase/master.xml
+
+server:
+  port: 8080
+
+management:
+  endpoints:
+    web:
+      base-path: /management
+      exposure.include: health,beans,env,info
+
+orchestrator:
+  maxWaitTime: 60
+
+logging:
+  level:
+    root: INFO
+    org.springframework.web: INFO
+    com.example: DEBUG
+
+---
+spring:
+  profiles: local
+  datasource:
+    url: jdbc:postgresql://dockerhost:5432/dataflow
+    username: postgres
+    password: password
+    driver-class-name: org.postgresql.Driver
+
+server:
+  port: 8081
+
+orchestrator:
+  dataflowServerUri: http://dockerhost:9393
+
+---
+spring:
+  profiles: docker
+  datasource:
+    url: jdbc:postgresql://postgres:5432/dataflow
+    username: postgres
+    password: password
+    driver-class-name: org.postgresql.Driver
+
+orchestrator:
+  dataflowServerUri: http://dataflow-server:9393
+
+---
+spring:
+  profiles: k8s
+  datasource:
+    url: jdbc:postgresql://postgres.default.svc.cluster.local:5432/dataflow
+    username: postgres
+    password: password
+    driver-class-name: org.postgresql.Driver
+
+orchestrator:
+  dataflowServerUri: http://dataflow-server.default.svc.cluster.local:9393
