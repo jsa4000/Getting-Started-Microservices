@@ -13,6 +13,11 @@ spring:
       closecontextEnabled: true
 
 batch:
+  incrementerEnabled: true
+  masterFailurePercentage: 0
+  slaveWriterFailurePercentage: 0
+  slaveReaderFailurePercentage: 0
+  slaveProcessorFailurePercentage: 0
   max-threads: 1
   max-workers: 1
   inputFile: dataflow-bucket:sample-data-prod.zip

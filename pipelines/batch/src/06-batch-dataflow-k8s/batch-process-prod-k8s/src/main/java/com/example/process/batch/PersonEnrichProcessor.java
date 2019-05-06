@@ -3,9 +3,11 @@ package com.example.process.batch;
 import com.example.process.model.Customer;
 import com.example.process.model.Department;
 import com.example.process.service.DepartmentService;
+import com.example.process.utils.ChaosMonkey;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
 import org.springframework.retry.annotation.CircuitBreaker;
 import org.springframework.retry.annotation.Recover;
@@ -22,6 +24,9 @@ public class PersonEnrichProcessor implements ItemProcessor<Customer, Customer> 
 
     static Random random = new Random();
 
+    @Value("${batch.slaveProcessorFailurePercentage:0}")
+    private int slaveProcessorFailurePercentage;
+
     @Autowired
     DepartmentService departmentService;
 
@@ -34,8 +39,10 @@ public class PersonEnrichProcessor implements ItemProcessor<Customer, Customer> 
     }
 
     @Override
-    @CircuitBreaker(maxAttempts = 2, resetTimeout= 20000, openTimeout = 5000)
+    //@CircuitBreaker(maxAttempts = 2, resetTimeout= 20000, openTimeout = 5000)
     public Customer process(final Customer customer) throws Exception {
+        // Check whether chaos monkey must be activated - AOP
+        ChaosMonkey.check("slaveProcessorFailurePercentage", slaveProcessorFailurePercentage);
         Optional<Department> dep = departmentService.getById(customer.getDepartment());
         if (dep.isPresent()) {
              if (dep.get().getName().toUpperCase().equals("UNKNOWN")) {

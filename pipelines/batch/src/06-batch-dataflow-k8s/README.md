@@ -123,7 +123,7 @@
     Launched task 'batch-uploader-task' with execution id 39            
     ```         
            
-1. Introducing Failures (kaos-monkey) and restarting the process
+1. Introducing Failures (chaos-monkey) and restarting the process:
 
     ```bash
     # Start the process introducing some failures to the process (50%)
@@ -132,6 +132,24 @@
      # Complete the process removing all failures to the process
      task launch --name batch-uploader-task --arguments "--spring.profiles.active=docker,master --batch.incrementerEnabled=false param=3"   
     ```      
+    
+1. Introducing Failures (Part II)
+
+    > NOTE: if parameters are reused between tasks, the Job is recognized as the same Job. So it must be introduced new parameter with the name.
+
+    Following re the parameters configured for chaos monkey within the `batch-process-prod-k8s-task`
+    
+    - masterFailurePercentage: 0
+    - slaveWriterFailurePercentage: 0
+    - slaveReaderFailurePercentage: 0
+    - slaveProcessorFailurePercentage: 0
+    
+    1.1. masterFailurePercentage
+    
+    ```bash
+    # No failure. 433 records
+    task launch --name batch-process-prod-k8s-task --arguments "--inputFile=dataflow-bucket:sample-data-prod.zip --resourcesPath=dataflow-bucket --spring.profiles.active=docker,master --batch.incrementerEnabled=false --batch.masterFailurePercentage=0 param=10"
+    ```
             
 1. Add following app inside Spring Data-flow server, to support composite tasks
 

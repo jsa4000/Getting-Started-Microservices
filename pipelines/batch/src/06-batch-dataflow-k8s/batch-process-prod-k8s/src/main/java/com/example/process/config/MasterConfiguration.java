@@ -2,12 +2,14 @@ package com.example.process.config;
 
 import com.example.process.batch.*;
 import com.example.process.listener.JobCompletionListener;
+import com.example.process.utils.ChaosMonkey;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.core.explore.JobExplorer;
+import org.springframework.batch.core.job.builder.SimpleJobBuilder;
 import org.springframework.batch.core.launch.support.RunIdIncrementer;
 import org.springframework.batch.core.partition.PartitionHandler;
 import org.springframework.batch.core.partition.support.Partitioner;
@@ -38,6 +40,12 @@ public class MasterConfiguration {
     @Value("${batch.max-workers:1}")
     private int maxWorkers;
 
+    @Value("${batch.masterFailurePercentage:0}")
+    private int failurePercentage;
+
+    @Value("${batch.incrementerEnabled:true}")
+    private boolean incrementerEnabled;
+
     @Autowired
     private ApplicationArguments applicationArguments;
 
@@ -58,7 +66,10 @@ public class MasterConfiguration {
                                                      ApplicationContext context,
                                                      TaskLauncher taskLauncher,
                                                      JobExplorer jobExplorer,
-                                                     ResourceLoaderResolver resolver) {
+                                                     ResourceLoaderResolver resolver) throws Exception{
+
+        // Check whether chaos monkey must be activated - AOP
+        ChaosMonkey.check("masterFailurePercentage", failurePercentage);
         ResourceLoader resourceLoader = resolver.get(resourceLocation);
         Resource resource = resourceLoader.getResource(resourceLocation);
         DeployerPartitionHandler partitionHandler = new DeployerPartitionHandler(taskLauncher,
@@ -120,14 +131,18 @@ public class MasterConfiguration {
 
     @Bean
     public Job job(JobBuilderFactory jobBuilderFactory, JobCompletionListener listener) {
-        return jobBuilderFactory.get("job")
-                .incrementer(new RunIdIncrementer())
+        SimpleJobBuilder jobBuilder = jobBuilderFactory.get("job")
                 .listener(listener)
                 .start(downloadProcessStep(null,null))
                 .next(unzipProcessStep(null,null))
                 .next(uploadProcessStep(null,null))
                 .next(masterStep( null, null, null))
-                .next(postProcessStep(null,null))
-                .build();
+                .next(postProcessStep(null,null));
+
+        if (incrementerEnabled) {
+            jobBuilder.incrementer(new RunIdIncrementer());
+        }
+
+        return jobBuilder.build();
     }
 }

@@ -32,20 +32,31 @@ public class SlaveConfiguration {
         return new DeployerStepExecutionHandler(context, jobExplorer, jobRepository);
     }
 
+    /**
+     * Performs a Chaos Monkey action
+     *
+     * @param failurePercentage
+     * @throws Exception
+     */
+    public void doChaosMonkey(int failurePercentage) throws Exception {
+        log.info("Failure chance: " + failurePercentage);
+        if (failurePercentage <= 0) {
+            return;
+        }
+        Random rand = new Random();
+        int chance = rand.nextInt(100);
+        log.info("Failure random " + chance + " <= " + failurePercentage);
+        if (chance <= failurePercentage) {
+            throw new CustomJobFailingException("Failure percentage: " + failurePercentage);
+        }
+    }
+
     @Bean
     @StepScope
     public Tasklet workerTasklet(final @Value("#{stepExecutionContext['fileName']}")String fileName) {
         return (contribution, chunkContext) -> {
             log.info("This tasklet ran partition: " + fileName);
-            log.info("Failure chance: " + failurePercentage);
-            if (failurePercentage > 0) {
-                Random rand = new Random();
-                int chance = rand.nextInt(100);
-                log.info("Failure random " + chance + " <= " + failurePercentage);
-                if (chance <= failurePercentage) {
-                    throw new CustomJobFailingException("Failure percentage: " + failurePercentage);
-                }
-            }
+            doChaosMonkey(failurePercentage);
             return RepeatStatus.FINISHED;
         };
     }

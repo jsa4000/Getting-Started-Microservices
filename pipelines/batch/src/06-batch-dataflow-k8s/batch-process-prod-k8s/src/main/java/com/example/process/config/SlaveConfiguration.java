@@ -5,6 +5,7 @@ import com.example.process.listener.SlaveChunkListener;
 import com.example.process.listener.SlaveStepListener;
 import com.example.process.mapper.RecordFieldSetMapper;
 import com.example.process.model.Customer;
+import com.example.process.utils.ChaosMonkey;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
@@ -38,6 +39,12 @@ public class SlaveConfiguration {
     @Value("${batch.max-threads:4}")
     private int maxThreads;
 
+    @Value("${batch.slaveWriterFailurePercentage:0}")
+    private int slaveWriterFailurePercentage;
+
+    @Value("${batch.slaveReaderFailurePercentage:0}")
+    private int slaveReaderFailurePercentage;
+
     @Bean
     public DeployerStepExecutionHandler stepExecutionHandler(ApplicationContext context,
                                                              JobExplorer jobExplorer,
@@ -47,8 +54,11 @@ public class SlaveConfiguration {
 
     @Bean
     @StepScope
-    public FlatFileItemReader<Customer> reader(@Value("#{stepExecutionContext['resourceFile']}") Resource resource) {
+    public FlatFileItemReader<Customer> reader(@Value("#{stepExecutionContext['resourceFile']}") Resource resource)
+            throws Exception {
         log.info("Slave processing the file: " + resource.getFilename());
+        // Check whether chaos monkey must be activated - AOP
+        ChaosMonkey.check("slaveReaderFailurePercentage", slaveReaderFailurePercentage);
         return new FlatFileItemReaderBuilder<Customer>()
                 .name("personReader")
                 .resource(resource)
@@ -80,7 +90,9 @@ public class SlaveConfiguration {
 
     @Bean
     @StepScope
-    public JdbcBatchItemWriter<Customer> writer(@Qualifier("secondDataSource") DataSource dataSource) {
+    public JdbcBatchItemWriter<Customer> writer(@Qualifier("secondDataSource") DataSource dataSource) throws Exception {
+        // Check whether chaos monkey must be activated - AOP
+        ChaosMonkey.check("slaveWriterFailurePercentage", slaveWriterFailurePercentage);
         return new JdbcBatchItemWriterBuilder<Customer>()
                 .itemSqlParameterSourceProvider(new BeanPropertyItemSqlParameterSourceProvider<>())
                 .sql("INSERT INTO customer (first_name, last_name, full_name, title, email, phone_number, birth_date, address, street_name, city, country, " +
