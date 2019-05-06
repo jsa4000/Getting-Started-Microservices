@@ -17,8 +17,14 @@ public class TasksController {
     @Autowired
     TasksService service;
 
-    @GetMapping("/{id}")
-    public ResponseEntity<CustomTaskSchedule> getById(@PathVariable int id) {
-        return new ResponseEntity<>(service.getById(id), HttpStatus.OK);
+    @GetMapping("/")
+    public ResponseEntity<CustomTaskSchedule> create() {
+
+        CustomTaskSchedule task = CustomTaskSchedule.builder()
+                .name("taks1")
+                .data("This is some data")
+                .status("CREATED")
+                .build();
+        return new ResponseEntity<>(service.save(task), HttpStatus.OK);
     }
 }

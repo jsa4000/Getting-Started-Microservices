@@ -1,16 +1,15 @@
 package com.example.orchestrator.domain;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 
 import javax.persistence.*;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Data
+@Builder
 @Entity
-@Table(name="custom_task_schedule", indexes = { @Index(name = "idx_cts_ns", columnList = "name,status")})
+@Table(name="custom_task_schedule",
+        indexes = { @Index(name = "idx_cts_ns", columnList = "name,status")})
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString
@@ -27,13 +26,21 @@ public class CustomTaskSchedule {
     @Column(name = "data", length=4096)
     private String data;
 
-    @Column(name = "created_time", nullable=false)
-    private LocalDate createdTime;
+    @Column(name = "created_time", nullable=false, updatable = false)
+    private LocalDateTime createdOn;
 
     @Column(name = "updated_time", nullable=false)
-    private LocalDate updatedTime;
+    private LocalDateTime updatedOn;
 
     @Column(name = "status", nullable=false, length=256)
     private String status;
+
+    @PrePersist
+    public void prePersist() { createdOn = updatedOn = LocalDateTime.now(); }
+
+    @PreUpdate
+    public void preUpdate() {
+        updatedOn = LocalDateTime.now();
+    }
 
 }

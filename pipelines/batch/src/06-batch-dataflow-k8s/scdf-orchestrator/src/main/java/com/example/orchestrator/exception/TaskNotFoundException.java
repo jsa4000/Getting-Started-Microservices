@@ -1,4 +1,4 @@
-package com.example.orchestrator.exceptions;
+package com.example.orchestrator.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
