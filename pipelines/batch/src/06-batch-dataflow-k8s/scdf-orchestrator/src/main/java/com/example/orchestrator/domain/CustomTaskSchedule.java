@@ -1,16 +1,16 @@
-package com.example.orchestrator.model;
+package com.example.orchestrator.domain;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
-import org.joda.time.DateTime;
 
 import javax.persistence.*;
+import java.time.LocalDate;
 
 @Data
 @Entity
-@Table(name="custom_task_schedule")
+@Table(name="custom_task_schedule", indexes = { @Index(name = "idx_cts_ns", columnList = "name,status")})
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString
@@ -28,10 +28,10 @@ public class CustomTaskSchedule {
     private String data;
 
     @Column(name = "created_time", nullable=false)
-    private DateTime createTtime;
+    private LocalDate createdTime;
 
     @Column(name = "updated_time", nullable=false)
-    private DateTime updatedTime;
+    private LocalDate updatedTime;
 
     @Column(name = "status", nullable=false, length=256)
     private String status;

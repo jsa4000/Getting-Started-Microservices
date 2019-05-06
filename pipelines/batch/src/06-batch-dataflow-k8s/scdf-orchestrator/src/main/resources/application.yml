@@ -3,8 +3,19 @@ spring:
     active: local
   application:
     name: scdf-orchestrator
+  jpa:
+    properties:
+      hibernate:
+        temp.use_jdbc_metadata_defaults: false
+    hibernate:
+      generate-ddl: false
+      ddl-auto: none
   liquibase:
     change-log: classpath:config/liquibase/master.xml
+  cloud:
+    task:
+      initialize:
+        enable: false
 
 server:
   port: 8080
@@ -28,7 +39,7 @@ logging:
 spring:
   profiles: local
   datasource:
-    url: jdbc:postgresql://dockerhost:5432/dataflow
+    url: jdbc:postgresql://dockerhost:5432/oschestrator
     username: postgres
     password: password
     driver-class-name: org.postgresql.Driver
@@ -43,7 +54,7 @@ orchestrator:
 spring:
   profiles: docker
   datasource:
-    url: jdbc:postgresql://postgres:5432/dataflow
+    url: jdbc:postgresql://postgres:5432/oschestrator
     username: postgres
     password: password
     driver-class-name: org.postgresql.Driver
@@ -55,7 +66,7 @@ orchestrator:
 spring:
   profiles: k8s
   datasource:
-    url: jdbc:postgresql://postgres.default.svc.cluster.local:5432/dataflow
+    url: jdbc:postgresql://postgres.default.svc.cluster.local:5432/oschestrator
     username: postgres
     password: password
     driver-class-name: org.postgresql.Driver

@@ -8,7 +8,8 @@ if (!project.hasProperty('runList')) {
 
 ext {
     diffChangelogFile = 'src/main/resources/config/liquibase/changelog/' + new Date().format('yyyyMMddHHmmss') + '_changelog.xml'
-    mainUrl = 'jdbc:postgresql://dockerhost:5432/dataflow'
+    diffDomainPackage = 'com.example.orchestrator.domain'
+    mainUrl = 'jdbc:postgresql://dockerhost:5432/oschestrator'
     mainUsername =  'postgres'
     mainPassword = 'password'
     maindriver = 'org.postgresql.Driver'
@@ -33,7 +34,7 @@ liquibase {
             password mainPassword
             driver maindriver
             changeLogFile diffChangelogFile
-            referenceUrl "hibernate:spring:com.example.orchestrator.model?dialect=${mainDialect}&amp;hibernate.physical_naming_strategy=org.springframework.boot.orm.jpa.hibernate.SpringPhysicalNamingStrategy&amp;hibernate.implicit_naming_strategy=org.springframework.boot.orm.jpa.hibernate.SpringImplicitNamingStrategy"
+            referenceUrl "hibernate:spring:${diffDomainPackage}?dialect=${mainDialect}&amp;hibernate.physical_naming_strategy=org.springframework.boot.orm.jpa.hibernate.SpringPhysicalNamingStrategy&amp;hibernate.implicit_naming_strategy=org.springframework.boot.orm.jpa.hibernate.SpringImplicitNamingStrategy"
             defaultSchemaName ''
             logLevel 'debug'
             classpath "$buildDir/classes/java/main"

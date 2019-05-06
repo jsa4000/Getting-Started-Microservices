@@ -5,7 +5,7 @@ services:
     image: postgres:10.7-alpine
     restart: always
     environment:
-      POSTGRES_MULTIPLE_DATABASES: dataflow,db
+      POSTGRES_MULTIPLE_DATABASES: dataflow,db,oschestrator
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: password
     ports:

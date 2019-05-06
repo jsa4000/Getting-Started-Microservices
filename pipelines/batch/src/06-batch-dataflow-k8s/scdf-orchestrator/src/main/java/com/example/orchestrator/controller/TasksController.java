@@ -1,6 +1,6 @@
 package com.example.orchestrator.controller;
 
-import com.example.orchestrator.model.CustomTaskSchedule;
+import com.example.orchestrator.domain.CustomTaskSchedule;
 import com.example.orchestrator.service.TasksService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
