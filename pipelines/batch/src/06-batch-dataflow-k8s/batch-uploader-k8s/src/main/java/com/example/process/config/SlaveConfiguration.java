@@ -43,7 +43,7 @@ public class SlaveConfiguration {
                 int chance = rand.nextInt(100);
                 log.info("Failure random " + chance + " <= " + failurePercentage);
                 if (chance <= failurePercentage) {
-                    throw new CustomJobFailingException();
+                    throw new CustomJobFailingException("Failure percentage: " + failurePercentage);
                 }
             }
             return RepeatStatus.FINISHED;

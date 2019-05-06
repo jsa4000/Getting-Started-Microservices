@@ -102,7 +102,7 @@
 1. Run Same Job using `parameters`. Parameters have not got `--` before the name.
 
     ```bash
-    # This task will be EXECUTED (if first time) since it uses a different parameter value 'param=2'
+    # This task will be EXECUTED (if first time) since it didn't use any parameter at all.
     dataflow:>task launch --name batch-uploader-task --arguments "--spring.profiles.active=docker,master --batch.incrementerEnabled=false"
     Launched task 'batch-uploader-task' with execution id 29
         
@@ -123,7 +123,7 @@
     Launched task 'batch-uploader-task' with execution id 39            
     ```         
            
-1. Introducing Failures and restarting the process
+1. Introducing Failures (kaos-monkey) and restarting the process
 
     ```bash
     # Start the process introducing some failures to the process (50%)
