@@ -54,11 +54,8 @@ public class SlaveConfiguration {
 
     @Bean
     @StepScope
-    public FlatFileItemReader<Customer> reader(@Value("#{stepExecutionContext['resourceFile']}") Resource resource)
-            throws Exception {
+    public FlatFileItemReader<Customer> reader(@Value("#{stepExecutionContext['resourceFile']}") Resource resource) {
         log.info("Slave processing the file: " + resource.getFilename());
-        // Check whether chaos monkey must be activated - AOP
-        ChaosMonkey.check("slaveReaderFailurePercentage", slaveReaderFailurePercentage);
         return new FlatFileItemReaderBuilder<Customer>()
                 .name("personReader")
                 .resource(resource)
@@ -84,7 +81,7 @@ public class SlaveConfiguration {
                         "department",
                         "startDate",
                         "endDate"})
-                .fieldSetMapper(new RecordFieldSetMapper())
+                .fieldSetMapper(new RecordFieldSetMapper(slaveReaderFailurePercentage))
                 .build();
     }
 

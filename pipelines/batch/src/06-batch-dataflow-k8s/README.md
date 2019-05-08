@@ -144,12 +144,48 @@
     - slaveReaderFailurePercentage: 0
     - slaveProcessorFailurePercentage: 0
     
-    1.1. masterFailurePercentage
+    Following are described the uses-cases:
     
-    ```bash
-    # No failure. 433 records
-    task launch --name batch-process-prod-k8s-task --arguments "--inputFile=dataflow-bucket:sample-data-prod.zip --resourcesPath=dataflow-bucket --spring.profiles.active=docker,master --batch.incrementerEnabled=false --batch.masterFailurePercentage=0 param=10"
-    ```
+    1. masterFailurePercentage
+    
+        ```bash
+        # OK 433 records
+        task launch --name batch-process-prod-k8s-task --arguments "--inputFile=dataflow-bucket:sample-data-prod.zip --resourcesPath=dataflow-bucket --spring.profiles.active=docker,master --batch.incrementerEnabled=false --batch.masterFailurePercentage=0 param=1"
+        
+        # Failure. The task has been already completed. 0 records
+        task launch --name batch-process-prod-k8s-task --arguments "--inputFile=dataflow-bucket:sample-data-prod.zip --resourcesPath=dataflow-bucket --spring.profiles.active=docker,master --batch.incrementerEnabled=false --batch.masterFailurePercentage=0 param=1"
+        
+        # OK 433 records
+        task launch --name batch-process-prod-k8s-task --arguments "--inputFile=dataflow-bucket:sample-data-prod.zip --resourcesPath=dataflow-bucket --spring.profiles.active=docker,master --batch.incrementerEnabled=false --batch.masterFailurePercentage=0 param=2"
+                
+        # Chaos Monkey records
+        task launch --name batch-process-prod-k8s-task --arguments "--inputFile=dataflow-bucket:sample-data-prod.zip --resourcesPath=dataflow-bucket --spring.profiles.active=docker,master --batch.incrementerEnabled=false --batch.masterFailurePercentage=100 param=3"
+                      
+        # NOTE: THIS ISSUE REQUIRES ADDITIONAL CHECKING TO VERIFY IF THE TASK HAS BEEN FAIL UNEXPECTEDLY
+  
+        ```
+    
+     1. slaveProcessorFailurePercentage
+        
+        ```bash
+        # Fails. No recods
+        task launch --name batch-process-prod-k8s-task --arguments "--inputFile=dataflow-bucket:sample-data-prod.zip --resourcesPath=dataflow-bucket --spring.profiles.active=docker,master --batch.incrementerEnabled=false --batch.slaveProcessorFailurePercentage=1 param=4"
+        
+        # Fails. Step 1 complete 100 records 
+        task launch --name batch-process-prod-k8s-task --arguments "--inputFile=dataflow-bucket:sample-data-prod.zip --resourcesPath=dataflow-bucket --spring.profiles.active=docker,master --batch.incrementerEnabled=false --batch.slaveProcessorFailurePercentage=1 param=4"
+             
+        # Fails.  
+        task launch --name batch-process-prod-k8s-task --arguments "--inputFile=dataflow-bucket:sample-data-prod.zip --resourcesPath=dataflow-bucket --spring.profiles.active=docker,master --batch.incrementerEnabled=false --batch.slaveProcessorFailurePercentage=1 param=4"
+                          
+        # Fails. Step 2 & 3 complete 100 * 2 records 
+        task launch --name batch-process-prod-k8s-task --arguments "--inputFile=dataflow-bucket:sample-data-prod.zip --resourcesPath=dataflow-bucket --spring.profiles.active=docker,master --batch.incrementerEnabled=false --batch.slaveProcessorFailurePercentage=1 param=4"
+           
+        # Ok. Complete Step 4 complete
+        task launch --name batch-process-prod-k8s-task --arguments "--inputFile=dataflow-bucket:sample-data-prod.zip --resourcesPath=dataflow-bucket --spring.profiles.active=docker,master --batch.incrementerEnabled=false --batch.slaveProcessorFailurePercentage=1 param=4"
+                                  
+        # NOTE: In this case spring cloud data flow detect when the process has been fail and perforrm the rollbacks needed.                          
+        
+        ```
             
 1. Add following app inside Spring Data-flow server, to support composite tasks
 
@@ -770,8 +806,27 @@ WHERE  name = 'max_connections';
         at org.springframework.boot.DefaultApplicationArguments.<init>(DefaultApplicationArguments.java:42)
         at org.springframework.boot.SpringApplication.run(SpringApplication.java:304)
         at org.springframework.boot.SpringApplication.run(SpringApplication.java:1260)
-        at org.springframework.boot.SpringApplication.run(SpringApplication.java:1248) 
+        at org.springframework.boot.SpringApplication.run(SpringApplication.java:1248)
     ```
+
+- Task/Job does **not** complete **nor** fail when an exception is thrown creating a Bean at `runtime`.
+
+  This issue does not start any Job, since it fails during the initialization, the process stops and there is no record.
+  Solutions: 
+  
+  - Orchestrator to check following data inside the `TaskRespository` from `task_deployment` table.
+  
+        ```bash
+        19	0	batch-process-prod-k8s-task-b32e1d60-f72b-4e03-8915-a7648d604c94	batch-process-prod-k8s-task	default	2019-05-08 10:29:16
+        ```
+
+   - Then match `task_deployment` and `task_execution`, to check is it has been not initialized.
+    
+       ```bash
+        19			batch-process-prod-k8s-task				2019-05-08 10:29:12	batch-process-prod-k8s-task-b32e1d60-f72b-4e03-8915-a7648d604c94	
+       ```
+
+   - Finally, set the Job as `FAIL`
 
 #### References
 

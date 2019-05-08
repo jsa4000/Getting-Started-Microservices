@@ -1,6 +1,7 @@
 package com.example.process.mapper;
 
 import com.example.process.model.Customer;
+import com.example.process.utils.ChaosMonkey;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.item.file.mapping.FieldSetMapper;
 import org.springframework.batch.item.file.transform.FieldSet;
@@ -11,10 +12,18 @@ import java.text.SimpleDateFormat;
 @Slf4j
 public class RecordFieldSetMapper implements FieldSetMapper<Customer> {
 
+    private int slaveReaderFailurePercentage;
+
     static SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-mm-dd hh:mm:ss");
+
+    public RecordFieldSetMapper(int slaveReaderFailurePercentage) {
+        this.slaveReaderFailurePercentage = slaveReaderFailurePercentage;
+    }
 
     public Customer mapFieldSet(FieldSet fieldSet) throws BindException {
         try {
+            // Check whether chaos monkey must be activated - AOP
+            ChaosMonkey.check("slaveReaderFailurePercentage", slaveReaderFailurePercentage);
             return Customer.builder()
                     .id(fieldSet.readString("id"))
                     .firstName(fieldSet.readString("firstName"))
