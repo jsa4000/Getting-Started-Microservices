@@ -165,7 +165,7 @@
   
         ```
     
-     1. slaveProcessorFailurePercentage
+    1. slaveProcessorFailurePercentage
         
         ```bash
         # Fails. No recods
@@ -183,7 +183,29 @@
         # Ok. Complete Step 4 complete
         task launch --name batch-process-prod-k8s-task --arguments "--inputFile=dataflow-bucket:sample-data-prod.zip --resourcesPath=dataflow-bucket --spring.profiles.active=docker,master --batch.incrementerEnabled=false --batch.slaveProcessorFailurePercentage=1 param=4"
                                   
-        # NOTE: In this case spring cloud data flow detect when the process has been fail and perforrm the rollbacks needed.                          
+        # NOTE: In this case spring cloud data flow detects when the process has been failed and perform the rollbacks needed.                          
+        
+        ```
+
+    1. slaveReaderFailurePercentage
+        
+        ```bash
+        # Fails. No recods
+        task launch --name batch-process-prod-k8s-task --arguments "--inputFile=dataflow-bucket:sample-data-prod.zip --resourcesPath=dataflow-bucket --spring.profiles.active=docker,master --batch.incrementerEnabled=false --batch.slaveReaderFailurePercentage=1 param=4"
+        
+        # Fails. Step 1 complete 100 records 
+        task launch --name batch-process-prod-k8s-task --arguments "--inputFile=dataflow-bucket:sample-data-prod.zip --resourcesPath=dataflow-bucket --spring.profiles.active=docker,master --batch.incrementerEnabled=false --batch.slaveReaderFailurePercentage=1 param=4"
+             
+        # Fails.  
+        task launch --name batch-process-prod-k8s-task --arguments "--inputFile=dataflow-bucket:sample-data-prod.zip --resourcesPath=dataflow-bucket --spring.profiles.active=docker,master --batch.incrementerEnabled=false --batch.slaveReaderFailurePercentage=1 param=4"
+                          
+        # Fails. Step 2 & 3 complete 100 * 2 records 
+        task launch --name batch-process-prod-k8s-task --arguments "--inputFile=dataflow-bucket:sample-data-prod.zip --resourcesPath=dataflow-bucket --spring.profiles.active=docker,master --batch.incrementerEnabled=false --batch.slaveReaderFailurePercentage=1 param=4"
+           
+        # Ok. Complete Step 4 complete
+        task launch --name batch-process-prod-k8s-task --arguments "--inputFile=dataflow-bucket:sample-data-prod.zip --resourcesPath=dataflow-bucket --spring.profiles.active=docker,master --batch.incrementerEnabled=false --batch.slaveReaderFailurePercentage=1 param=4"
+                                  
+        # NOTE: In this case spring cloud data flow detects when the process has been failed and perform the rollbacks needed.                          
         
         ```
             
