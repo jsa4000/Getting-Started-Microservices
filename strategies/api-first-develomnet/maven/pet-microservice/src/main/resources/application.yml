@@ -1,0 +1,69 @@
+spring:
+  application:
+    name: pet-microservice
+  profiles:
+    active: local
+  liquibase:
+    change-log: classpath:liquibase/master.xml
+
+server:
+  port: 8080
+
+management:
+  endpoints:
+    web:
+      base-path: /management
+      exposure.include: health,info
+
+logging:
+  level:
+    root: DEBUG
+    org.springframework.web: DEBUG
+    com.example.ecommerce: DEBUG
+
+---
+spring:
+  profiles: local
+  datasource:
+    type: com.zaxxer.hikari.HikariDataSource
+    url: jdbc:h2:mem:db;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    driverClassName: org.h2.Driver
+    username: sa
+    password:
+    hikari:
+      poolName: Hikari
+      auto-commit: false
+  h2:
+    console:
+      enabled: true
+      path: /h2
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    database: H2
+    show-sql: true
+    properties:
+      hibernate.id.new_generator_mappings: true
+      hibernate.connection.provider_disables_autocommit: true
+      hibernate.cache.use_second_level_cache: false
+      hibernate.cache.use_query_cache: false
+      hibernate.generate_statistics: true
+---
+spring:
+  profiles: docker
+  datasource:
+    type: com.zaxxer.hikari.HikariDataSource
+    url: jdbc:postgresql://dockerhost:5432/db
+    driverClassName: org.postgresql.Driver
+    username: postgres
+    password: password
+    hikari:
+      poolName: Hikari
+      auto-commit: false
+  jpa:
+    show-sql: true
+    properties:
+      hibernate.id.new_generator_mappings: true
+      hibernate.connection.provider_disables_autocommit: true
+      hibernate.cache.use_second_level_cache: false
+      hibernate.cache.use_query_cache: false
+      hibernate.generate_statistics: true

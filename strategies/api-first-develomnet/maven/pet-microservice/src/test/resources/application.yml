@@ -1,0 +1,45 @@
+spring:
+  application:
+    name: product-microservice
+  profiles:
+    active: test
+  liquibase:
+    change-log: classpath:liquibase/master.xml
+  datasource:
+    type: com.zaxxer.hikari.HikariDataSource
+    url: jdbc:h2:mem:db;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    driverClassName: org.h2.Driver
+    username: sa
+    password:
+    hikari:
+      auto-commit: false
+    h2.console.enabled: false
+    jpa:
+      database-platform: org.hibernate.dialect.H2Dialect
+      database: H2
+      open-in-view: false
+      show-sql: false
+      hibernate:
+        ddl-auto: none
+        naming:
+          physical-strategy: org.springframework.boot.orm.jpa.hibernate.SpringPhysicalNamingStrategy
+          implicit-strategy: org.springframework.boot.orm.jpa.hibernate.SpringImplicitNamingStrategy
+      properties:
+        hibernate.id.new_generator_mappings: true
+        hibernate.connection.provider_disables_autocommit: true
+        hibernate.cache.use_second_level_cache: false
+        hibernate.cache.use_query_cache: false
+        hibernate.generate_statistics: false
+        hibernate.hbm2ddl.auto: validate
+        hibernate.jdbc.time_zone: UTC
+
+server:
+  port: 8080
+
+logging:
+  level:
+    ROOT: INFO
+    com.example.ecommerce: INFO
+
+
+
