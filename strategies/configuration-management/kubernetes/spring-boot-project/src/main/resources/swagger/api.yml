@@ -1,0 +1,86 @@
+swagger: '2.0'
+info:
+  contact:
+    email: test.contact@example.com
+    name: Orange - Project Example
+    url: http://test.si.example.es
+  description: This API allows to manage kubernetes configuration.
+  termsOfService: http://test.example.com/terms
+  title: Kubernetes Configuration Rest Api
+  version: 0.1.0
+basePath: /api/v1
+schemes:
+  - http
+  - https
+consumes:
+  - application/json
+produces:
+  - application/json
+tags:
+  - description: Everything about Configuration
+    name: Configuration
+paths:
+  /configurations:
+    get:
+      tags:
+        - Configuration
+      operationId: getConfiguration
+      description: 'This API allows to retrieve all configurations'
+      responses:
+        '200':
+          description: configuration response
+          schema:
+            "$ref": '#/definitions/Configuration'
+        default:
+          description: unexpected error
+          schema:
+            "$ref": "#/definitions/Error"
+definitions:
+  Configuration:
+    type: object
+    description: Manager properties
+    properties:
+      url:
+        description: Database URL
+        type: string
+      username:
+        description: Database Username
+        type: string
+      password:
+        description: Database Password
+        type: string
+      driverClass:
+        description: Database Driver Class
+        type: string
+    required:
+      - url
+      - username
+      - password
+  Error:
+    type: object
+    properties:
+      code:
+        type: integer
+        description: >-
+          An integer coding the error type. This is given to caller so he can
+          translate them if required.
+      message:
+        type: string
+        description: A short localized string that describes the error.
+      description:
+        type: string
+        description: >-
+          (optional) A URL to online documentation that provides more
+          information about the error.
+      infoURL:
+        type: string
+        description: >-
+          (optional) A URL to online documentation that provides more
+          information about the error.
+securityDefinitions:
+  Bearer:
+    type: apiKey
+    name: Authorization
+    in: header
+security:
+  - Bearer: []

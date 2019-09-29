@@ -1,0 +1,14 @@
+spring:
+  s3:
+    url: http://s3.amazonaws.com
+    credentials: iam
+
+batch:
+  master:
+    maxWorkers: 6
+    timeout: 36000000
+  datasource:
+    driverClassName: org.postgresql.Driver
+    url: jdbc:postgresql://database:5432/customers
+    username: ${database.username}
+    password: ${database.password}

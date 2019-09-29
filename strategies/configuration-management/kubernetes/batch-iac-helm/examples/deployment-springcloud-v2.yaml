@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: springcloud-deployment
+  labels:
+    app: springcloud
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: springcloud
+  template:
+    metadata:
+      labels:
+        app: springcloud
+    spec:
+      containers:
+      - name: springcloud
+        image: jsa4000/spring-boot-kubernetes-config:latest
+        ports:
+        - containerPort: 8080
+        env:
+        - name: SPRING_PROFILES_ACTIVE
+          value: k8s
+        resources:
+          limits:
+            memory: "512Mi"
+            cpu: "1000m"
+       
+
+          

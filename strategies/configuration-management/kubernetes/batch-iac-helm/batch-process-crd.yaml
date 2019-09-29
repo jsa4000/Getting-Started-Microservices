@@ -1,0 +1,24 @@
+apiVersion: apiextensions.k8s.io/v1beta1
+kind: CustomResourceDefinition
+metadata:
+  name: batches.example.org
+spec:
+  scope: Namespaced
+  group: example.org
+  version: v1beta1
+  names:
+    kind: BatchProcess
+    plural: batches
+    singular: batch
+  scope: Namespaced
+  validation:
+    openAPIV3Schema:
+      properties:
+        spec:
+          properties:
+            label:
+              type: string
+            image:
+              type: string
+          required:
+            - image

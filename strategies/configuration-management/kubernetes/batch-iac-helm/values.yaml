@@ -1,0 +1,30 @@
+# Default values for example-chart-helm.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+# GLOBALES - Nombre del proceso batch
+nameOverride: customers-batch
+fullnameOverride: customers-batch-example
+sistema: example
+component: data           # Posibles valores [api|domian|data|controller]
+namespace: test
+
+# BATCH PROCESS
+batch:  
+  create: true
+  repository: registry.hub.docker.com
+  name: customerbatch    
+  tag: 1.0.0-SNAPSHOT
+
+# SECRETS
+secrets:
+  create: true
+  folderName: secrets/*
+  name: customers-batch
+
+# CONFIGMAP
+configMap:
+  create: true
+  fileName: application.yml
+  name: customers-batch-conf
+

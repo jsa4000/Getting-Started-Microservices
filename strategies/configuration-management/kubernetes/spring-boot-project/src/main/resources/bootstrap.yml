@@ -1,0 +1,34 @@
+spring:
+  profiles:
+    active: local
+  application:
+    name: kubernetes-config
+
+---
+spring:
+  profiles: k8s
+  cloud:
+    kubernetes:
+      #reload:
+      #  enabled: true
+      #  mode: polling
+      #  strategy: refresh
+      #  monitoring-config-maps: true
+      #  monitoring-secrets: true
+      #  period: 15000
+      config:
+        enabled: true
+        # To Use the K8s APIs directly instead pod definition
+        enable-api: true
+        # Paths to get the properties information
+        sources:
+        - name: customers-batch-conf-cm
+      secrets:
+        enabled: true
+        # To Use the K8s APIs directly instead pod definition
+        enable-api: true
+        # Name of the secret to pull from k8s APIs
+        name: customers-batch-secret
+        paths:
+          - /opt/app/secrets/one/
+

@@ -1,0 +1,30 @@
+spring:
+  profiles:
+    active: local
+
+server:
+  port: 8080
+
+management:
+  endpoints:
+    web:
+      base-path: /management
+      exposure.include: health,beans,env,info
+
+logging:
+  level:
+    root: INFO
+    org.springframework.cloud: DEBUG
+    org.springframework.web: INFO
+    com.example.kubernetes: DEBUG
+
+---
+spring:
+  profiles: local
+
+batch:
+  datasource:
+    driverClassName: default
+    url: default
+    username: default
+    password: default

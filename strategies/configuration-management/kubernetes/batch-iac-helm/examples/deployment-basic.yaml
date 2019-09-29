@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deployment
+  labels:
+    app: nginx
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:1.7.9
+        ports:
+        - containerPort: 80
+        resources:
+          limits:
+            memory: "128Mi"
+            cpu: "100m"
+        volumeMounts:
+        - name: customers-secret-one
+          mountPath: /opt/app/secrets/one/
+        - name: customers-secret-two
+          mountPath: /opt/app/secrets/two/
+        - name: customers-configmap
+          mountPath: /opt/app/config/
+      volumes:
+      - name: customers-secret-one
+        secret:
+          secretName: customers-batch-secret
+      - name: customers-secret-two
+        secret:
+          secretName: customers-batch-secret
+      - name: customers-configmap
+        configMap:
+          name: customers-batch-conf-cm

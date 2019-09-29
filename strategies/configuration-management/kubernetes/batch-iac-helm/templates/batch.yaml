@@ -1,0 +1,19 @@
+{{- if .Values.batch.create }}
+apiVersion: example.org/v1beta1
+kind: BatchProcess
+metadata:
+  name: {{ include "example-chart.fullname" . }}-batch
+{{- if .Values.namespace }}
+  namespace: {{ .Values.namespace }}
+{{- end }}
+  labels:
+    app.kubernetes.io/name: {{ include "example-chart.name" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}      
+    app.kubernetes.io/component: {{ .Values.component }}  
+    app.kubernetes.io/part-of: {{ .Values.sistema }}  
+    app.kubernetes.io/managed-by: {{ .Release.Service }}  
+    helm.sh/chart: {{ include "example-chart.chart" . }}  
+spec:
+  label: {{ include "example-chart.fullname" . }}
+  image: {{ .Values.batch.repository }}/{{ .Values.batch.name }}:{{ .Values.batch.tag }}
+{{- end }}
