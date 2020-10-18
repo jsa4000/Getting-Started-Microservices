@@ -14,8 +14,11 @@
 *.sln.docstates
 *.iml
 
-# Ignore Mac DS_Store files
+### OSX ###
+# General
 .DS_Store
+.AppleDouble
+.LSOverride
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
