@@ -336,7 +336,7 @@ Following process is highly detailed in the official [Istio website](https://ist
   # > Select "microservice" namespace in the combo
   istioctl dashboard kiali
 
-  # Open grafana dashboard -> Go to istio-mesh-dashboard at http://localhost:3000/d/G8wLrJIZk/istio-mesh-dashboard?orgId=1&refresh=5s
+  # Open grafana dashboard -> Go to Istio Service Dashboard -> Select productage microservice
   istioctl dashboard grafana
   ```
 
@@ -380,7 +380,7 @@ Following process is highly detailed in the official [Istio website](https://ist
   # Check in IstioConfig the VirtualServie and Gateway habe been created and both are ok.
   http://localhost:20001/kiali/console/istio?namespaces=microservices
 
-  # Open grafana dashboard -> Go to istio-mesh-dashboard at http://localhost:3000/d/G8wLrJIZk/istio-mesh-dashboard?orgId=1&refresh=5s
+  # Open grafana dashboard -> Go to Istio Service Dashboard -> Select productage microservice
   istioctl dashboard grafana
   ```
 
@@ -467,8 +467,7 @@ Following process is highly detailed in the official [Istio website](https://ist
 
   # In display options it can be filtered information such as Circuit Breakers, Virtual SErvice, Security, etc..
 
-  # Open grafana dashboard -> Go to Istio Mesh Dashboard 
-  #                        -> Got to Istio Workload Dashboard  
+  # Open grafana dashboard -> Go to Istio Service Dashboard -> Select productage microservice
   istioctl dashboard grafana
   ```
 
