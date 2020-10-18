@@ -333,6 +333,7 @@ Following process is highly detailed in the official [Istio website](https://ist
  
   ```bash
   # Open kiali dashboard -> Graph -> Empty Graph
+  # > Select "microservice" namespace in the combo
   istioctl dashboard kiali
 
   # Open grafana dashboard -> Go to istio-mesh-dashboard at http://localhost:3000/d/G8wLrJIZk/istio-mesh-dashboard?orgId=1&refresh=5s
@@ -373,6 +374,7 @@ Following process is highly detailed in the official [Istio website](https://ist
  
   ```bash
   # Open kiali dashboard -> Graph -> Empty Graph
+  # > Select "microservice" namespace in the combo
   istioctl dashboard kiali
 
   # Check in IstioConfig the VirtualServie and Gateway habe been created and both are ok.
@@ -420,7 +422,7 @@ Following process is highly detailed in the official [Istio website](https://ist
   # There is no Sidecar yet configured
   ```
 
-17. Force to stop all the pods and verify again the status
+18. Force to stop all the pods and verify again the status
 
   > There is no Sidecar Proxy running yet `1/1 Running`
 
@@ -441,15 +443,34 @@ Following process is highly detailed in the official [Istio website](https://ist
   reviews-v3-7dbcdcbc56-qprm2       2/2     Running   0          56s
   ```
 
+19. Open `grafana` and `Kiali` application using `istioctl` tool.
+ 
+  ```bash
+  # Open kiali dashboard -> Graph -> Empty Graph (Still nothing ?)
+  # > Select "microservice" namespace in the combo
+  istioctl dashboard kiali
 
-17. Create new namespace
-18. Install demo application and default kubernetes ingress controller (Show the yaml files content)
-19. Remove ingress  controller (nginx)
-20. Install istio and show the pods created into istio-system (Show the diferent profiles)
-21. Install sample addons
-22. Create gateway and virual service (Show the yaml files content)
-23. Test the aplication and show grafana and kiali (empty)
-24. Set the auto-injection label into workspace
-25. Remove7stop all the pods and install again (force the sidecar to be injected)
-26. Test again
-27. Proceed with the next examples using Virtual Services, DestinationRules, etc..
+  # Force a request to the productpage  
+  http://localhost:80/productpage
+
+  # Force 100  times
+  for i in $(seq 1 100); do curl -s 'http://localhost:80/productpage'; done
+
+  for i in {1..100}
+  do
+    curl "http://localhost:80/productpage";
+  done
+
+  # Refresh kiali dashboard -> Graph (Wait a moment or refresh the page)
+  # > Select "microservice" namespace in the combo
+  http://localhost:20001/kiali/console/graph/namespaces/
+
+  # In display options it can be filtered information such as Circuit Breakers, Virtual SErvice, Security, etc..
+
+  # Open grafana dashboard -> Go to Istio Mesh Dashboard 
+  #                        -> Got to Istio Workload Dashboard  
+  istioctl dashboard grafana
+  ```
+
+
+
