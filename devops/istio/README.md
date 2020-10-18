@@ -481,26 +481,102 @@ Following process is highly detailed in the official [Istio website](https://ist
   # Force a request to the productpage  
   http://localhost:80/productpage
 
-  # Force 100  times
-  for i in $(seq 1 100); do curl -s 'http://localhost:80/productpage'; done
+  # Check kiali
+  http://localhost:20001/kiali/console/graph/namespaces/
 
-  for i in {1..100}
-  do
-    curl "http://localhost:80/productpage";
-  done
+  # Perform calls sequentially and return to kiali
+  watch curl -s -o /dev/null 'http://localhost:80/productpage'
 
   # Refresh kiali dashboard -> Graph (Wait a moment or refresh the page)
-  # > Select "microservice" namespace in the combo
+  #  1, Select "microservice" namespace in the combo
+  #  2. Select "versioned app graph". It can be selected others Service, Workload, etc..
+  #  3. Select Display -> "Request Percentage" to add the percentage in the edges on the graph.
+  #                    -> "Traffic Animation" to add the percentage in the edges on the graph.
+
   http://localhost:20001/kiali/console/graph/namespaces/
 
   # In display options it can be filtered information such as Circuit Breakers, Virtual SErvice, Security, etc..
 
   # Open grafana dashboard -> Go to Istio Service Dashboard -> Select productage microservice
+  #                        -> Go to Istio workload Dashboard -> Select microservice namespace and productage 
   istioctl dashboard grafana
 
   # Open jaeger dashboard -> Search for productpage
   istioctl dashboard jaeger
   ```
 
+20. Verify istio ingress controller is balancing the traffic equalliy between the services (round-robin)
 
+  > Kiali must show 33.3% of traffic among all review microservice versions: v1, v2 and v3
 
+ ```bash
+  # Open kiali dashboard -> Graph -> Empty Graph (Still nothing ?)
+  # > Select "microservice" namespace in the combo
+  istioctl dashboard kiali
+
+  # Perform calls sequentially and return to kiali
+  watch curl -s -o /dev/null 'http://localhost:80/productpage'
+  watch -n 0.5 curl -s -o /dev/null 'http://localhost:80/productpage'  # Per 0.5 seg
+
+  # Check the Request Percentage for productpage in kiali around 33.3%
+  ```
+
+21. Define the available versions, called subsets, in destination rules.
+  
+ > Before you can use Istio to control the Bookinfo version routing, you need to define the available versions, called subsets, in destination rules.
+
+  ```bash
+  # Check how subset are defined
+  code src/03_destination_rules_all
+
+  # Apply detination rules
+  kubectl apply -f src/03_destination_rules_all/
+  
+  destinationrule.networking.istio.io/productpage created
+  destinationrule.networking.istio.io/reviews created
+  destinationrule.networking.istio.io/ratings created
+  destinationrule.networking.istio.io/details created
+
+  # In this case destination rules are used to map the subsets with the `version` label in `deployments`
+  ```
+
+22.  Change the Service Mesh so it only routes traffic to v1.
+
+  > Perform changes Without stopping sending request to productpage.
+
+   ```bash
+  # Check the modifications made to the virtual services
+  code src/04_route_all_traffic_v1/
+
+  # Redefined kubernetes "Services" to istio "VirtualServices", so the proxies willl use this definition instead
+  # The Virtual Service uses v1 versions/subsets for the routing, so other versions are excluded.
+
+  # Update Virtual Services to route the traffic to v1 only
+  kubectl apply -f src/04_route_all_traffic_v1/
+
+  virtualservice.networking.istio.io/productpage created
+  virtualservice.networking.istio.io/reviews created
+  virtualservice.networking.istio.io/ratings created
+  virtualservice.networking.istio.io/details created
+
+  # Check also in kiali the percentages changes and move towards v1.
+  http://localhost/productpage  # Refresh several times
+  ```
+
+23. Route based on user identity
+
+  > The traffic will be routed depending on the headers (match)
+
+   ```bash
+  # Check the modifications made to the virtual services
+  code src/05_route_based_headers/
+
+  # Update Virtual Services to route the traffic to v1 except user 'Jason'
+  kubectl apply -f src/05_route_based_headers/
+
+  virtualservice.networking.istio.io/reviews configured
+
+  # 1. Log in as another user (pick any name you wish).
+  # 2. Refresh the browser.
+  # 3. Now the stars are gone. This is because traffic is routed to reviews:v1 for all users except Jason.
+  ```
