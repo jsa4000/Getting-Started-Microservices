@@ -58,19 +58,185 @@ At a high level, **Istio** helps reduce the complexity of these deployments, and
   version.BuildInfo{Version:"v3.3.4", GitCommit:"a61ce5633af99708171414353ed49547cf05013d", GitTreeState:"clean", GoVersion:"go1.14.9"}
   ```
 
-## Install Istio
+## Demo
 
-Following process is highly detailed in the official [Istio website](https://istio.io/latest/docs/setup/getting-started/)
+The actual demo uses the default sample application that comes with istio installation. This demo shows the **benefits** of a **Service Mesh** starting from a default kubernetes installation.
 
-1. Go to the Istio release [page](https://github.com/istio/istio/releases/) to download the installation file for your OS, or download and extract the latest release automatically (Linux or macOS).
+1. Create a `namespace` to deploy the sample application
+
+   > In the following example we will create a new namespace `microservices` to be used with istio.
+
+  ```bash
+  # Create the namespace where microservices will be deployed
+  kubectl create ns microservices
+
+  namespace/microservices created
+
+  # Show all the namespaces
+  kubectl get ns
+
+  NAME              STATUS   AGE
+  default           Active   4d6h
+  kube-node-lease   Active   4d6h
+  kube-public       Active   4d6h
+  kube-system       Active   4d6h
+  microservices     Active   36s
+  ```
+
+2. Switch to current namespace
+  
+  ```bash
+  # Switch to current context from ddefault
+  kubectl config set-context --current --namespace=microservices
+
+  Context "docker-desktop" modified.
+
+  # Get the current context info and namespace
+  kubectl config get-contexts
+
+  CURRENT          NAME             CLUSTER          AUTHINFO         NAMESPACE
+  *                docker-desktop   docker-desktop   docker-desktop   microservices
+  ```
+
+3.  Deploy the **sample** application based on kubernetes **native** resources  
+
+  The application displays information about a book, similar to a single catalog entry of an online book store. Displayed on the page is a description of the book, book details (ISBN, number of pages, and so on), and a few book reviews.
+
+  The **BookInfo** application is broken into **four** separate microservices:
+
+  - **productpage**. The productpage microservice calls the details and reviews microservices to populate the page.
+  - **details**. The details microservice contains book information.
+  - **reviews**. The reviews microservice contains book reviews. It also calls the ratings microservice.
+  - **ratings**. The ratings microservice contains book ranking information that accompanies a book review.
+
+  There are 3 different versions of the **reviews** microservice:
+
+  - **Version v1** doesn’t call the ratings service.
+  - **Version v2** calls the ratings service, and displays each rating as 1 to 5 black stars.
+  - **Version v3** calls the ratings service, and displays each rating as 1 to 5 red stars.
+
+  The end-to-end architecture of the application is shown below.
+
+  ![noistio](./images/noistio.svg)
+
+  ```bash
+  # Check the resources to be created (just the v1)
+  code src/01_bookinfo_deployment/
+
+  # Create the  book info application
+  kubectl apply -f src/01_bookinfo_deployment/
+
+  service/details created
+  serviceaccount/bookinfo-details created
+  deployment.apps/details-v1 created
+  service/ratings created
+  serviceaccount/bookinfo-ratings created
+  deployment.apps/ratings-v1 created
+  service/reviews created
+  serviceaccount/bookinfo-reviews created
+  deployment.apps/reviews-v1 created
+  service/productpage created
+  serviceaccount/bookinfo-productpage created
+  ```
+
+4. Wait until all the pods are currently`running`.
+
+  > Actually istio is **NOT** currently working. Pods have only one pod running 1/1,  so the SideCar is not active yet.
+
+  ```bash
+  # Create the  book info application
+  kubectl get pods -w
+
+  NAME                              READY   STATUS    RESTARTS   AGE
+  details-v1-558b8b4b76-6snwg       1/1     Running   0          85s
+  productpage-v1-6987489c74-ft6pf   1/1     Running   0          84s
+  ratings-v1-7dc98c7588-sqqnx       1/1     Running   0          84s
+  reviews-v1-7f99cc4496-vgj4t       1/1     Running   0          84s
+
+  # Get the services.
+  kubectl get svc
+  NAME          TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)    AGE
+  details       ClusterIP   10.99.0.151     <none>        9080/TCP   3m33s
+  productpage   ClusterIP   10.96.164.128   <none>        9080/TCP   3m32s
+  ratings       ClusterIP   10.99.104.182   <none>        9080/TCP   3m33s
+  reviews       ClusterIP   10.99.131.90    <none>        9080/TCP   3m32s
+  ```
+
+5. Verify the deployment (v1) using `port-forward` and accessing to the `prodcutpage`
+
+
+  ```bash
+  # Create the  book info application
+  kubectl port-forward svc/productpage 9080:9080
+
+  # Verify using a Web Browser.
+  #Reload the page and check the web is showing the same version every time (v1).
+  http://localhost:9080/productpage
+
+  ```
+
+6. Deploy multiple versions for the review service: `v2` and `v3`
+
+  > Kubernetes does not support multiple version for the same service. So it will balance between the versions without any logic.  
+
+```bash
+  # Check the resources to be created (v2 and v3). The service is the same as the v2, it must be the same.
+  code src/01_bookinfo_multiple_versions/
+
+  # Same selector -> matchLabels -> app, different versions: v2 and v3
+  #
+  # replicas: 1
+  # selector:
+  #   matchLabels:
+  #     app: reviews
+  #     version: v2
+
+  # Create the  book info application
+  kubectl apply -f src/01_bookinfo_multiple_versions/
+
+  deployment.apps/reviews-v2 created
+  deployment.apps/reviews-v3 created
+
+  # Create the  book info application
+  kubectl get pods -w
+
+  NAME                              READY   STATUS    RESTARTS   AGE
+  details-v1-558b8b4b76-txgnh       1/1     Running   0          3m40s
+  productpage-v1-6987489c74-tgm4r   1/1     Running   0          3m39s
+  ratings-v1-7dc98c7588-94pl9       1/1     Running   0          3m39s
+  reviews-v1-7f99cc4496-69j28       1/1     Running   0          3m40s
+  reviews-v2-7d79d5bd5d-4b2xg       1/1     Running   0          5s
+  reviews-v3-7dbcdcbc56-hsx9l       1/1     Running   0          5s
+
+  # Get the services. No changes at all.
+  kubectl get svc
+  NAME          TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)    AGE
+  details       ClusterIP   10.99.0.151     <none>        9080/TCP   3m33s
+  productpage   ClusterIP   10.96.164.128   <none>        9080/TCP   3m32s
+  ratings       ClusterIP   10.99.104.182   <none>        9080/TCP   3m33s
+  reviews       ClusterIP   10.99.131.90    <none>        9080/TCP   3m32s
+
+  # Create the  book info application
+  kubectl port-forward svc/productpage 9080:9080
+
+  # Verify using any Web Browser.
+  # Reload the browser so it can be seen different versions are displayed since kubernetes use random strategy. Check versions without reviews and starts with different colors are shown because the internal kubernetes balancer.
+  http://localhost:9080/productpage
+
+  ```
+
+7. Installing **Istio** to support **Service Mesh**.
+  
+  Go to the Istio release [page](https://github.com/istio/istio/releases/) to download the installation file for your OS, or download and extract the latest release automatically (Linux or macOS). Installation process is highly detailed in the official [Istio website](https://istio.io/latest/docs/setup/getting-started/)
 
   > It is a good practice to **always** specify the version to be installed.
 
   ```bash
+  # Download and extract Istio using specific version and platform
   curl -L https://istio.io/downloadIstio | ISTIO_VERSION=1.7.3 TARGET_ARCH=x86_64 sh -
   ```
 
-2. Move to the Istio package directory and add the istioctl client to your path (Linux or macOS) or copy it to global scope.
+8. Move to the Istio package directory and add the istioctl client to your path (Linux or macOS) or copy it to global scope.
 
   ```bash
   # Export variable
@@ -83,7 +249,7 @@ Following process is highly detailed in the official [Istio website](https://ist
   sudo cp istioctl /usr/local/bin/istioctl
   ```
 
-3. Check current version
+9. Check current version
 
   ```bash
   istioctl version
@@ -92,7 +258,7 @@ Following process is highly detailed in the official [Istio website](https://ist
   1.7.3
   ```
 
-4. Install Istio.
+10. Install Istio.
 
     There are several default [profiles](https://istio.io/latest/docs/setup/additional-setup/config-profiles/) to install istio, depending on the requirements and tools to be used. It is useful to start from one of those profiles already created and perform the necessary modifications and tweaks.
 
@@ -124,7 +290,7 @@ Following process is highly detailed in the official [Istio website](https://ist
   ✔ Installation complete
   ```
 
-5. Verify the installation.
+11. Verify the installation.
 
   > Istio has created a new namespace `istio-system`
 
@@ -133,11 +299,12 @@ Following process is highly detailed in the official [Istio website](https://ist
   kubectl get ns
 
   NAME              STATUS   AGE
-  default           Active   50m
-  istio-system      Active   97s
-  kube-node-lease   Active   50m
-  kube-public       Active   50m
-  kube-system       Active   50m
+  default           Active   95m
+  istio-system      Active   48m
+  kube-node-lease   Active   95m
+  kube-public       Active   95m
+  kube-system       Active   95m
+  microservices     Active   58m
 
   # Check for the new CRDs created
   kubectl get crd -n istio-system
@@ -151,7 +318,7 @@ Following process is highly detailed in the official [Istio website](https://ist
   gateways.networking.istio.io               2020-10-14T09:15:39Z
   ...
 
-  # Check all pods installed are current running:  istiod, istio-egressgateway and istio-ingressgateway.
+  # Check all pods installed are current running: istiod, istio-egressgateway and istio-ingressgateway.
   kubectl get pods -n istio-system
 
   NAME                                    READY   STATUS    RESTARTS   AGE
@@ -160,7 +327,7 @@ Following process is highly detailed in the official [Istio website](https://ist
   istiod-7556f7fddf-v4sl4                 1/1     Running   0          5m45s
   ```
 
-6. Install the **addons+*
+12. Install the **addons+*
 
   > This will install the addons included with istio: `Kiali`, `Prometheus`, `Grafana`, `Jaeger`, etc..
 
@@ -192,7 +359,8 @@ Following process is highly detailed in the official [Istio website](https://ist
   service/prometheus created
   deployment.apps/prometheus created
 
-  # Optional: Zipkin can be also installed
+  # [Optional]
+  # Zipkin can be also installed and replaced by Jaeger
   kubectl apply -f https://raw.githubusercontent.com/istio/istio/release-1.7/samples/addons/extras/zipkin.yaml
 
   deployment.apps/zipkin created
@@ -200,10 +368,10 @@ Following process is highly detailed in the official [Istio website](https://ist
   service/zipkin configured
   ```
 
-7.  Verify the addons has been **installed** and **running**
+13.  Verify the addons has been **installed** and **running**
   
   ```bash
-  # Check all pods installed are current running:  grafana, prometheus, kiali, jaeger, zipkin
+  # Check all pods installed are current running:  grafana, prometheus, kiali, jaeger, etc..
   kubectl get pods -n istio-system
 
   NAME                                    READY   STATUS    RESTARTS   AGE
@@ -214,7 +382,6 @@ Following process is highly detailed in the official [Istio website](https://ist
   jaeger-5795c4cf99-x884f                 1/1     Running   0          5m8s
   kiali-6c49c7d566-xgzvk                  1/1     Running   0          5m8s
   prometheus-9d5676d95-p795n              2/2     Running   0          5m7s
-  zipkin-556c4d54f5-9ntnx                 1/1     Running   0          76s
 
   # Check all services installed are current running:  grafana, prometheus, kiali, jaeger, zipkin
   kubectl get svc -n istio-system
@@ -226,146 +393,39 @@ Following process is highly detailed in the official [Istio website](https://ist
   kiali                  ClusterIP      10.98.97.159    <none>        20001/TCP,9090/TCP                                                           6m3s
   prometheus             ClusterIP      10.107.5.242    <none>        9090/TCP                                                                     6m2s
   tracing                ClusterIP      10.99.145.194   <none>        80/TCP                                                                       6m3s
-  zipkin                 ClusterIP      10.99.136.43    <none>        9411/TCP                                                                     6m3s
   ```
 
-8. Create a namespace to deploy the microservices
-
-   > In the following example we will create a new namespace `microservices` to be used with istio.
-
-  ```bash
-  # Create the namespace where microservices will be deployed
-  kubectl create ns microservices
-
-  namespace/microservices created
-
-  # Show all the namespaces
-  kubectl get ns
-
-  NAME              STATUS   AGE
-  default           Active   4d6h
-  istio-system      Active   11m
-  kube-node-lease   Active   4d6h
-  kube-public       Active   4d6h
-  kube-system       Active   4d6h
-  microservices     Active   36s
-  ```
-
-9. Switch to current namespace
-  
-  ```bash
-  # Switch to current context from ddefault
-  kubectl config set-context --current --namespace=microservices
-
-  Context "docker-desktop" modified.
-
-  # Get the current context info and namespace
-  kubectl config get-contexts
-
-  CURRENT          NAME             CLUSTER          AUTHINFO         NAMESPACE
-  *                docker-desktop   docker-desktop   docker-desktop   microservices
-  ```
-
-10.  Deploy the **sample** application based on kubernetes native resources  
-
-  This example deploys a sample application composed of four separate microservices used to demonstrate various Istio features.
-  If you installed Istio using the Getting Started instructions, you already have Bookinfo installed and you can skip these steps.
-
-  The application displays information about a book, similar to a single catalog entry of an online book store. Displayed on the page is a description of the book, book details (ISBN, number of pages, and so on), and a few book reviews.
-
-  The **c** application is broken into four separate microservices:
-
-  - productpage. The productpage microservice calls the details and reviews microservices to populate the page.
-  - details. The details microservice contains book information.
-  - reviews. The reviews microservice contains book reviews. It also calls the ratings microservice.
-  - ratings. The ratings microservice contains book ranking information that accompanies a book review.
-
-  There are 3 versions of the reviews microservice:
-
-  - Version v1 doesn’t call the ratings service.
-  - Version v2 calls the ratings service, and displays each rating as 1 to 5 black stars.
-  - Version v3 calls the ratings service, and displays each rating as 1 to 5 red stars.
-
-  The end-to-end architecture of the application is shown below.
-
-  ![noistio](./images/noistio.svg)
-
-  ```bash
-  # Check the resources to be created
-  code src/01_bookinfo_deployment/
-
-  # Create the  book info application
-  kubectl apply -f src/01_bookinfo_deployment/
-
-  service/details created
-  serviceaccount/bookinfo-details created
-  deployment.apps/details-v1 created
-  service/ratings created
-  serviceaccount/bookinfo-ratings created
-  deployment.apps/ratings-v1 created
-  service/reviews created
-  serviceaccount/bookinfo-reviews created
-  deployment.apps/reviews-v1 created
-  deployment.apps/reviews-v2 created
-  deployment.apps/reviews-v3 created
-  service/productpage created
-  serviceaccount/bookinfo-productpage created
-  ```
-
-11. Wait until all the pods are currently`running`.
-
-  > Actually istio is **NOT** currently working. Pods have only one pod running 1/1,  so the SideCar is not active yet.
-
-  ```bash
-  # Create the  book info application
-  kubectl get pods -w
-
-  NAME                              READY   STATUS    RESTARTS   AGE
-  details-v1-558b8b4b76-6snwg       1/1     Running   0          85s
-  productpage-v1-6987489c74-ft6pf   1/1     Running   0          84s
-  ratings-v1-7dc98c7588-sqqnx       1/1     Running   0          84s
-  reviews-v1-7f99cc4496-vgj4t       1/1     Running   0          84s
-  reviews-v2-7d79d5bd5d-qqfhn       1/1     Running   0          84s
-  reviews-v3-7dbcdcbc56-tn6nw       1/1     Running   0          84s
-
-  # Get the services
-  kubectl get svc
-  NAME          TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)    AGE
-  details       ClusterIP   10.99.0.151     <none>        9080/TCP   3m33s
-  productpage   ClusterIP   10.96.164.128   <none>        9080/TCP   3m32s
-  ratings       ClusterIP   10.99.104.182   <none>        9080/TCP   3m33s
-  reviews       ClusterIP   10.99.131.90    <none>        9080/TCP   3m32s
-  ```
-
-12. Verify the deployment using `port-forward` and accessing to the `prodcutpage`
-
-
-  ```bash
-  # Create the  book info application
-  kubectl port-forward svc/productpage 9080:9080
-
-  # Verify using a webbrowser.
-  http://localhost:9080
-
-  ```
-
-12. Open `grafana` and `Kiali` application using `istioctl` tool.
+14.  Open `grafana` and `Kiali` application using `istioctl` tool.
 
   > Once `grafana` and `Kiali` are opened there is nothing to show yet by Istio in the graph
  
   ```bash
+  # GEt the pods microservice namespace (still 1/1 pods)
+  kubectl get pods
+
+  NAME                              READY   STATUS    RESTARTS   AGE
+  details-v1-558b8b4b76-txgnh       1/1     Running   0          59m
+  productpage-v1-6987489c74-tgm4r   1/1     Running   0          59m
+  ratings-v1-7dc98c7588-94pl9       1/1     Running   0          59m
+  reviews-v1-7f99cc4496-69j28       1/1     Running   0          59m
+  reviews-v2-7d79d5bd5d-4b2xg       1/1     Running   0          56m
+  reviews-v3-7dbcdcbc56-hsx9l       1/1     Running   0          56m
+
   # Open kiali dashboard -> Graph -> Empty Graph
-  # > Select "microservice" namespace in the combo
+  # > Select "microservice" namespace in the combo and select different options
+  #   App Graph, Service Graph, Versioned App Graph
   istioctl dashboard kiali
 
   # Open grafana dashboard -> Go to Istio Service Dashboard -> Select productage microservice
+  # There is no service yet nor workload
   istioctl dashboard grafana
 
   # Open jaeger dashboard -> Search for productpage
+  # Nothing  in services
   istioctl dashboard jaeger
   ```
 
-13. Create Istio `Gateway` and `VirtualService` for the `productpage` service to open the connection to the outside
+15. Create Istio `Gateway` and `VirtualService` for the `productpage` service to open the connection to the outside
 
   ```bash
   # Check the resources to be created
@@ -373,11 +433,12 @@ Following process is highly detailed in the official [Istio website](https://ist
 
   # Create the  book info application
   kubectl apply -f src/02_bookinfo_gateway/
+
   gateway.networking.istio.io/bookinfo-gateway created
   virtualservice.networking.istio.io/bookinfo created
   ```
 
-14. Verify the connection using the load balancer (`ServiceType -> LoadBalancer`) created by istio ingress controller
+16. Verify the connection using the load balancer (`ServiceType -> LoadBalancer`) created by istio ingress controller
 
   > It is working as a normal ingress-controller such as `nginx` or `traefik`
 
@@ -390,10 +451,11 @@ Following process is highly detailed in the official [Istio website](https://ist
   istio-ingressgateway   LoadBalancer   10.102.89.11    localhost     15021:32749/TCP,80:32607/TCP,443:31412/TCP,31400:31448/TCP,15443:32618/TCP   32m
 
   # Use the EXTERNAL-IP and Port s 80:32607/TCP,443:31412
+  # Reload to check if the ingress is working as using port-forward multiple being balanced between multiple versions
   http://localhost:80/productpage
   ```
 
-15. Open `grafana` and `Kiali` application using `istioctl` tool.
+17. Open `grafana` and `Kiali` application using `istioctl` tool.
 
   > Once `grafana` and `Kiali` are opened there is **still** nothing to show yet by Istio in the graph
  
@@ -412,7 +474,7 @@ Following process is highly detailed in the official [Istio website](https://ist
   istioctl dashboard jaeger
   ```
 
-16. Create a **label** into the namespace created to automatically inject **Envoy Sidecar Proxies** into Pods.
+18. Create a **label** into the namespace created to automatically inject **Envoy Sidecar Proxies** into Pods.
 
   ```bash
   # Set the auto injection label so istio knows the namespace to monitor
@@ -432,7 +494,7 @@ Following process is highly detailed in the official [Istio website](https://ist
   microservices     Active   31m    istio-injection=enabled
   ```
 
-17. Verify the Pods currently running.
+19. Verify the Pods currently running.
 
   > There is no Sidecar Proxy running yet `1/1 Running`
 
@@ -450,17 +512,17 @@ Following process is highly detailed in the official [Istio website](https://ist
   # There is no Sidecar yet configured
   ```
 
-18. Force to stop all the pods and verify again the status
+20. Force to **stop** all the pods and verify again the status
 
   > There is no Sidecar Proxy running yet `1/1 Running`
 
   ```bash
   # Delete all the pods
   kubectl get pods | awk '{print $1}' | xargs kubectl delete pod
-  kubectl get pods -o=name | kubectl delete
+  kubectl get pods -o=name | xargs kubectl delete
 
-  # Get the pods in microservice namespace
-  kubectl get pods
+  # Waint until the pods in microservice namespace are running
+  kubectl get pods -w
 
   NAME                              READY   STATUS    RESTARTS   AGE
   details-v1-558b8b4b76-64pbq       2/2     Running   0          57s
@@ -471,7 +533,7 @@ Following process is highly detailed in the official [Istio website](https://ist
   reviews-v3-7dbcdcbc56-qprm2       2/2     Running   0          56s
   ```
 
-19. Open `grafana` and `Kiali` application using `istioctl` tool.
+21. Open `grafana` and `Kiali` application using `istioctl` tool.
  
   ```bash
   # Open kiali dashboard -> Graph -> Empty Graph (Still nothing ?)
@@ -486,6 +548,7 @@ Following process is highly detailed in the official [Istio website](https://ist
 
   # Perform calls sequentially and return to kiali
   watch curl -s -o /dev/null 'http://localhost:80/productpage'
+  watch -n 0.5 curl -s -o /dev/null 'http://localhost:80/productpage'  # Per 0.5 seg
 
   # Refresh kiali dashboard -> Graph (Wait a moment or refresh the page)
   #  1, Select "microservice" namespace in the combo
@@ -502,10 +565,11 @@ Following process is highly detailed in the official [Istio website](https://ist
   istioctl dashboard grafana
 
   # Open jaeger dashboard -> Search for productpage
+  # Service -> Operations -> Find Traces
   istioctl dashboard jaeger
   ```
 
-20. Verify istio ingress controller is balancing the traffic equalliy between the services (round-robin)
+22. Verify istio ingress controller is balancing the traffic equalliy between the services (round-robin)
 
   > Kiali must show 33.3% of traffic among all review microservice versions: v1, v2 and v3
 
@@ -521,7 +585,7 @@ Following process is highly detailed in the official [Istio website](https://ist
   # Check the Request Percentage for productpage in kiali around 33.3%
   ```
 
-21. Define the available versions, called subsets, in destination rules.
+23. Define the available `versions`, called `subsets`, in destination rules.
   
  > Before you can use Istio to control the Bookinfo version routing, you need to define the available versions, called subsets, in destination rules.
 
@@ -540,7 +604,7 @@ Following process is highly detailed in the official [Istio website](https://ist
   # In this case destination rules are used to map the subsets with the `version` label in `deployments`
   ```
 
-22.  Change the Service Mesh so it only routes traffic to v1.
+24. Change the **Service Mesh** so it only routes traffic to `v1`.
 
   > Perform changes Without stopping sending request to productpage.
 
@@ -560,10 +624,11 @@ Following process is highly detailed in the official [Istio website](https://ist
   virtualservice.networking.istio.io/details created
 
   # Check also in kiali the percentages changes and move towards v1.
+  # Reloading the page it only showing the v1 verion wothout calling the review service.
   http://localhost/productpage  # Refresh several times
   ```
 
-23. Route based on user identity
+25. Change routing based on `user identity`
 
   > The traffic will be routed depending on the headers (match)
 
@@ -571,12 +636,85 @@ Following process is highly detailed in the official [Istio website](https://ist
   # Check the modifications made to the virtual services
   code src/05_route_based_headers/
 
-  # Update Virtual Services to route the traffic to v1 except user 'Jason'
+  # Update Virtual Services to route the traffic to v1 except user 'jason'
   kubectl apply -f src/05_route_based_headers/
 
   virtualservice.networking.istio.io/reviews configured
 
   # 1. Log in as another user (pick any name you wish).
   # 2. Refresh the browser.
-  # 3. Now the stars are gone. This is because traffic is routed to reviews:v1 for all users except Jason.
+  # 3. Now the stars are gone. This is because traffic is routed to reviews:v1 for all users except "jason".
+  ```
+
+26. Injecting an HTTP delay **fault**
+
+  > The connection will be delayed using the `jason` user
+
+   ```bash
+  # Check the modifications made to the virtual services
+  code src/06_http_delay_fault/
+
+  # Similar to 04_route_base_headers but aadding fault "fixedDelay" 7s
+  # - match:
+  #   - headers:
+  #       end-user:
+  #         exact: jason
+  #   fault:
+  #     delay:
+  #       percentage:
+  #         value: 100.0
+  #       fixedDelay: 7s
+  #   route:
+  #   - destination:
+  #       host: ratings
+  #       subset: v1
+
+  # Update with the current definition.
+  kubectl apply -f src/06_http_delay_fault/
+
+  virtualservice.networking.istio.io/ratings configured
+
+  # Login with jason user and test the productpage and wait for the web to show, about 7 seconds
+  # This delay is not shown in jaeger since it is not inside the trace itself.
+  http://localhost/productpage  # Refresh several times
+
+  # Login with another user and test the productpage, the web shows inmediately
+  http://localhost/productpage  # Refresh several times
+
+  ```
+
+27. HTTP abort **fault**.
+
+  > The connection will be delayed using the `jason` user
+
+   ```bash
+  # Check the modifications made to the virtual services
+  code src/07_http_abort_fault/
+
+  # Similar to 04_route_base_headers but aadding fault "fixedDelay" 7s
+  # - match:
+  #   - headers:
+  #       end-user:
+  #         exact: jason
+  #   fault:
+  #     abort:
+  #       percentage:
+  #         value: 100.0
+  #       httpStatus: 500
+  #   route:
+  #   - destination:
+  #       host: ratings
+  #       subset: v1
+
+  # Update with the current definition.
+  kubectl apply -f src/07_http_abort_fault/
+
+  virtualservice.networking.istio.io/ratings configured
+
+  # Login with jason user and test the productpage error
+  http://localhost/productpage  # Refresh several times
+
+  # Login with another user and test the productpage, the web shows inmediately
+  http://localhost/productpage  # Refresh several times
+
   ```
