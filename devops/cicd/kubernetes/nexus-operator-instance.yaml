@@ -1,0 +1,18 @@
+apiVersion: apps.m88i.io/v1alpha1
+kind: Nexus
+metadata:
+  name: nexus3
+spec:
+  networking:
+    expose: false
+  persistence:
+    persistent: false
+  replicas: 1
+  resources:
+    limits:
+      cpu: '2'
+      memory: 2Gi
+    requests:
+      cpu: '1'
+      memory: 2Gi
+  useRedHatImage: false
