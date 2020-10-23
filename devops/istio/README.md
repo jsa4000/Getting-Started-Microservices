@@ -712,7 +712,9 @@ The actual demo uses the default sample application that comes with istio instal
   virtualservice.networking.istio.io/ratings configured
 
   # Login with jason user and test the productpage error
+  # Check in the review section "Ratings service is currently unavailable"
   http://localhost/productpage  # Refresh several times
+
 
   # Login with another user and test the productpage, the web shows inmediately
   http://localhost/productpage  # Refresh several times
