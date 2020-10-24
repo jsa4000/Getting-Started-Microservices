@@ -1,0 +1,18 @@
+master:
+  initContainerEnv:
+    - name: CURL_OPTIONS
+      value: "-sSfLk"
+    - name: JENKINS_OPTS
+      value: "--httpPort=-1"
+  containerEnv:
+    - name: CURL_OPTIONS
+      value: "-sSfLk"
+    - name: JENKINS_OPTS
+      value: "--httpPort=-1"
+  enableXmlConfig: true
+  JCasC:
+    enabled: false         
+    defaultConfig: false
+  sidecars:
+    configAutoReload:
+      enabled: false

@@ -57,7 +57,7 @@ For the installation of Jenkins on kubernetes the Jenkins Operator is going to b
 
     # Check the namespace set in the values, since it must be equal to the current namespace "cicd-tools"
     # Install jenkins operator
-    helm3 install jenkins-operator jenkins/jenkins-operator -n cicd-tools jenkins-operator-values.yaml
+    helm3 install jenkins-operator jenkins/jenkins-operator -n cicd-tools -f jenkins-operator-values.yaml
     # Install jenkins operator
     helm3 install jenkins-operator jenkins/jenkins-operator -n cicd-tools --set jenkins.backup.enabled=false,jenkins.enabled=false
     # Or Install jenkins operator with values
@@ -287,7 +287,14 @@ Sonarqube hsa no operator. So the [helm chart](https://github.com/oteemo/charts)
     # Install with values
     helm3 install jenkins jenkinscharts/jenkins -n cicd-tools --set master.JCasC.enabled=false,master.JCasC.defaultConfig=false,master.sidecars.configAutoReload.enabled=false
 
-    # Wait unitl Jenkins pods is running
+
+    # To change the default values manually
+    helm3 inspect values jenkinscharts/jenkins > jenkins-chart-values.yaml
+    # Install jenkins with the override values
+    helm3 install jenkins jenkinscharts/jenkins -n cicd-tools -f jenkins-chart-values.yaml
+
+
+    # Wait until Jenkins pods is running
     kubectl get pods -w
     ```
 
@@ -296,6 +303,26 @@ Sonarqube hsa no operator. So the [helm chart](https://github.com/oteemo/charts)
     ```bash
     # Use prot-forward to connecto to Jenkins
     kubectl port-forward svc/jenkins 8080:8080
+
+    # Check logs to get the key to start Jenkins
+    k logs jenkins-849c84b556-xwkjs -f
+    # *************************************************************
+    # *************************************************************
+    # *************************************************************
+    # 
+    # Jenkins initial setup is required. An admin user has been created and a password generated.
+    # Please use the following password to proceed to installation:
+    # 
+    # b7a4ec7e27aa42488db7dbb072c8f664
+    # 
+    # This may also be found at: /var/jenkins_home/secrets/initialAdminPassword
+    # 
+    # *************************************************************
+    # *************************************************************
+    # *************************************************************
+
+    # in order to get the Admin password (if not modified)
+    printf $(kubectl get secret --namespace cicd-tools jenkins -o jsonpath="{.data.jenkins-admin-password}" | base64 --decode);echo
     ```
 
 4. Delete helm chart
