@@ -11,36 +11,64 @@
 
 ## Installation
 
-### Pre-requsites
+### Pre-requisites
+
+Following are the pre-requisites needed
 
 - Kubernetes cluster
+- kubectl binary
 - Helm v3
+
+Create new namespace `cicd-tools` to deploy the CI/CD tools
+
+  ```bash
+  # Create a namespace called cicd
+  kubectl create ns cicd-tools
+
+  # Retrieve the namespaces
+  kubectl get ns
+
+  # Switch to previous namespace created
+  kubectl config set-context --current --namespace=cicd-tools
+  ```
+
+### Traefik
+
+1. Add `traaefik` repository to helm
+
+    ```bash
+    # Add traefik chart repository
+    helm3 repo add traefik https://helm.traefik.io/traefik
+    # Update repo
+    helm3 repo update
+    ```
+
+2. Install `traefik` using official helm chart 
+
+    ```bash
+    # Install traefik with default values
+    helm3 install traefik traefik/traefik -n cicd-tools
+    ```
+
+3. Verify the installation
+
+    ```bash
+    # Verify traefik is currently running and a load balancer has been created.
+    kubectl get svc,pods
+    ```
 
 ### Jenkins (Operator)
 
 For the installation of Jenkins on kubernetes the Jenkins Operator is going to be used. For further information about the process or detailed information check the [Official Repository](https://github.com/jenkinsci/kubernetes-operator) or [Official WebSite](https://jenkinsci.github.io/kubernetes-operator/docs/installation/)
 
-1. Create new namespace `cicd-tools` to deploy the CI/CD tools
-
-    ```bash
-    # Create a namespace called cicd
-    kubectl create ns cicd-tools
-
-    # Retrieve the namespaces
-    kubectl get ns
-
-    # Switch to previous namespace created
-    kubectl config set-context --current --namespace=cicd-tools
-    ```
-
-2. Install Jenkins Custom Resource Definition into `cicd-tools`
+1. Install Jenkins Custom Resource Definition into `cicd-tools`
 
     ```bash
     # Create the custom resources definitions used by Jenkins operator
     kubectl apply -f https://raw.githubusercontent.com/jenkinsci/kubernetes-operator/master/deploy/crds/jenkins_v1alpha2_jenkins_crd.yaml
     ```
 
-3. Install Jenkins Operator via Helm v3.
+2. Install Jenkins Operator via Helm v3.
 
     ```bash
     # Add Jenkins repositories to Helm
@@ -84,14 +112,14 @@ For the installation of Jenkins on kubernetes the Jenkins Operator is going to b
     Now open the browser and enter http://localhost:8080
     ```
 
-4. Delete Jenkins Operator
+3. Delete Jenkins Operator
 
     ```bash
     # Delete helm operator
     helm3 delete jenkins-operator
     ```
 
-5. Create Jenkins Operator using the CRD
+4. Create Jenkins Operator using the CRD
 
     Create a file with the documentation `jenkins-operator-instance.yaml`
 
@@ -143,6 +171,115 @@ For the installation of Jenkins on kubernetes the Jenkins Operator is going to b
 
     # Get the pods running
     kubectl get pods -w
+    ```
+
+### Jenkins (Chart)
+
+The chart and the installation process can be found in the official [Github repository](https://github.com/jenkinsci/helm-charts)
+
+1. Add `jenkins` helm repository
+
+    ```bash
+    # Add repo
+    helm3 repo add jenkinscharts https://charts.jenkins.io
+    # Update repo
+    helm3 repo update
+    ```
+
+2. Install Jenkins with the default values
+
+    ```bash
+    # Install Jenkins
+    helm3 install jenkins jenkinscharts/jenkins -n cicd-tools
+
+    # Install with values
+    helm3 install jenkins jenkinscharts/jenkins -n cicd-tools --set master.JCasC.enabled=false,master.JCasC.defaultConfig=false,master.sidecars.configAutoReload.enabled=false
+
+
+    # To change the default values manually
+    helm3 inspect values jenkinscharts/jenkins > jenkins-chart-values.yaml
+    # Install jenkins with the override values
+    helm3 install jenkins jenkinscharts/jenkins -n cicd-tools -f jenkins-chart-values.yaml
+
+    # Wait until Jenkins pods is running
+    kubectl get pods -w
+    ```
+
+3. Verify Jenkins installation
+
+    ```bash
+    # Use prot-forward to connecto to Jenkins
+    kubectl port-forward svc/jenkins 8080:8080
+
+    # Check logs to get the key to start Jenkins, if not automatic configuration has been set
+    k logs jenkins-849c84b556-xwkjs -f
+    # *************************************************************
+    # *************************************************************
+    # *************************************************************
+    # 
+    # Jenkins initial setup is required. An admin user has been created and a password generated.
+    # Please use the following password to proceed to installation:
+    # 
+    # b7a4ec7e27aa42488db7dbb072c8f664
+    # 
+    # This may also be found at: /var/jenkins_home/secrets/initialAdminPassword
+    # 
+    # *************************************************************
+    # *************************************************************
+    # *************************************************************
+
+    # in order to get the Admin password (if already initialized)
+    printf $(kubectl get secret --namespace cicd-tools jenkins -o jsonpath="{.data.jenkins-admin-password}" | base64 --decode);echo
+    ```
+
+4. Update/Correct jenkins Plugins
+
+    After the installation is **complete**, Jenkins may complains because some plugins cannot be correctly installed.
+    This is some issue related with the plugins server that cannot be solved automatically.
+
+    In this case, after the installation it is needed to update/install missing plugins and **retry** the necessary times until all plugins have been downloaded.
+
+    Ej. Sometimes the plugin A depends on B and B depends on C. In this case, search for the C Plugin and install it. Later, try to install or restart the server again. Repeat this process until all the dependencies has been fixes and no alarms or notifications are prompted once the server has restarted.
+
+
+5. Deploy ingress controller (if not directly configured within the chart)
+
+    ```yaml
+    apiVersion: extensions/v1beta1
+    kind: Ingress
+    metadata:
+      name: jenkins
+      annotations:
+        kubernetes.io/ingress.class: traefik
+        traefik.ingress.kubernetes.io/rewrite-target: /
+        traefik.ingress.kubernetes.io/rule-type: "PathPrefixStrip"
+    spec:
+      rules:
+      - host: jenkins.cicd.com
+        http:
+          paths:
+          - path: /
+            backend:
+              serviceName: jenkins
+              servicePort: 8080
+    ```
+
+    ```bash
+    # Apply current specification.
+    k apply -f jenkins-ingress.yaml
+
+    ## Add following entry into hosts (/etc/hosts) file
+    127.0.0.1   jenkins.cicd.com
+
+    # Test ingress controller
+    http://jenkins.cicd.com
+    ```
+
+6. Delete helm chart
+
+    ```bash
+    # Install Jenkins
+    helm3 delete jenkins
     ```
 
 ### Nexus
@@ -267,67 +404,6 @@ Sonarqube hsa no operator. So the [helm chart](https://github.com/oteemo/charts)
     helm3 delete sonarqube
     ```
 
-### Jenkins (Chaart)
-
-1. Add `jenkins` helm repository
-
-    ```bash
-    # Add repo
-    helm3 repo add jenkinscharts https://charts.jenkins.io
-    # Update repo
-    helm3 repo update
-    ```
-
-2. Install Jenkins with the default values
-
-    ```bash
-    # Install Jenkins
-    helm3 install jenkins jenkinscharts/jenkins -n cicd-tools
-
-    # Install with values
-    helm3 install jenkins jenkinscharts/jenkins -n cicd-tools --set master.JCasC.enabled=false,master.JCasC.defaultConfig=false,master.sidecars.configAutoReload.enabled=false
 
 
-    # To change the default values manually
-    helm3 inspect values jenkinscharts/jenkins > jenkins-chart-values.yaml
-    # Install jenkins with the override values
-    helm3 install jenkins jenkinscharts/jenkins -n cicd-tools -f jenkins-chart-values.yaml
-
-
-    # Wait until Jenkins pods is running
-    kubectl get pods -w
-    ```
-
-3. Verify Jenkins installation
-
-    ```bash
-    # Use prot-forward to connecto to Jenkins
-    kubectl port-forward svc/jenkins 8080:8080
-
-    # Check logs to get the key to start Jenkins
-    k logs jenkins-849c84b556-xwkjs -f
-    # *************************************************************
-    # *************************************************************
-    # *************************************************************
-    # 
-    # Jenkins initial setup is required. An admin user has been created and a password generated.
-    # Please use the following password to proceed to installation:
-    # 
-    # b7a4ec7e27aa42488db7dbb072c8f664
-    # 
-    # This may also be found at: /var/jenkins_home/secrets/initialAdminPassword
-    # 
-    # *************************************************************
-    # *************************************************************
-    # *************************************************************
-
-    # in order to get the Admin password (if not modified)
-    printf $(kubectl get secret --namespace cicd-tools jenkins -o jsonpath="{.data.jenkins-admin-password}" | base64 --decode);echo
-    ```
-
-4. Delete helm chart
-
-    ```bash
-    # Install Jenkins
-    helm3 delete jenkins
-    ```
+https://kublr.com/blog/cicd-pipeline-with-jenkins-nexus-kubernetes/
