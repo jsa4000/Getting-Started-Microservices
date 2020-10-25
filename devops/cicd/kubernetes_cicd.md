@@ -275,7 +275,27 @@ The chart and the installation process can be found in the official [Github repo
     http://jenkins.cicd.com
     ```
 
-6. Delete helm chart
+6. Configure Kubernetes cluster
+
+     - Configure Kubernetes cluster
+        - http://jenkins.cicd.com/configureClouds/ 
+        - Credentials -> Add -> Secret File -> Select the `.kube/config` file. 
+        - Finally select previous configuration from the combobox and test connection.
+     - Jenkins URL: http://jenkins.cicd-tools.svc.cluster.local:8080
+     - Jenkins Tunnel: jenkins-agent.cicd-tools.svc.cluster.local:50000
+     - Create Pod Template.
+       - Name: kube
+       - Namespace: cicd-tools
+       - Labels: kubepods
+       - Container Template:
+         - Name: jnlp
+         - Image: jenkins/jnlp-slave:4.3-9-alpine
+         - Delete default arguments and commands in container template
+         - Environment variable: JENKINS_URL=http://jenkins.cicd-tools.svc.cluster.local:8080
+       - Pod Retention: Never
+     - Save
+
+7. Delete helm chart
 
     ```bash
     # Install Jenkins
