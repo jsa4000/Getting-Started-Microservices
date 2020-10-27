@@ -4,9 +4,12 @@ metadata:
   name: nexus3
 spec:
   networking:
-    expose: false
+    expose: true
+    exposeAs: Ingress
+    host: nexus.cicd.com
   persistence:
-    persistent: false
+    persistent: true
+    volumeSize: 5Gi
   replicas: 1
   resources:
     limits:

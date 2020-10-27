@@ -1,0 +1,68 @@
+podTemplate(containers: [
+    containerTemplate(name: 'maven', image: 'maven:3.3.9-jdk-8-alpine', ttyEnabled: true, command: 'cat'),
+    containerTemplate(name: 'golang', image: 'golang:1.8.0', ttyEnabled: true, command: 'cat')
+  ]) {
+
+    node(POD_LABEL) {
+
+        stage('Download From SCM') {
+             checkout scm
+        }
+
+        stage('Build') {
+            container('maven') {
+                sh 'mvn -B -DskipTests clean package'
+            }
+        }
+
+        stage('Test') {
+            container('maven') {
+                sh 'mvn test'
+            }
+            //post {
+            //    always {
+            //        container('maven') {
+            //            junit 'target/surefire-reports/*.xml'
+            //        }
+            //    }
+            //}
+        }
+        stage('SonarQube Analysis') {
+            def scannerHome = tool 'sonar-scanner'
+            withSonarQubeEnv('sonarqube') { 
+                sh "echo ${env.SONAR_HOST_URL}"
+                sh "echo ${env.SONAR_AUTH_TOKEN}"
+                sh "echo ${env.JOB_NAME}"
+                sh "echo ${env.BUILD_NUMBER}"
+                sh "echo ${env.JOB_BASE_NAME}"
+                sh "${scannerHome}/bin/sonar-scanner -X -Dsonar.host.url=${env.SONAR_HOST_URL} -Dsonar.login=${env.SONAR_AUTH_TOKEN} -Dsonar.projectName=${env.JOB_NAME} -Dsonar.projectVersion=${env.BUILD_NUMBER} -Dsonar.projectKey=${env.JOB_BASE_NAME} -Dsonar.sources=src/main/java -Dsonar.java.libraries=target/* -Dsonar.java.binaries=target/classes -Dsonar.language=java"
+            }
+        }
+
+        stage('Publish') {
+            nexusArtifactUploader(
+                artifacts: [
+                    [
+                        artifactId: 'my-app', 
+                        classifier: '', 
+                        file: 'target/my-app-1.0-SNAPSHOT.jar', 
+                        type: 'jar'
+                    ]
+                ], 
+                credentialsId: 'nexus', 
+                groupId: 'com.example', 
+                nexusUrl: 'sonatype-nexus-service.cicd-tools.svc.cluster.local:8081', 
+                nexusVersion: 'nexus3', 
+                protocol: 'http', 
+                repository: 'maven-releases', 
+                version: '1.0.0'
+            )
+        }
+        
+        stage('Deliver') {
+            container('maven') {
+                sh './jenkins/scripts/deliver.sh'
+            }
+        }
+    }
+}

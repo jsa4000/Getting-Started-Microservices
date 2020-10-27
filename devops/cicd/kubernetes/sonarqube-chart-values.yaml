@@ -1,0 +1,9 @@
+ingress:
+  enabled: true
+  hosts:
+    - name: sonar.cicd.com
+      path: /
+  annotations: 
+    kubernetes.io/ingress.class: traefik  
+    traefik.ingress.kubernetes.io/rewrite-target: /
+    traefik.ingress.kubernetes.io/rule-type: "PathPrefixStrip"

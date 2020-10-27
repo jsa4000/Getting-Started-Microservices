@@ -1,0 +1,19 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: sonatype-nexus
+  annotations:
+    kubernetes.io/ingress.class: traefik
+    traefik.ingress.kubernetes.io/rewrite-target: /
+    traefik.ingress.kubernetes.io/rule-type: PathPrefixStrip
+spec:
+  rules:
+  - host: nexus.cicd.com
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: sonatype-nexus-service
+          servicePort: 8081
+        
+

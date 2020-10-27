@@ -1,18 +1,25 @@
 master:
-  initContainerEnv:
-    - name: CURL_OPTIONS
-      value: "-sSfLk"
-    - name: JENKINS_OPTS
-      value: "--httpPort=-1"
-  containerEnv:
-    - name: CURL_OPTIONS
-      value: "-sSfLk"
-    - name: JENKINS_OPTS
-      value: "--httpPort=-1"
-  enableXmlConfig: true
+  image: "jenkins/jenkins"
+  tag: "2.263"
+
+  # List of plugins to install in addition to those listed in master.installPlugins
+  additionalPlugins: []
+
   JCasC:
-    enabled: false         
+    enabled: false
     defaultConfig: false
+    
   sidecars:
     configAutoReload:
       enabled: false
+
+  ingress:
+    enabled: true
+    apiVersion: "networking.k8s.io/v1beta1"
+    hostName: jenkins.cicd.com
+    annotations: 
+      kubernetes.io/ingress.class: traefik
+      traefik.ingress.kubernetes.io/rewrite-target: /
+      traefik.ingress.kubernetes.io/rule-type: "PathPrefixStrip"
+
+

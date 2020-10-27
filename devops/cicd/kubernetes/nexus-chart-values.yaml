@@ -1,0 +1,19 @@
+nexusProxy:
+  env:
+    nexusDockerHost: registry.cicd.com
+    nexusHttpHost: nexus.cicd.com
+
+ingress:
+  enabled: true
+  annotations:
+    kubernetes.io/ingress.class: traefik
+    traefik.ingress.kubernetes.io/rewrite-target: /
+    traefik.ingress.kubernetes.io/rule-type: "PathPrefixStrip"
+
+persistence:
+  storageSize: 5Gi
+
+resources:
+  requests:
+    cpu: 250m
+    memory: 1Gi
