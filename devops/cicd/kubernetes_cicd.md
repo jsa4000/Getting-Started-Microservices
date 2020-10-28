@@ -374,8 +374,14 @@ The chart and the installation process can be found in the official [Github repo
         - File: target/my-app-1.0-SNAPSHOT.jar
     - The press `Generate Pipeline Script`. This creates the script to be used in JenkinsFile
 
+11. Blue Ocean Plugin
 
-11. Restart Jenkins Server
+    - Install `Blue Ocean` Plugin. (This will install almost all Blue Ocean Plugins available)
+      - **Note:** Retry several times if fails installing some dependencies. `Manage Jenkins` -> `Plugin Manager` -> `Available` -> `Blue Ocean`.
+    - After the installation restart Jenkins -> http://jenkins.cicd.com/restart
+    - In order to enable Blue Ocean Dashboard, click on `Open Blue Ocean` at the left side
+
+12. Restart Jenkins Server
 
     To restart Jenkins manually, you can use either of the following commands (by entering their URL in a browser):
 
@@ -383,7 +389,7 @@ The chart and the installation process can be found in the official [Github repo
     - `jenkins_url`/restart : Forces a restart without waiting for builds to complete.
 
 
-12. Delete helm chart
+13. Delete helm chart
 
     ```bash
     # Install Jenkins
@@ -391,6 +397,8 @@ The chart and the installation process can be found in the official [Github repo
     ```
 
 ### Nexus (Operator)
+
+- [Create Repositories](https://levelup.gitconnected.com/deploying-private-npm-packages-to-nexus-a16722cc8166)
 
 1. Install Operator Lifecycle Manager (OLM), a tool to help manage the Operators running on the cluster.
 
@@ -650,13 +658,6 @@ podTemplate(containers: [
             container('maven') {
                 sh 'mvn test'
             }
-            //post {
-            //    always {
-            //        container('maven') {
-            //            junit 'target/surefire-reports/*.xml'
-            //        }
-            //    }
-            //}
         }
         stage('Deliver') {
             container('maven') {
@@ -727,3 +728,18 @@ spec:
 }
 
 ```
+
+### Create MultiBranch Pipeline
+
+> In this example `Blue Ocean` Plugins are not being used.
+
+- Select `New Item`from the left side.
+- Select a name for the project (i.e `template-service-nodejs`) and `Multibranch Pipeline`, then press`OK`.
+- Specify a Name/Description etc. for the project
+- Within the `Branch Sources` section select `Github` source, then select the github `Credentials` created with aa valid token
+- Set the Github Repository URL, delete all the pre-configured behaviours and select `Discover Branches` -> `All branches` and `Filter by Name (with regular expression`) then use the following regex `^(?:.*develop|.*main|.*release/\d+\.\d+\.\d+(?!.))$` or simply `(main|develop|release-.*|feature-.*|hotfix-.*)`
+- In build configuration select Mode `by Jenkinsfile` and set the script path. i.e. `jenkins/Jenkinsfile`
+- Set `Scan Multibranch Pipeline Triggers` to trigger periodically events to check any changes in branches. Select 1 or 2 minutes interval.
+- Then `Save`.
+- Jenkins now will check for the branches to generate the indexes.
+

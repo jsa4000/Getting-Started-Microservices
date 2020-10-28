@@ -1,0 +1,73 @@
+podTemplate(containers: [
+    containerTemplate(name: 'node', image: 'node:12-alpine', ttyEnabled: true, command: 'cat'),
+    containerTemplate(name: 'golang', image: 'golang:1.8.0', ttyEnabled: true, command: 'cat')
+  ]) {
+
+    node(POD_LABEL) {
+
+        stage('Download From SCM') {
+             checkout scm
+        }
+
+        stage('Build') {
+            container('node') {
+                sh 'npm install'
+            }
+        }
+
+        stage('Test') {
+            container('node') {
+                sh 'npm test'
+            }
+        }
+
+        stage('SonarQube Analysis') {
+            def scannerHome = tool 'sonar-scanner'
+            withSonarQubeEnv('sonarqube') { 
+                sh "${scannerHome}/bin/sonar-scanner -Dsonar.host.url=${env.SONAR_HOST_URL} -Dsonar.login=${env.SONAR_AUTH_TOKEN} -Dsonar.projectName=${env.JOB_NAME} -Dsonar.projectVersion=${env.BUILD_NUMBER} -Dsonar.projectKey=${env.JOB_BASE_NAME} -Dsonar.sources=. -Dsonar.language=js"
+            }  
+        }
+
+        stage('Publish') {
+            container('node') {
+                sh 'npm pack'
+                sh 'apk add curl'
+
+                def REPOSITORY="npm-releases"
+                def FILE_NAME="nodejsexpressapp-1.0.0.tgz"
+                def REPO_URL="http://sonatype-nexus-service.cicd-tools.svc.cluster.local:8081/service/rest/v1/components?repository=${REPOSITORY}"
+
+                withCredentials([usernamePassword(credentialsId: 'nexus', passwordVariable: 'USERNAME', usernameVariable: 'PASSWORD')]) {
+                    sh "curl -u ${USERNAME}:${PASSWORD} -X POST ${REPO_URL} -H 'accept: application/json' -H 'Content-Type: multipart/form-data' -F 'npm.asset=@${FILE_NAME};type=application/x-compressed'"
+                }
+            }
+            
+            // nexusArtifactUploader(
+            //     artifacts: [
+            //         [
+            //             artifactId: 'nodejsexpressapp', 
+            //             classifier: '', 
+            //             file: 'nodejsexpressapp-1.0.0.tgz', 
+            //             type: 'tgz'
+            //         ]
+            //     ], 
+            //     credentialsId: 'nexus', 
+            //     groupId: 'nodejsexpressapp', 
+            //     nexusUrl: 'sonatype-nexus-service.cicd-tools.svc.cluster.local:8081', 
+            //     nexusVersion: 'nexus3', 
+            //     protocol: 'http', 
+            //     repository: 'npm-releases', 
+            //     version: '1.0.0'
+            // )
+
+        }
+        
+        stage('Deliver') {
+            container('node') {
+                sh './jenkins/scripts/deliver.sh'
+                //input message: 'Finished using the web site? (Click "Proceed" to continue)'
+                sh './jenkins/scripts/kill.sh'
+            }
+        }
+    }
+}
