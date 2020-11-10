@@ -1,0 +1,49 @@
+podTemplate(containers: [
+    containerTemplate(name: 'python', image: 'python:3.9-alpine', ttyEnabled: true, command: 'cat'),
+    containerTemplate(name: 'golang', image: 'golang:1.8.0', ttyEnabled: true, command: 'cat')
+  ]) {
+
+    node(POD_LABEL) {
+
+        stage('Download From SCM') {
+             checkout scm
+        }
+
+        stage('Install Dependencies') {
+            container('python') {
+                sh 'python -m pip install --upgrade pip'
+                sh 'pip install --upgrade pipenv'
+                sh 'pipenv install --system'
+            }
+        }
+
+        stage('Test') {
+            container('python') {
+                sh 'python -m unittest discover -s tests -p "*.py"'
+            }
+        }
+
+        stage('SonarQube Analysis') {
+            def scannerHome = tool 'sonar-scanner'
+            withSonarQubeEnv('sonarqube') { 
+                sh "${scannerHome}/bin/sonar-scanner -Dsonar.host.url=${env.SONAR_HOST_URL} -Dsonar.login=${env.SONAR_AUTH_TOKEN} -Dsonar.projectName=${env.JOB_NAME} -Dsonar.projectVersion=${env.BUILD_NUMBER} -Dsonar.projectKey=${env.JOB_BASE_NAME} -Dsonar.sources=. -Dsonar.language=py"
+            }  
+        }
+
+        stage('Publish') {
+            container('python') {
+                sh 'python setup.py sdist bdist_wheel'
+                sh 'apk add curl'
+
+                def REPOSITORY="pypi-releases"
+                def FILE_NAME="dist/server-0.0.0-py3-none-any.whl"
+                def REPO_URL="http://sonatype-nexus-service.cicd-tools.svc.cluster.local:8081/service/rest/v1/components?repository=${REPOSITORY}"
+
+                withCredentials([usernamePassword(credentialsId: 'nexus', passwordVariable: 'USERNAME', usernameVariable: 'PASSWORD')]) {
+                    sh "curl -u ${USERNAME}:${PASSWORD} -X POST ${REPO_URL} -H 'accept: application/json' -H 'Content-Type: multipart/form-data' -F 'pypi.asset=@${FILE_NAME}'"
+                }
+            }
+        }
+
+    }
+}

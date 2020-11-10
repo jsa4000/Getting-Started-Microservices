@@ -14,7 +14,7 @@ describe('GET /', () => {
       .expect(200)
       .then(response => {
         expect(response.text).to.include(
-          'You are running a Node.js microservice built for the IBM Cloud.',
+          'You are running a Node.js microservice.',
         );
       });
   });

@@ -1,12 +1,25 @@
 podTemplate(containers: [
     containerTemplate(name: 'node', image: 'node:12-alpine', ttyEnabled: true, command: 'cat'),
-    containerTemplate(name: 'golang', image: 'golang:1.8.0', ttyEnabled: true, command: 'cat')
-  ]) {
+    containerTemplate(name: 'sonar-scanner', image: 'sonarsource/sonar-scanner-cli:4.5', ttyEnabled: true, command: 'cat'),
+    containerTemplate(name: 'curl', image: 'curlimages/curl:7.73.0', ttyEnabled: true, command: 'cat'),
+    containerTemplate(name: 'docker', image: 'docker:19', command: 'cat', ttyEnabled: true)
+  ],
+            volumes: [
+                    hostPathVolume(hostPath: '/var/run/docker.sock', mountPath: '/var/run/docker.sock'), // Use DinD instead
+            ]
+  ) {
 
     node(POD_LABEL) {
+        def NAME
+        def VERSION
+        def FILE_NAME
+        def REPOSITORY="npm-releases"
+        def REPO_URL="http://sonatype-nexus-service.cicd-tools.svc.cluster.local:8081/service/rest/v1/components?repository=${REPOSITORY}"
 
         stage('Download From SCM') {
-             checkout scm
+            checkout scm
+            NAME = sh(returnStdout: true, script: "grep 'name' package.json | cut -d '\"' -f4 | tr '\\n' '\\0'") 
+            VERSION = sh(returnStdout: true, script: "grep 'version' package.json | cut -d '\"' -f4 | tr '\\n' '\\0'") 
         }
 
         stage('Build') {
@@ -17,7 +30,7 @@ podTemplate(containers: [
 
         stage('Test') {
             container('node') {
-                sh 'npm test'
+                sh 'npm test -- --coverage a'
             }
         }
 
@@ -28,46 +41,51 @@ podTemplate(containers: [
             }  
         }
 
-        stage('Publish') {
-            container('node') {
-                sh 'npm pack'
-                sh 'apk add curl'
+        def branchName = "${env.BRANCH_NAME}"
+        if (branchName ==~ 'main|develop|release-.*'){
 
-                def REPOSITORY="npm-releases"
-                def FILE_NAME="nodejsexpressapp-1.0.0.tgz"
-                def REPO_URL="http://sonatype-nexus-service.cicd-tools.svc.cluster.local:8081/service/rest/v1/components?repository=${REPOSITORY}"
+            stage('Publish') {
+                FILE_NAME="${NAME}-${VERSION}.tgz"
+                container('node') {
+                    sh 'npm pack'
+                    sh 'apk add curl'
 
-                withCredentials([usernamePassword(credentialsId: 'nexus', passwordVariable: 'USERNAME', usernameVariable: 'PASSWORD')]) {
-                    sh "curl -u ${USERNAME}:${PASSWORD} -X POST ${REPO_URL} -H 'accept: application/json' -H 'Content-Type: multipart/form-data' -F 'npm.asset=@${FILE_NAME};type=application/x-compressed'"
+                    withCredentials([usernamePassword(credentialsId: 'nexus', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
+                        sh "curl -u ${USERNAME}:${PASSWORD} -X POST ${REPO_URL} -H 'accept: application/json' -H 'Content-Type: multipart/form-data' -F 'npm.asset=@${FILE_NAME};type=application/x-compressed'"
+                    }
                 }
             }
             
-            // nexusArtifactUploader(
-            //     artifacts: [
-            //         [
-            //             artifactId: 'nodejsexpressapp', 
-            //             classifier: '', 
-            //             file: 'nodejsexpressapp-1.0.0.tgz', 
-            //             type: 'tgz'
-            //         ]
-            //     ], 
-            //     credentialsId: 'nexus', 
-            //     groupId: 'nodejsexpressapp', 
-            //     nexusUrl: 'sonatype-nexus-service.cicd-tools.svc.cluster.local:8081', 
-            //     nexusVersion: 'nexus3', 
-            //     protocol: 'http', 
-            //     repository: 'npm-releases', 
-            //     version: '1.0.0'
-            // )
+            stage('Docker') {
+                def DOCKER_IMAGE_REGISTRY= "registry.hub.docker.com"
+                container('docker') {
+                    //withDockerRegistry([credentialsId: 'ecr:eu-west-1:AWS ECR', url: "https://${DOCKER_IMAGE_REGISTRY}"]) {
+                    withCredentials([usernamePassword(credentialsId: 'dockerhub', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
+                        sh "docker build . -t ${NAME}:${VERSION}"
+
+                        def IMAGE = "${DOCKER_IMAGE_REGISTRY}/${USERNAME}/${NAME}"
+                        sh "echo ${PASSWORD} | docker login -u ${USERNAME} --password-stdin ${DOCKER_IMAGE_REGISTRY}"
+                        sh "docker tag ${NAME}:${VERSION} ${IMAGE}:${VERSION}"
+                        sh "docker tag ${NAME}:${VERSION} ${IMAGE}:latest"
+                        sh "docker push ${IMAGE}:${VERSION}"
+                        sh "docker push ${IMAGE}:latest"
+                        sh "docker logout"
+
+                        //slackSend color: '#4CAF50', message: "New version of ${NAME}:${VERSION} pushed to ECR!"
+                    }
+
+                }
+            }
+
+            stage('Deliver') {
+                container('node') {
+                    sh './jenkins/scripts/deliver.sh'
+                    //input message: 'Finished using the web site? (Click "Proceed" to continue)'
+                    sh './jenkins/scripts/kill.sh'
+                }
+            }
 
         }
-        
-        stage('Deliver') {
-            container('node') {
-                sh './jenkins/scripts/deliver.sh'
-                //input message: 'Finished using the web site? (Click "Proceed" to continue)'
-                sh './jenkins/scripts/kill.sh'
-            }
-        }
+       
     }
 }

@@ -8,5 +8,5 @@ credentials.json
 localdev-config.json
 .nyc*
 
-.tgz
+*.tgz
 .DS_Store

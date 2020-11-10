@@ -16,7 +16,7 @@ time.sleep(3)
 # TODO change this when we change the landing page
 title_text = driver.title
 print("The title text is: {}".format(title_text))
-if title_text == "IBM Cloud Web Starter":
+if title_text == "Web Starter":
     print("Experience Test Successful")
 else:
     sys.exit("Experience Test Failed: unexpected title text {}".format(title_text))
