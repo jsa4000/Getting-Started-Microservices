@@ -744,6 +744,9 @@ spec:
 
 ### Create JobDSL - SEED
 
+In order to create Jobs with JOBDSL is a better common practice to create Jobs using a seed project. This project will bootstrap all the jobs needed.
+
+- Install `jobdsl` plugin in Jenkins
 - Create `FreeStyle` project by selecting the option and press save it.
 - In `Source Code Management` select Git, fill RepositoryURL (`https://github.com/*/*.git`), select the credentials and branches to build: `*/main`
 - In `Build` section select `Process Jobs DSL` and select the path for the Jobs to be created `src/jobs/**/*.groovy`
