@@ -1,10 +1,14 @@
-master:
+controller:
   image: "jenkins/jenkins"
-  tag: "2.263"
+  tag: "2.263.1"
 
   # List of plugins to install in addition to those listed in master.installPlugins
   additionalPlugins: []
 
+  initContainerEnv:
+    - name: JENKINS_UC_DOWNLOAD
+      value: http://ftp-nyc.osuosl.org/pub/jenkins
+      
   JCasC:
     enabled: false
     defaultConfig: false
