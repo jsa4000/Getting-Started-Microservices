@@ -290,7 +290,6 @@ The chart and the installation process can be found in the official [Github repo
         - Finally select previous configuration from the combobox and test connection.
      - Name: Kubernetes
      - Kubernetes Namespace: cicd-tools
-     - kubernetesURL: http://jenkins.cicd.com
      - Jenkins URL: http://jenkins.cicd-tools.svc.cluster.local:8080
      - Jenkins Tunnel: jenkins-agent.cicd-tools.svc.cluster.local:50000
      - Labels:  jenkins=slave

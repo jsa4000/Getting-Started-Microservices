@@ -8,7 +8,10 @@ controller:
   initContainerEnv:
     - name: JENKINS_UC_DOWNLOAD
       value: http://ftp-nyc.osuosl.org/pub/jenkins
-      
+  containerEnv:
+     - name: JENKINS_UC_DOWNLOAD
+       value: http://ftp-nyc.osuosl.org/pub/jenkins
+
   JCasC:
     enabled: false
     defaultConfig: false
