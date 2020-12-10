@@ -1,0 +1,8 @@
+node {
+    checkout scm
+    jobDsl targets: 'src/jobs/**/*.groovy',
+           removedJobAction: 'DELETE',
+           removedViewAction: 'DELETE',
+           lookupStrategy: 'SEED_JOB',
+           additionalClasspath: 'src/main/groovy'
+}

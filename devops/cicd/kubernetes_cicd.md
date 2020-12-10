@@ -781,3 +781,18 @@ job("$basePath/gradle-example-deploy") {
     }
 }
 ```
+
+It is possible to create Jobs by using a pipeline and `JenkinsFile`. For that it is necessary to trigger jobs using organizations folder or creating pipelines manually in Jenkins.
+
+`JenkinsFile`
+
+```groovy
+node {
+    checkout scm
+    jobDsl targets: 'src/jobs/**/*.groovy',
+           removedJobAction: 'DELETE',
+           removedViewAction: 'DELETE',
+           lookupStrategy: 'SEED_JOB',
+           additionalClasspath: 'src/main/groovy'
+}
+```
