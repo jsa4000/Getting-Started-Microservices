@@ -20,7 +20,7 @@
         <docker-prefix>spring-boot-</docker-prefix>
 		<jib-maven-plugin.version>1.2.0</jib-maven-plugin.version>
 		<openapi-jackson-nullable.version>0.2.0</openapi-jackson-nullable.version>
-		<openapi-generator-maven-plugin.version>4.1.2</openapi-generator-maven-plugin.version>
+		<openapi-generator-maven-plugin.version>5.1.0</openapi-generator-maven-plugin.version>
 		<spring-cloud-kubernetes.version>1.0.3.RELEASE</spring-cloud-kubernetes.version>
 		<maven-resources-plugin.version>3.1.0</maven-resources-plugin.version>
 		<springfox-swagger2.version>2.9.2</springfox-swagger2.version>
