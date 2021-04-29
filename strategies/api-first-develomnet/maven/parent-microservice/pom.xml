@@ -24,7 +24,7 @@
         <springfox-swagger2.version>2.9.2</springfox-swagger2.version>
         <properties-maven-plugin.version>1.0.0</properties-maven-plugin.version>
         <sonar-maven-plugin.version>3.6.0.1398</sonar-maven-plugin.version>
-        <openapi-generator-maven-plugin.version>3.3.4</openapi-generator-maven-plugin.version>
+        <openapi-generator-maven-plugin.version>5.1.0</openapi-generator-maven-plugin.version>
         <asciidoctor-maven-plugin.version>2.0.0-RC.1</asciidoctor-maven-plugin.version>
         <asciidoctorj-pdf.version>1.5.0-alpha.17</asciidoctorj-pdf.version>
         <asciidoctorj.version>2.0.0</asciidoctorj.version>
