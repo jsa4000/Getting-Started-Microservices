@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:zeebe="http://camunda.org/schema/zeebe/1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_1kob9kf" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Zeebe Modeler" exporterVersion="0.11.0">
+  <bpmn:process id="emergency-process" name="Emergecy Process" isExecutable="true">
+    <bpmn:startEvent id="StartEvent_1" name="Emergency Reported">
+      <bpmn:outgoing>SequenceFlow_1kfpnnj</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:serviceTask id="ServiceTask_0qrwam7" name="Classify Emergency">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="classify" retries="3" />
+        <zeebe:taskHeaders>
+          <zeebe:header />
+        </zeebe:taskHeaders>
+      </bpmn:extensionElements>
+      <bpmn:incoming>SequenceFlow_1kfpnnj</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_18oq9dv</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="SequenceFlow_1kfpnnj" sourceRef="StartEvent_1" targetRef="ServiceTask_0qrwam7" />
+    <bpmn:serviceTask id="ServiceTask_08kagb7" name="Coordinate With Hospital">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="hospital" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>SequenceFlow_113qjg3</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_0xo4771</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="EndEvent_1h8bdsf" name="Person in Hospital">
+      <bpmn:incoming>SequenceFlow_0xo4771</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="SequenceFlow_0xo4771" sourceRef="ServiceTask_08kagb7" targetRef="EndEvent_1h8bdsf" />
+    <bpmn:exclusiveGateway id="ExclusiveGateway_1qo9hai" default="Flow_1tanvhd">
+      <bpmn:incoming>Flow_1jy5m0v</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_113qjg3</bpmn:outgoing>
+      <bpmn:outgoing>SequenceFlow_0dlz63c</bpmn:outgoing>
+      <bpmn:outgoing>Flow_1tanvhd</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="SequenceFlow_18oq9dv" sourceRef="ServiceTask_0qrwam7" targetRef="Event_0q57l80" />
+    <bpmn:sequenceFlow id="SequenceFlow_113qjg3" name="injured person" sourceRef="ExclusiveGateway_1qo9hai" targetRef="ServiceTask_08kagb7">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">= emergencyType = "Injured"</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:serviceTask id="ServiceTask_0w2zgz6" name="Coordinate with  FireFightters">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="firefighters" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>SequenceFlow_0dlz63c</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_0nybe3i</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="SequenceFlow_0dlz63c" name="building on fire" sourceRef="ExclusiveGateway_1qo9hai" targetRef="ServiceTask_0w2zgz6">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">= emergencyType = "Fire"</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:endEvent id="EndEvent_1r97jjl" name="Fire is extinguished">
+      <bpmn:incoming>SequenceFlow_0nybe3i</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="SequenceFlow_0nybe3i" sourceRef="ServiceTask_0w2zgz6" targetRef="EndEvent_1r97jjl" />
+    <bpmn:endEvent id="Event_03i5hex" name="No Results">
+      <bpmn:incoming>Flow_1tanvhd</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_1tanvhd" sourceRef="ExclusiveGateway_1qo9hai" targetRef="Event_03i5hex" />
+    <bpmn:intermediateCatchEvent id="Event_0q57l80" name="Emergency Event">
+      <bpmn:incoming>SequenceFlow_18oq9dv</bpmn:incoming>
+      <bpmn:outgoing>Flow_1jy5m0v</bpmn:outgoing>
+      <bpmn:messageEventDefinition id="MessageEventDefinition_0imu6lg" messageRef="Message_0jvi0x6" />
+    </bpmn:intermediateCatchEvent>
+    <bpmn:sequenceFlow id="Flow_1jy5m0v" sourceRef="Event_0q57l80" targetRef="ExclusiveGateway_1qo9hai" />
+    <bpmn:textAnnotation id="TextAnnotation_1x51ztp">
+      <bpmn:text>Person In Hospital:       /classify/person
+Fire is extinguished:     /classify/fire
+Exception:                    /classify/retries
+No Results:                  /classify/reason</bpmn:text>
+    </bpmn:textAnnotation>
+    <bpmn:association id="Association_0xncajb" sourceRef="StartEvent_1" targetRef="TextAnnotation_1x51ztp" />
+  </bpmn:process>
+  <bpmn:message id="Message_0jvi0x6" name="emergency-received">
+    <bpmn:extensionElements>
+      <zeebe:subscription correlationKey="= emergencyReason" />
+    </bpmn:extensionElements>
+  </bpmn:message>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="emergency-process">
+      <bpmndi:BPMNEdge id="Flow_1tanvhd_di" bpmnElement="Flow_1tanvhd">
+        <di:waypoint x="628" y="196" />
+        <di:waypoint x="628" y="100" />
+        <di:waypoint x="905" y="100" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_0nybe3i_di" bpmnElement="SequenceFlow_0nybe3i">
+        <di:waypoint x="844" y="331" />
+        <di:waypoint x="905" y="331" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_0dlz63c_di" bpmnElement="SequenceFlow_0dlz63c">
+        <di:waypoint x="628" y="246" />
+        <di:waypoint x="628" y="331" />
+        <di:waypoint x="744" y="331" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="652" y="306" width="72" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_113qjg3_di" bpmnElement="SequenceFlow_113qjg3">
+        <di:waypoint x="653" y="221" />
+        <di:waypoint x="744" y="221" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="665" y="192" width="70" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_18oq9dv_di" bpmnElement="SequenceFlow_18oq9dv">
+        <di:waypoint x="445" y="221" />
+        <di:waypoint x="512" y="221" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_0xo4771_di" bpmnElement="SequenceFlow_0xo4771">
+        <di:waypoint x="844" y="221" />
+        <di:waypoint x="905" y="221" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_1kfpnnj_di" bpmnElement="SequenceFlow_1kfpnnj">
+        <di:waypoint x="295" y="221" />
+        <di:waypoint x="345" y="221" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1jy5m0v_di" bpmnElement="Flow_1jy5m0v">
+        <di:waypoint x="548" y="221" />
+        <di:waypoint x="603" y="221" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
+        <dc:Bounds x="259" y="203" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="249" y="246" width="56" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="ServiceTask_0qrwam7_di" bpmnElement="ServiceTask_0qrwam7">
+        <dc:Bounds x="345" y="181" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="TextAnnotation_1x51ztp_di" bpmnElement="TextAnnotation_1x51ztp">
+        <dc:Bounds x="150" y="40" width="295" height="68" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="ServiceTask_08kagb7_di" bpmnElement="ServiceTask_08kagb7">
+        <dc:Bounds x="744" y="181" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_1h8bdsf_di" bpmnElement="EndEvent_1h8bdsf">
+        <dc:Bounds x="905" y="203" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="878" y="246" width="90" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="ExclusiveGateway_1qo9hai_di" bpmnElement="ExclusiveGateway_1qo9hai" isMarkerVisible="true">
+        <dc:Bounds x="603" y="196" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="ServiceTask_0w2zgz6_di" bpmnElement="ServiceTask_0w2zgz6">
+        <dc:Bounds x="744" y="291" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_1r97jjl_di" bpmnElement="EndEvent_1r97jjl">
+        <dc:Bounds x="905" y="313" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="892" y="356" width="62" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_03i5hex_di" bpmnElement="Event_03i5hex">
+        <dc:Bounds x="905" y="82" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="896" y="125" width="54" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1l6q744_di" bpmnElement="Event_0q57l80">
+        <dc:Bounds x="512" y="203" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="487" y="246" width="87" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Association_0xncajb_di" bpmnElement="Association_0xncajb">
+        <di:waypoint x="270" y="205" />
+        <di:waypoint x="225" y="108" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

@@ -1,0 +1,40 @@
+version: '3.5'
+services:
+
+  mongo:
+    container_name: mongo
+    image: mongo:4.2.8
+    restart: always
+    hostname: mongo
+    environment:
+      TZ: UTC # UTC, Europe/Amsterdam, America/Lima
+      MONGO_INITDB_DATABASE: booking
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: password
+    ports:
+      - 27017:27017
+    volumes:
+      - ./files/mongo:/docker-entrypoint-initdb.d:ro
+    command: mongod --bind_ip_all --replSet rs0
+    networks:
+      - docker-internal
+
+  mongo-setup:
+    container_name: mongo-setup
+    image: mongo:4.2.8
+    restart: on-failure
+    environment:
+      #MONGO_REPLICASET_HOST: mongo # [localhost, mongo]
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: password
+    volumes:
+      - ./files/mongo-setup:/scripts
+    entrypoint: [ "/scripts/setup-single.sh" ]
+    networks:
+      - docker-internal
+    depends_on:
+      - mongo
+
+networks:
+  docker-internal:
+    name: docker-internal

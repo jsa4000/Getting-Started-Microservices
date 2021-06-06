@@ -1,0 +1,44 @@
+spring:
+  application:
+    name: booking-microservice
+  profiles:
+    active: local
+  data:
+    mongodb:
+      auto-index-creation: true
+      repositories.enabled: true
+
+server:
+  port: 8081
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: info,health
+
+zeebe:
+  client:
+    worker.defaultName: ${spring.application.name}
+    broker.gatewayAddress: 127.0.0.1:26500
+    security.plaintext: true
+    job.timeout: 5000
+
+logging:
+  level:
+    root: info
+    org.springframework: warn
+
+---
+spring:
+  profiles: local
+  data:
+    mongodb:
+      uri: mongodb://booking:password@localhost:27017/booking?replicaSet=rs0
+
+---
+spring:
+  profiles: docker
+  data:
+    mongodb:
+      uri: mongodb://booking:password@mongo:27017/booking?replicaSet=rs0
