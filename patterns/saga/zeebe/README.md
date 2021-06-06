@@ -42,7 +42,7 @@ Follownig are the main repositories that are going to be used.
 2. Setup Zeebe Helm repository
 
     ```bash
-    helm3 repo add zeebe https://helm.zeebe.io
+    helm3 repo add zeebe https://helm.camunda.io
     helm3 repo update
     ```
 
