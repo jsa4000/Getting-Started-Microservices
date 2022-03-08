@@ -17,7 +17,7 @@
 	<properties>
 		<openapi-generator-disabled>false</openapi-generator-disabled>
 		<asciidoctorj-disabled>false</asciidoctorj-disabled>
-		<liquibase.version>3.6.3</liquibase.version>
+		<liquibase.version>4.8.0</liquibase.version>
 		<postgresql.version>42.2.5</postgresql.version>
 		<swagger-ui.disabled>false</swagger-ui.disabled>
 
