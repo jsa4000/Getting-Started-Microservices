@@ -35,7 +35,7 @@
         <swagger-ui.disabled>true</swagger-ui.disabled>
 
         <opentracing.version>0.3.1</opentracing.version>
-        <spring.version>5.1.6.RELEASE</spring.version>
+        <spring.version>5.2.22.RELEASE</spring.version>
         <spring-boot.version>2.1.5.RELEASE</spring-boot.version>
         <validation-api.version>2.0.1.Final</validation-api.version>
         <liquibase-hibernate5.version>3.6</liquibase-hibernate5.version>
