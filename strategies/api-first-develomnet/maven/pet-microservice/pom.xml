@@ -18,7 +18,7 @@
 		<openapi-generator-disabled>false</openapi-generator-disabled>
 		<asciidoctorj-disabled>false</asciidoctorj-disabled>
 		<liquibase.version>3.6.3</liquibase.version>
-		<postgresql.version>42.2.5</postgresql.version>
+		<postgresql.version>42.4.1</postgresql.version>
 		<swagger-ui.disabled>false</swagger-ui.disabled>
 
 		<!--liquibase-url>jdbc:postgresql://dockerhost:5432/db</liquibase-url>
